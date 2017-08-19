@@ -1,0 +1,6 @@
+SELECT ?object WHERE {
+  {
+  ?subject <schema://oulipo/resourceId> <${resourceId}>;
+  <schema://oulipo/${fieldName}> ?object .
+  }  
+}

@@ -1,0 +1,5 @@
+SELECT * WHERE 
+{ 
+	values ?subject { <${resourceId}> }
+    <${resourceId}> ?predicate ?object . 
+}
