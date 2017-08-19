@@ -1,0 +1,316 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.oulipo</groupId>
+	<artifactId>project</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>project</name>
+	<inceptionYear>2017</inceptionYear>
+	<description>A Xanalogical System for the Creation of New Literature</description>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>sisbell</id>
+			<name>Shane Isbell</name>
+			<email>shane.isbell@gmail.com</email>
+			<roles>
+				<role>architect</role>
+				<role>lead developer</role>
+			</roles>
+			<timezone>-7</timezone>
+		</developer>
+	</developers>
+
+	<modules>
+		<module>oulipo-security</module>
+		<module>oulipo-streams</module>
+		<module>oulipo-storage</module>
+		<module>oulipo-resources</module>
+		<module>oulipo-client</module>
+		<module>oulipo-machine-browser</module>
+		<module>oulipo-machine-server</module>
+	</modules>
+
+	<properties>
+		<bitcoinj.version>0.14.4</bitcoinj.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<jena.version>3.4.0</jena.version>
+		<guava.version>22.0</guava.version>
+		<json.version>20160810</json.version>
+		<jackson.version>2.9.0</jackson.version>
+		<junit.version>4.12</junit.version>
+		<junit.jupiter.version>5.0.0-RC2</junit.jupiter.version>
+		<junit.vintage.version>${junit.version}.0-RC2</junit.vintage.version>
+		<junit.platform.version>1.0.0-RC2</junit.platform.version>
+		<leveldb.version>0.9</leveldb.version>
+		<mockito.version>1.9.5</mockito.version>
+		<protobuf.version>2.6.1</protobuf.version>
+		<spongycastle.version>1.51.0.0</spongycastle.version>
+		<andrewoma.dexx.version>0.7</andrewoma.dexx.version>
+		<retrofit.version>2.3.0</retrofit.version>
+		<okhttp.version>3.8.1</okhttp.version>
+		<jfoenix.version>1.1.0</jfoenix.version>
+		<fxmisc.richtext.version>0.7-M5</fxmisc.richtext.version>
+		<fuseki.version>2.6.0</fuseki.version>
+		<sparkjava.version>2.5.5</sparkjava.version>
+		<freemarker.version>2.3.26-incubating</freemarker.version>
+		<commons.cli.version>1.4</commons.cli.version>
+		<sl4j.version>1.7.20</sl4j.version>
+		<log4j.version>2.8.1</log4j.version>
+		<maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
+	</properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>${sl4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${sl4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		
+		<!-- Server -->
+		<dependency>
+			<groupId>com.sparkjava</groupId>
+			<artifactId>spark-core</artifactId>
+			<version>${sparkjava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>${freemarker.version}</version>
+		</dependency>
+
+		<!-- Command Line -->
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>${commons.cli.version}</version>
+		</dependency>
+		
+			<!-- RDF -->
+			<dependency>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-fuseki-embedded</artifactId>
+				<version>${fuseki.version}</version>
+			</dependency>
+
+			<!-- JavaFx Material Design Components -->
+			<dependency>
+				<groupId>com.jfoenix</groupId>
+				<artifactId>jfoenix</artifactId>
+				<version>${jfoenix.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.fxmisc.richtext</groupId>
+				<artifactId>richtextfx</artifactId>
+				<version>${fxmisc.richtext.version}</version>
+			</dependency>
+
+			<!-- Retrofit -->
+			<dependency>
+				<groupId>com.squareup.retrofit2</groupId>
+				<artifactId>retrofit</artifactId>
+				<version>${retrofit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.retrofit2</groupId>
+				<artifactId>converter-jackson</artifactId>
+				<version>${retrofit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>logging-interceptor</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.andrewoma.dexx</groupId>
+				<artifactId>collection</artifactId>
+				<version>${andrewoma.dexx.version}</version>
+			</dependency>
+
+			<!-- Bitcoin -->
+			<dependency>
+				<groupId>org.bitcoinj</groupId>
+				<artifactId>bitcoinj-core</artifactId>
+				<version>${bitcoinj.version}</version>
+			</dependency>
+
+			<!-- JSON -->
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+			</dependency>
+
+			<!-- Data Storage -->
+			<dependency>
+				<groupId>org.iq80.leveldb</groupId>
+				<artifactId>leveldb</artifactId>
+				<version>${leveldb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.iq80.leveldb</groupId>
+				<artifactId>leveldb-api</artifactId>
+				<version>${leveldb.version}</version>
+			</dependency>
+			<!-- Support Libraries -->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
+			<!-- JSON -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>${protobuf.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.madgag.spongycastle</groupId>
+				<artifactId>core</artifactId>
+				<version>${spongycastle.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-core</artifactId>
+				<version>${jena.version}</version>
+			</dependency>
+			<!-- Test Support -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+				<version>${junit.jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-runner</artifactId>
+				<version>${junit.platform.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Only required to run tests in an IDE that bundles an older version -->
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>${junit.platform.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- Only required to run tests in an IDE that bundles an older version -->
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${junit.jupiter.version}</version>
+			</dependency>
+			<!-- Only required to run tests in an IDE that bundles an older version -->
+			<dependency>
+				<groupId>org.junit.vintage</groupId>
+				<artifactId>junit-vintage-engine</artifactId>
+				<version>${junit.vintage.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<!-- Test Support -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-runner</artifactId>
+		</dependency>
+
+		<!-- Only required to run tests in an IDE that bundles an older version -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+		</dependency>
+		<!-- Only required to run tests in an IDE that bundles an older version -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+		</dependency>
+		<!-- Only required to run tests in an IDE that bundles an older version -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+		</dependency>
+	</dependencies>
+</project>
