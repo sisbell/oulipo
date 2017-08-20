@@ -66,13 +66,7 @@ public class TumblerServiceController implements Initializable {
 	private JFXTextArea jsonOutput;
 
 	@FXML
-	private JFXTextArea tuplesOutput;
-
-	@FXML
 	private JFXTextArea jsonPayload;
-
-	@FXML
-	private JFXTextArea tuplesPayload;
 
 	@FXML
 	private JFXTextField tedAddress;
@@ -138,11 +132,6 @@ public class TumblerServiceController implements Initializable {
 					public void run() {
 						try {
 							jsonOutput.setText(text);
-							if (response.body() instanceof List) {
-								tuplesOutput.setText(ThingToString.asStrings((List<Thing>) response.body()));
-							} else {
-								tuplesOutput.setText(ThingToString.asString((Thing) response.body()));
-							}
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -162,7 +151,6 @@ public class TumblerServiceController implements Initializable {
 
 	private void writeErrorMessage(String message) {
 		jsonOutput.setText(message);
-		tuplesOutput.setText(message);
 	}
 
 	@FXML

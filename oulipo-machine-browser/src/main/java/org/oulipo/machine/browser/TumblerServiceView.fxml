@@ -72,17 +72,6 @@
                            </padding></AnchorPane>
                      </content>
                   </Tab>
-                  <Tab text="Tuples Payload">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180" prefWidth="200">
-                           <children>
-                              <JFXTextArea fx:id="tuplesPayload" prefHeight="246.0" prefWidth="675">
-                                 <font>
-                                    <Font size="11.0" />
-                                 </font></JFXTextArea>
-                           </children></AnchorPane>
-                     </content>
-                  </Tab>
                   <Tab text="Form">
                      <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="76.0" prefWidth="624.0">
@@ -114,14 +103,6 @@
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
                               <JFXTextArea fx:id="jsonOutput" prefHeight="262.0" prefWidth="673.0" />
-                           </children></AnchorPane>
-                    </content>
-                  </Tab>
-                  <Tab text="Tuples">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <JFXTextArea fx:id="tuplesOutput" prefHeight="282.0" prefWidth="602.0" />
                            </children></AnchorPane>
                     </content>
                   </Tab>
