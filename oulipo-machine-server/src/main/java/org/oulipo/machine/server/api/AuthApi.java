@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.oulipo.machine.server.XanSessionManager;
-import org.oulipo.machine.utils.CodeGenerator;
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.JwtValidator;
 import org.oulipo.security.auth.TempToken;
@@ -30,6 +29,7 @@ import org.oulipo.security.auth.XanAuthAddressDto;
 import org.oulipo.security.auth.XanAuthRequestDto;
 import org.oulipo.security.auth.XanAuthResponseCodes;
 import org.oulipo.security.auth.XanAuthResponseDto;
+import org.oulipo.security.session.CodeGenerator;
 import org.oulipo.security.session.UserSession;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
