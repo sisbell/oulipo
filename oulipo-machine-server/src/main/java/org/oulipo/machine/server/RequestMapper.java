@@ -96,9 +96,8 @@ public final class RequestMapper {
 		String docId = request.params(":docId");
 		String elementId = request.params(":elementId");
 
-		return TumblerAddress.create(networkId + "." + nodeId + ".0." + userId
-				+ ".0." + userId + ".0." + docId + ".0." + elementId);
-
+		return new TumblerAddress.Builder("ted", networkId).node(nodeId).user(userId).document(docId).element(elementId)
+				.build();
 	}
 
 	public IRI readElement(Request request) {
@@ -107,7 +106,7 @@ public final class RequestMapper {
 		String userId = request.params(":userId");
 		String docId = request.params(":docId");
 		String elementId = request.params(":elementId");
-		return new IRI("ted://" + networkId + ".0." + nodeId + ".0." + userId
+		return new IRI("ted://" + networkId + "." +  nodeId + ".0." + userId
 				+ ".0." + docId + ".0." + elementId);
 	}
 
