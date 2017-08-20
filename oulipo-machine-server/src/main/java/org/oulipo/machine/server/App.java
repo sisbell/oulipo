@@ -60,92 +60,16 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 
 /**
- * -------------- 1) Get all from/to vspans of document (input: docId, output:
- * lists of vspans (to/from) (Filter based on type. Don't want all the
- * formatting initially) linkedVspans
- *
- * 314.1 is special link type for this operation. '12' means from/to part of
- * endset
- *
- * GET ted://1.0.1.0.1.0.1.1.1.0.314.1.12;linkTypes={tumbler_address},{address2}
- *
- * The above URL, says that a doc has vspans and we want to get the endset of a
- * particular type. The endset is a topological connection in this case. In the
- * future, the :docId/vspans will return ordered list of EDL vspans.
- *
- * You can think of this method as a virtual link. It does not explictly exist
- * in the docuverse
- *
- * At this point, for any vspan, we know whether it has a from/to link or both.
- *
- * Return EndSet ----------------
- *
- * 2) User selects a position (VSpan for (1) ) and then requests all links
- * 'from' that elementId/VSpan (for a home document) User could have made
- * similar request for 'to' had the user selected a 'to' link. If say there are
- * no 'to' links, the option will not display
- *
- * The elementId is a VSpan ~ part of the input request. homeDoc is the :docId
- *
- * so this request is a 3 link {{Vspan_To}, null, :type(s)} OR {null,
- * {Vspan_from}, :type(s)} with homeSet = {:docId}
- *
- * TODO: do we want filter for from/to/type
- *
- * :elementId must be a VSpan
- *
- * Get links {input vspan and link types)
- * ted://1.0.1.0.1.0.1.1.1.0.271.8;from={tumbler
- * };linkTypes={tumbler_address},{address2}
- *
- * GET /docuverse/:networkId/:nodeId/:userId
- * /:docId/271.8;from={tumbler};linkTypes={tumbler_address},{address2}
- *
- * 2.718
- *
- * GET /docuverse/:networkId/:nodeId/:userId/:docId/:elementId/vlinks/:link-type
- * /docuverse/:networkId/:nodeId/:userId/:docId/:elementId/vlinks/:link-type
- *
- * where to put from/to/3? return all? vlinks/from;to,{tumblerAddress};{another}
- *
- * GET /docuverse/:networkId/:nodeId/:userId/:docId/:elementId/attachedLinks?
- * vspanType=from
- *
- * vlinks is a topological concept
- *
- * RETURN: LinksId(s)
- *
- * 2a) User selects a linkId from list (2)
- *
- * 2b) A popup with from or to option. This is a bidirectional link. User
- * selects
- *
- * 3) Type selection: Get Three End of Link from (2) -this could reference
- * pre-defined link types for instance could be jump link. This type allows the
- * system to know how to respond to a user action (NOTE: May need to move this
- * behind 2a)
- *
- * GET /docuverse/:networkId/:nodeId/:userId/:docId/2.1.3
- *
- * We have link resource. We want to get types. Here endset is 'part-of' link,
- * not a topological connection
- *
- * 4) . System requests the 'to' (or 'from') vspans of that link from (2). Now
- * system has linked From and To
- *
- * GET /docuverse/:networkId/:nodeId/:userId/:docId/2.1.2
- *
- * We have link resource
- *
- * RETURN endset
- *
+ * Main app for running an OulipoServer
  */
-// database
-// server config
-// commands: run server, stop server keyGen, token (rest??)
-
 public class App {
 
+	/**
+	 * Runs an OulipoServer
+	 * 
+	 * @param databaseDir the database directory for RDF datasets
+	 * @throws IOException if there is an I/O Exception starting the server
+	 */
 	public static void run(String databaseDir) throws IOException {
 
 		(new File(databaseDir)).mkdirs();
