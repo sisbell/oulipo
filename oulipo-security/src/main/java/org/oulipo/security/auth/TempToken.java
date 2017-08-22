@@ -19,17 +19,37 @@ import java.util.Date;
 
 import org.oulipo.storage.Id;
 
-public class TempToken  {
+/**
+ * Temporary token that is generated when the user initiates an authentication
+ * flow. This token should be persisted upon creation. After being used to
+ * generate a session or after a period of time after creation, it can be
+ * deleted.
+ */
+public class TempToken {
 
 	@Id
-	public String id; 
-	
+	public String id;
+
+	/**
+	 * Date token created
+	 */
 	public Date created;
-	
+
+	/**
+	 * True if token has been used to generate a user session, otherwise false
+	 */
 	public Boolean isUsed;
-	
-	public TempToken() { }
-	
+
+	public TempToken() {
+	}
+
+	/**
+	 * Create a temporary token
+	 * 
+	 * @param id unique id of token
+	 * @param created the date token created
+	 * @param isUsed if token has been used to generate a session
+	 */
 	public TempToken(String id, Date created, Boolean isUsed) {
 		this.id = id;
 		this.created = created;

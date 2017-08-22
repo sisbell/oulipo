@@ -46,13 +46,15 @@ import org.oulipo.net.TumblerResourceException;
 import org.oulipo.resources.ResourceErrorCodes;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.responses.ErrorResponseDto;
+import org.oulipo.security.auth.AuthResource;
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.AuthorizationException;
-import org.oulipo.security.auth.XanAuthResponseCodes;
+import org.oulipo.security.auth.AuthResponseCodes;
 import org.oulipo.storage.StorageService;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.impl.DefaultStreamLoader;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
@@ -68,9 +70,10 @@ public class App {
 	 * Runs an OulipoServer
 	 * 
 	 * @param databaseDir the database directory for RDF datasets
+	 * @param host the domain name of this server
 	 * @throws IOException if there is an I/O Exception starting the server
 	 */
-	public static void run(String databaseDir) throws IOException {
+	public static void run(String databaseDir, String host) throws IOException {
 
 		(new File(databaseDir)).mkdirs();
 		Dataset ds = TDBFactory.createDataset(databaseDir);
@@ -87,6 +90,8 @@ public class App {
 		cfg.setLogTemplateExceptions(false);
 
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
 		RdfMapper thingMapper = new RdfMapper(cfg);
 		RequestMapper requestMapper = new RequestMapper(objectMapper);
 		RdfRepository thingRepo = new RdfRepository(thingMapper);
@@ -98,10 +103,12 @@ public class App {
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
 		StreamLoader streamLoader = new DefaultStreamLoader(new File("."), spec);
 
+		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
+		
 		post("/sparql", SparqlApi.query(objectMapper, thingMapper));
 
-		get("/auth", "application/json", AuthApi.temporyAuthToken(sessionManager), transformer);
-		post("/auth", AuthApi.getSessionToken(objectMapper, sessionManager), transformer);
+		get("/auth", "application/json", AuthApi.temporyAuthToken(authResource), transformer);
+		post("/auth", AuthApi.getSessionToken(authResource), transformer);
 
 		get("/docuverse/:networkId", "application/json", NetworkApi.getNetwork(requestMapper), transformer);
 
@@ -197,7 +204,7 @@ public class App {
 
 		exception(UnauthorizedException.class, (exception, request, response) -> {
 			TumblerResourceException e = (TumblerResourceException) exception;
-			ErrorResponseDto resp = new ErrorResponseDto(XanAuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(),
+			ErrorResponseDto resp = new ErrorResponseDto(AuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(),
 					e.getTumblerAddress());
 			try {
 				response.status(401);
@@ -220,7 +227,7 @@ public class App {
 
 		});
 		exception(AuthorizationException.class, (exception, request, response) -> {
-			ErrorResponseDto resp = new ErrorResponseDto(XanAuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(), null);
+			ErrorResponseDto resp = new ErrorResponseDto(AuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(), null);
 			try {
 				response.status(401);
 				response.type("application/json");
@@ -269,7 +276,7 @@ public class App {
 	}
 
 	public static void main(String[] args) throws IOException {
-		run("MyDatabases/Dataset14");
+		run("MyDatabases/Dataset14", "localhost:4567");
 	}
 
 }

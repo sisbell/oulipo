@@ -22,8 +22,10 @@ package org.oulipo.security.auth;
  * structure or as the plaintext of a JSON Web Encryption (JWE) structure,
  * enabling the claims to be digitally signed or integrity protected with a
  * Message Authentication Code (MAC) and/or encrypted.
+ * 
+ * @see https://jwt.io/introduction/
  */
-public final class XanAuthRequestDto {
+public final class JwtClaim {
 
 	/**
 	 * Issuer. Identifies the principal that issued the JWT

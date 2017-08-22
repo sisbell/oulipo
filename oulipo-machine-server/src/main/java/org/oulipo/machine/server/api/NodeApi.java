@@ -29,7 +29,7 @@ import org.oulipo.resources.model.Node;
 import org.oulipo.resources.responses.ErrorResponseDto;
 import org.oulipo.security.auth.AddressValidator;
 import org.oulipo.security.auth.AuthorizationException;
-import org.oulipo.security.auth.XanAuthResponseCodes;
+import org.oulipo.security.auth.AuthResponseCodes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -53,7 +53,7 @@ public final class NodeApi {
 
 			if(!AddressValidator.validateAddress(node.publicKey)) {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+						AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 						"Invalid public key: " + node.publicKey, nodeAddress);
 				return halt(400, (new ObjectMapper()).writeValueAsString(resp));
 			}
@@ -68,7 +68,7 @@ public final class NodeApi {
 				if (publicKeyOfParentNode != null
 						&& !node.publicKeyMatches(publicKeyOfParentNode)) {
 					throw new AuthorizationException(
-							XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+							AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 							"Incorrect public key for this node");
 				}
 			}

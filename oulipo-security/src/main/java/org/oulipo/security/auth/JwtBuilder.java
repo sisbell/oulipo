@@ -27,6 +27,9 @@ import org.bitcoinj.params.MainNetParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Builds JSON Web Token
+ */
 public final class JwtBuilder {
 
 	public static String buildRequest(ECKey mKey, XanAuthUri xanAuthUri)

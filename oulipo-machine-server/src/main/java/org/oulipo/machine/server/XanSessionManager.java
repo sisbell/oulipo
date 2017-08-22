@@ -20,6 +20,7 @@ import org.oulipo.machine.server.exceptions.UnauthorizedException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ResourceNotFoundException;
+import org.oulipo.resources.ThingRepository;
 import org.oulipo.resources.model.Document;
 import org.oulipo.resources.model.User;
 import org.oulipo.security.auth.AuthenticationException;
@@ -33,11 +34,11 @@ import spark.Request;
  */
 public final class XanSessionManager extends SessionManager {
 
-	private final RdfRepository thingRepo;
+	private final ThingRepository thingRepo;
 	
 	private final RequestMapper requestMapper;
 
-	public XanSessionManager(StorageService storage, RdfRepository thingRepo, RequestMapper requestMapper) {
+	public XanSessionManager(StorageService storage, ThingRepository thingRepo, RequestMapper requestMapper) {
 		super(storage);
 		this.thingRepo = thingRepo;
 		this.requestMapper = requestMapper;
@@ -77,7 +78,7 @@ public final class XanSessionManager extends SessionManager {
 		TumblerAddress userAddress = requestMapper.createUserAddress(request);
 		User user = thingRepo.findUser(userAddress);
 		if (!user.publicKeyMatches(request.headers("x-oulipo-user"))) {
-			throw new UnauthorizedException(null,
+			throw new UnauthorizedException(userAddress,
 					"User is not authorized to modify this resource");
 		}
 	}

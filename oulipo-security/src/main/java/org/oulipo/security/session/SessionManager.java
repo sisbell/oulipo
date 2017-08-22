@@ -19,7 +19,7 @@ import java.util.Date;
 
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.TempToken;
-import org.oulipo.security.auth.XanAuthResponseCodes;
+import org.oulipo.security.auth.AuthResponseCodes;
 import org.oulipo.storage.StorageException;
 import org.oulipo.storage.StorageService;
 
@@ -47,7 +47,7 @@ public class SessionManager {
 			throws AuthenticationException {
 		if (Strings.isNullOrEmpty(publicKey) || Strings.isNullOrEmpty(token)) {
 			throw new AuthenticationException(
-					XanAuthResponseCodes.INVALID_TOKEN,
+					AuthResponseCodes.INVALID_TOKEN,
 					"Please add authentication headers in request");
 		}
 
@@ -55,12 +55,12 @@ public class SessionManager {
 			UserSession session = findSession(token);
 			if (!session.userId.equals(publicKey)) {
 				throw new AuthenticationException(
-						XanAuthResponseCodes.INVALID_TOKEN, "Invalid token");
+						AuthResponseCodes.INVALID_TOKEN, "Invalid token");
 			}
 		} catch (StorageException e) {
 			e.printStackTrace();
 			throw new AuthenticationException(
-					XanAuthResponseCodes.INVALID_ADDRESS,
+					AuthResponseCodes.INVALID_ADDRESS,
 					"Session token not found: " + e.getMessage());
 		}
 	}

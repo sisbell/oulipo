@@ -17,11 +17,20 @@ package org.oulipo.security.auth;
 
 import java.util.regex.Pattern;
 
-public class AddressValidator {
+/**
+ * Validates if user address or public key is of valid format
+ */
+public final class AddressValidator {
 
-	private static Pattern addressPattern = Pattern
+	private static final Pattern addressPattern = Pattern
 			.compile("^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$");
 
+	/**
+	 * Returns true if the address if valid, otherwise returns false.
+	 * 
+	 * @param address the address or public key to validate
+	 * @return true if the address if valid, otherwise returns false.
+	 */
 	public static boolean validateAddress(String address) {
 		return addressPattern.matcher(address).matches();
 	}

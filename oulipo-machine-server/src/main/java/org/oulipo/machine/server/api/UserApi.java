@@ -30,7 +30,7 @@ import org.oulipo.resources.model.User;
 import org.oulipo.resources.responses.ErrorResponseDto;
 import org.oulipo.security.auth.AddressValidator;
 import org.oulipo.security.auth.AuthorizationException;
-import org.oulipo.security.auth.XanAuthResponseCodes;
+import org.oulipo.security.auth.AuthResponseCodes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -64,7 +64,7 @@ public class UserApi {
 
 			if (!node.publicKeyMatches(request.headers("x-oulipo-user"))) {
 				throw new AuthorizationException(
-						XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+						AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 						"Incorrect public key for creating new user");
 			}
 
@@ -76,14 +76,14 @@ public class UserApi {
 
 			if (!account.hasPublicKey()) {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+						AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 						"Must add publicKey for user", userAddress);
 				return halt(400, objectMapper.writeValueAsString(resp));
 			}
 
 			if(!AddressValidator.validateAddress(account.publicKey)) {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+						AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 						"Invalid public key: " + account.publicKey, userAddress);
 				return halt(400, objectMapper.writeValueAsString(resp));
 			}
@@ -98,7 +98,7 @@ public class UserApi {
 					if (!current.publicKeyMatches(account.publicKey)
 							|| !current.resourceId.equals(account.resourceId)) {
 						ErrorResponseDto resp = new ErrorResponseDto(
-								XanAuthResponseCodes.INCORRECT_PUBLIC_KEY,
+								AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 								"Xandle in use : " + account.xandle + " @ "
 										+ current.resourceId.value, userAddress);
 						return halt(400, objectMapper.writeValueAsString(resp));

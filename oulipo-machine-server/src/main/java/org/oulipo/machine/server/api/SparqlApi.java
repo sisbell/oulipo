@@ -22,7 +22,7 @@ import java.io.InputStream;
 import org.apache.jena.sparql.resultset.ResultsFormat;
 import org.oulipo.machine.server.RdfMapper;
 import org.oulipo.resources.responses.ErrorResponseDto;
-import org.oulipo.security.auth.XanAuthResponseCodes;
+import org.oulipo.security.auth.AuthResponseCodes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
@@ -40,14 +40,14 @@ public class SparqlApi {
 
 			if (Strings.isNullOrEmpty(fmt)) {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.UNKNOWN_ERROR,
+						AuthResponseCodes.UNKNOWN_ERROR,
 						"Missing fmt param: ", null);
 				return halt(400, mapper.writeValueAsString(resp));
 			}
 
 			if (Strings.isNullOrEmpty(verb)) {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.UNKNOWN_ERROR,
+						AuthResponseCodes.UNKNOWN_ERROR,
 						"Missing verb param: ", null);
 				return halt(400, mapper.writeValueAsString(resp));
 			}
@@ -63,7 +63,7 @@ public class SparqlApi {
 							return repo.getQueryEngine().json(query);
 						} catch (Exception e) {
 							ErrorResponseDto resp = new ErrorResponseDto(
-									XanAuthResponseCodes.UNKNOWN_ERROR,
+									AuthResponseCodes.UNKNOWN_ERROR,
 									"Query Failed: " + e.getMessage(), null);
 							e.printStackTrace();
 							return halt(400, mapper.writeValueAsString(resp));
@@ -74,7 +74,7 @@ public class SparqlApi {
 						} catch (Exception e) {
 							e.printStackTrace();
 							ErrorResponseDto resp = new ErrorResponseDto(
-									XanAuthResponseCodes.UNKNOWN_ERROR,
+									AuthResponseCodes.UNKNOWN_ERROR,
 									"Unsupported format: " + fmt, null);
 							return halt(400, mapper.writeValueAsString(resp));
 						}
@@ -94,7 +94,7 @@ public class SparqlApi {
 				} catch (Exception e) {
 					e.printStackTrace();
 					ErrorResponseDto resp = new ErrorResponseDto(
-							XanAuthResponseCodes.UNKNOWN_ERROR, "Error: "
+							AuthResponseCodes.UNKNOWN_ERROR, "Error: "
 									+ e.getMessage(), null);
 					return halt(400, mapper.writeValueAsString(resp));
 				}
@@ -107,7 +107,7 @@ public class SparqlApi {
 					} catch (Exception e) {
 						e.printStackTrace();
 						ErrorResponseDto resp = new ErrorResponseDto(
-								XanAuthResponseCodes.UNKNOWN_ERROR,
+								AuthResponseCodes.UNKNOWN_ERROR,
 								"Delete failed", null);
 						return halt(400, mapper.writeValueAsString(resp));
 					}
@@ -116,7 +116,7 @@ public class SparqlApi {
 				return "{}";
 			} else {
 				ErrorResponseDto resp = new ErrorResponseDto(
-						XanAuthResponseCodes.UNKNOWN_ERROR, "Unknown verb: "
+						AuthResponseCodes.UNKNOWN_ERROR, "Unknown verb: "
 								+ verb, null);
 				return halt(400, mapper.writeValueAsString(resp));
 			}

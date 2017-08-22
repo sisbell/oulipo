@@ -20,28 +20,34 @@ import java.security.SignatureException;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.params.MainNetParams;
 
+/**
+ * Validates a JSON Web Token
+ */
 public final class JwtValidator {
 
 	/**
 	 * Verify message was signed with a private key that matches publicKey
 	 * 
+	 * The signature is the signed message, where the message includes the publicKey
+	 * 
+	 * @param publicKey the publicKey of the public/private key pair used for signing
+	 * @param message the payload
+	 * @param signature the signature portion of a JWT
 	 * @return
+	 * @throws AuthenticationException
+	 *             if publicKey doesn't match signed message
 	 */
-	public static XanAuthResponseDto verifyMessage(String publicKey,
-			String message, String signature) throws AuthenticationException {
+	public static SessionResponse verifyMessage(String publicKey, String message, String signature)
+			throws AuthenticationException {
 		try {
-			if (!publicKey.equals(ECKey.signedMessageToKey(message, signature)
-					.toAddress(MainNetParams.get()).toString())) {
-				throw new AuthenticationException(
-						XanAuthResponseCodes.INVALID_ADDRESS,
-						"Signature is incorrect");
+			if (!publicKey
+					.equals(ECKey.signedMessageToKey(message, signature).toAddress(MainNetParams.get()).toString())) {
+				throw new AuthenticationException(AuthResponseCodes.INVALID_ADDRESS, "Signature is incorrect");
 			}
 		} catch (SignatureException e) {
-			throw new AuthenticationException(
-					XanAuthResponseCodes.INVALID_SIGNATURE,
-					e.getMessage());
+			throw new AuthenticationException(AuthResponseCodes.INVALID_SIGNATURE, e.getMessage());
 		}
-		XanAuthResponseDto response = new XanAuthResponseDto();
+		SessionResponse response = new SessionResponse();
 		response.expiresIn = -1;
 		response.publicKey = publicKey;
 		response.isAuthorized = true;

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.security.auth;
 
-public final class XanAuthResponseCodes {
+public final class AuthResponseCodes {
 
     public static final int OK = 0;
 
@@ -23,21 +23,19 @@ public final class XanAuthResponseCodes {
 
     public static final int TOKEN_EXPIRED = 102;
 
-    public static final int INVALID_SIGNATURE = 103;//
+    public static final int INVALID_SIGNATURE = 103;
 
-    public static final int INVALID_ADDRESS = 104;//
-
-    public static final int CALLBACK_DOES_NOT_EXIST = 105;
+    public static final int INVALID_ADDRESS = 104;
     
-    public static final int INCORRECT_PUBLIC_KEY = 106;
+    public static final int INCORRECT_PUBLIC_KEY = 105;
     
-    public static final int NOT_AUTHORIZED = 107;
+    public static final int NOT_AUTHORIZED = 106;
 
-    public static final int UNKNOWN_ERROR = 199;//
+    public static final int UNKNOWN_ERROR = 199;
     
     private final int code;
     
-    public XanAuthResponseCodes(int code) {
+    public AuthResponseCodes(int code) {
     	this.code = code;
     }
 
