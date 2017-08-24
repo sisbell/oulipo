@@ -49,7 +49,7 @@ public final class RangeTumblerMatcher implements TumblerMatcher {
 		return new RangeTumblerMatcher(elementDataItems);
 	}
 
-	private RangeTumblerMatcher(Set<TumblerAddress> ispansToMatch) {
+	RangeTumblerMatcher(Set<TumblerAddress> ispansToMatch) {
 		this.ispansToMatch = ispansToMatch;
 	}
 
@@ -64,7 +64,7 @@ public final class RangeTumblerMatcher implements TumblerMatcher {
 		for (TumblerAddress t : ispansToMatch) {
 			// match overlap/range - any match return true
 			int beginPos = address.spanStart();
-			int endPos = beginPos + address.spanWidth();
+			int endPos = beginPos + address.spanWidth() -1 ;
 			int startV = t.spanStart();
 			int widthV = t.spanWidth();
 

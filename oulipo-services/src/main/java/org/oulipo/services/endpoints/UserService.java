@@ -29,6 +29,7 @@ import org.oulipo.resources.model.User;
 import org.oulipo.security.auth.AddressValidator;
 import org.oulipo.security.auth.AuthResponseCodes;
 import org.oulipo.security.auth.AuthorizationException;
+import org.oulipo.security.auth.UnauthorizedException;
 import org.oulipo.services.OulipoRequest;
 
 public class UserService {
@@ -61,7 +62,7 @@ public class UserService {
 						+ ", User = " + oulipoRequest.getUserId());
 
 		if (!node.allowUserToCreateAccount) {
-			// throw new UnauthorizedException();
+			//throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed to create account");
 		}
 
 		if (!node.publicKeyMatches(oulipoRequest.getPublicKey())) {
