@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -18,8 +18,8 @@ package org.oulipo.resources.model;
 import java.util.List;
 
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.rdf.annotations.ObjectTumbler;
-import org.oulipo.resources.rdf.annotations.Predicate;
+import org.oulipo.rdf.annotations.ObjectTumbler;
+import org.oulipo.rdf.annotations.Predicate;
 import org.oulipo.streams.VirtualContent;
 
 public class Virtual extends Thing {

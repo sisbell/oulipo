@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -20,12 +20,11 @@ import java.util.Optional;
 
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.Schema;
-import org.oulipo.resources.rdf.annotations.ObjectBoolean;
-import org.oulipo.resources.rdf.annotations.ObjectString;
-import org.oulipo.resources.rdf.annotations.ObjectTumbler;
-import org.oulipo.resources.rdf.annotations.Predicate;
-import org.oulipo.resources.rdf.annotations.Subject;
+import org.oulipo.rdf.annotations.ObjectBoolean;
+import org.oulipo.rdf.annotations.ObjectString;
+import org.oulipo.rdf.annotations.ObjectTumbler;
+import org.oulipo.rdf.annotations.Predicate;
+import org.oulipo.rdf.annotations.Subject;
 import org.oulipo.resources.utils.Add;
 
 import com.google.common.base.Strings;
@@ -33,25 +32,19 @@ import com.google.common.base.Strings;
 @Subject(value = Schema.NODE, key = "resourceId")
 public final class Node extends Thing {
 
-	@Predicate("publicKey")
-	@ObjectString
-	public String publicKey;
-
-	@Predicate("allowUserToCreateAccount")
-	@ObjectBoolean
-	public boolean allowUserToCreateAccount;
+	public static TumblerAddress parentNodeOf(TumblerAddress address)
+			throws MalformedTumblerException {
+		if (address == null) {
+			throw new MalformedTumblerException("address is null");
+		}
+		return new TumblerAddress.Builder("ted", address.getNetwork()
+				.asString()).node(String.valueOf(address.getNode().get(0)))
+				.build();
+	}
 
 	@Predicate("account")
 	@ObjectTumbler
 	public TumblerAddress[] accounts;
-
-	@Predicate("nodeName")
-	@ObjectString
-	public String nodeName;
-
-	@Predicate("organizationName")
-	@ObjectString
-	public String organizationName;
 
 	@Predicate("addressCountry")
 	@ObjectString
@@ -65,29 +58,45 @@ public final class Node extends Thing {
 	@ObjectString
 	public String addressRegion;
 
-	@Predicate("postOfficeBoxNumber")
+	@Predicate("allowUserToCreateAccount")
+	@ObjectBoolean
+	public boolean allowUserToCreateAccount;
+
+	@Predicate("email")
 	@ObjectString
-	public String postOfficeBoxNumber;
+	public String email;
+
+	@Predicate("nodeName")
+	@ObjectString
+	public String nodeName;
+
+	@Predicate("organizationName")
+	@ObjectString
+	public String organizationName;
 
 	@Predicate("postalCode")
 	@ObjectString
 	public String postalCode;
 
+	@Predicate("postOfficeBoxNumber")
+	@ObjectString
+	public String postOfficeBoxNumber;
+
+	@Predicate("publicKey")
+	@ObjectString
+	public String publicKey;
+
 	@Predicate("streetAddress")
 	@ObjectString
 	public String streetAddress;
-
+	
 	@Predicate("telephone")
 	@ObjectString
 	public String telephone;
-
-	@Predicate("email")
-	@ObjectString
-	public String email;
 	
+
 	public Node() {
 	}
-	
 
 	public Node(String tumbler) throws MalformedTumblerException {
 		super(TumblerAddress.create("ted://" + tumbler));
@@ -117,22 +126,12 @@ public final class Node extends Thing {
 		TumblerAddress address = parentNodeOf((TumblerAddress) resourceId);
 		return address == null ? Optional.empty() : Optional.of(address);
 	}
-
+	
 	public boolean publicKeyMatches(String publicKey) {
 		if (Strings.isNullOrEmpty(publicKey)) {
 			return false;
 		}
 		return publicKey.equals(this.publicKey);
-	}
-	
-	public static TumblerAddress parentNodeOf(TumblerAddress address)
-			throws MalformedTumblerException {
-		if (address == null) {
-			throw new MalformedTumblerException("address is null");
-		}
-		return new TumblerAddress.Builder("ted", address.getNetwork()
-				.asString()).node(String.valueOf(address.getNode().get(0)))
-				.build();
 	}
 
 }

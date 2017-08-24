@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -25,15 +25,19 @@ import com.google.common.collect.ObjectArrays;
  */
 public class Add {
 
-	public static <T> T[] one(T[] array, T object) {
-		if (array == null && object != null) {			
-			T[] o = (T[]) Array.newInstance(object.getClass(), 1);
-			o[0] = object;
-			return o;
-		} else if(array!= null && object == null) {
+	@SuppressWarnings("unchecked")
+	public static <T> T[] both(T[] array, Collection<T> object, Class<T> type) {
+
+		if (array == null && object != null) {
+			T[] o = (T[]) Array.newInstance(type, object.size());
+			return object.toArray(o);
+		} else if (array != null && object == null) {
 			return array;
+		} else if (array == null && object == null) {
+			return null;
 		}
-		return ObjectArrays.concat(array, object);
+		return ObjectArrays.concat(array, object.toArray(array),
+				(Class<T>) object.getClass());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -50,26 +54,22 @@ public class Add {
 		return concat;
 	}
 
+	public static <T> T[] one(T[] array, T object) {
+		if (array == null && object != null) {			
+			T[] o = (T[]) Array.newInstance(object.getClass(), 1);
+			o[0] = object;
+			return o;
+		} else if(array!= null && object == null) {
+			return array;
+		}
+		return ObjectArrays.concat(array, object);
+	}
+	
 	public static <T> T[] toArray(Collection<T> object, Class<T> type) {
 		if(object == null) {
 			return null;
 		}
 		T[] o = (T[]) Array.newInstance(type, object.size());
 		return object.toArray(o);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static <T> T[] both(T[] array, Collection<T> object, Class<T> type) {
-
-		if (array == null && object != null) {
-			T[] o = (T[]) Array.newInstance(type, object.size());
-			return object.toArray(o);
-		} else if (array != null && object == null) {
-			return array;
-		} else if (array == null && object == null) {
-			return null;
-		}
-		return ObjectArrays.concat(array, object.toArray(array),
-				(Class<T>) object.getClass());
 	}
 }

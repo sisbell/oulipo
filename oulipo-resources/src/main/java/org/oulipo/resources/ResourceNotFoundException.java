@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -27,9 +27,8 @@ public class ResourceNotFoundException extends TumblerResourceException {
 	
 	private int code;
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
-			String message, Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code) {
+		super(tumblerAddress);
 		this.code = code;
 	}
 
@@ -40,13 +39,14 @@ public class ResourceNotFoundException extends TumblerResourceException {
 	}
 
 	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
-			Throwable cause) {
-		super(tumblerAddress, cause);
+			String message, Throwable cause) {
+		super(tumblerAddress, message, cause);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code) {
-		super(tumblerAddress);
+	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
+			Throwable cause) {
+		super(tumblerAddress, cause);
 		this.code = code;
 	}
 

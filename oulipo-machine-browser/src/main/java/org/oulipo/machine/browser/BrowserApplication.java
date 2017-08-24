@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.oulipo.machine.browser;
 
+import com.jfoenix.controls.JFXDecorator;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import com.jfoenix.controls.JFXDecorator;
 
 public class BrowserApplication extends Application  {
 

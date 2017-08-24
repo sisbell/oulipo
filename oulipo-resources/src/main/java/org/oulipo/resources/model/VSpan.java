@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -21,11 +21,10 @@ import java.util.Set;
 import org.oulipo.net.IRI;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.Schema;
-import org.oulipo.resources.rdf.annotations.ObjectNonNegativeInteger;
-import org.oulipo.resources.rdf.annotations.ObjectTumbler;
-import org.oulipo.resources.rdf.annotations.Predicate;
-import org.oulipo.resources.rdf.annotations.Subject;
+import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
+import org.oulipo.rdf.annotations.ObjectTumbler;
+import org.oulipo.rdf.annotations.Predicate;
+import org.oulipo.rdf.annotations.Subject;
 import org.oulipo.resources.utils.Add;
 
 import com.google.common.collect.ImmutableSet;
@@ -36,14 +35,6 @@ import com.google.common.collect.Sets;
 @Subject(value = Schema.VSPAN, key = "resourceId")
 public class VSpan extends Thing {
 
-	@Predicate("start")
-	@ObjectNonNegativeInteger
-	public int start;
-
-	@Predicate("width")
-	@ObjectNonNegativeInteger
-	public int width;
-
 	@Predicate("document")
 	@ObjectTumbler
 	public TumblerAddress document;
@@ -52,45 +43,17 @@ public class VSpan extends Thing {
 	@ObjectTumbler
 	public TumblerAddress[] fromLinks;
 
+	@Predicate("start")
+	@ObjectNonNegativeInteger
+	public int start;
+
 	@Predicate("toLink")
 	@ObjectTumbler
 	public TumblerAddress[] toLinks;
 
-	public boolean removeFromLink(IRI link) throws MalformedTumblerException {
-		if (fromLinks != null) {
-			TumblerAddress lta = TumblerAddress.create(link.value);
-			Set<TumblerAddress> links = Sets.newHashSet(fromLinks);
-			if (links.remove(lta)) {
-				fromLinks = links.toArray(new TumblerAddress[links.size()]);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean removeToLink(IRI link) throws MalformedTumblerException {
-		if (toLinks != null) {
-			TumblerAddress lta = TumblerAddress.create(link.value);
-			Set<TumblerAddress> links = Sets.newHashSet(toLinks);
-			if (links.remove(lta)) {
-				toLinks = links.toArray(new TumblerAddress[links.size()]);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void removeDuplicateLinks() {
-		if (fromLinks != null) {
-			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(
-					new TumblerAddress[0]);
-		}
-
-		if (toLinks != null) {
-			toLinks = ImmutableSet.copyOf(toLinks).toArray(
-					new TumblerAddress[0]);
-		}
-	}
+	@Predicate("width")
+	@ObjectNonNegativeInteger
+	public int width;
 
 	public void addFromLink(Collection<TumblerAddress> link) {
 		fromLinks = Add.both(fromLinks, link, TumblerAddress.class);
@@ -114,5 +77,41 @@ public class VSpan extends Thing {
 
 	public void addToLink(TumblerAddress[] link) {
 		toLinks = Add.both(toLinks, link, TumblerAddress.class);
+	}
+
+	public void removeDuplicateLinks() {
+		if (fromLinks != null) {
+			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(
+					new TumblerAddress[0]);
+		}
+
+		if (toLinks != null) {
+			toLinks = ImmutableSet.copyOf(toLinks).toArray(
+					new TumblerAddress[0]);
+		}
+	}
+
+	public boolean removeFromLink(IRI link) throws MalformedTumblerException {
+		if (fromLinks != null) {
+			TumblerAddress lta = TumblerAddress.create(link.value);
+			Set<TumblerAddress> links = Sets.newHashSet(fromLinks);
+			if (links.remove(lta)) {
+				fromLinks = links.toArray(new TumblerAddress[links.size()]);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean removeToLink(IRI link) throws MalformedTumblerException {
+		if (toLinks != null) {
+			TumblerAddress lta = TumblerAddress.create(link.value);
+			Set<TumblerAddress> links = Sets.newHashSet(toLinks);
+			if (links.remove(lta)) {
+				toLinks = links.toArray(new TumblerAddress[links.size()]);
+				return true;
+			}
+		}
+		return false;
 	}
 }

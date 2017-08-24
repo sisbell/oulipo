@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -29,8 +29,15 @@ import org.oulipo.resources.model.Node;
 import org.oulipo.resources.model.Thing;
 import org.oulipo.resources.model.User;
 
+/**
+ * Service for finding and updating Things.
+ */
 public interface ThingRepository {
-
+	
+	public enum SpanSource {
+		DOCUMENT, FROM_LINK, TO_LINK
+	}
+	
 	void add(Thing... thing);
 
 	void addInvariantSpans(InvariantLink link, IRI[] ispans, SpanSource source)
@@ -38,15 +45,19 @@ public interface ThingRepository {
 
 	Document findDocument(TumblerAddress address) throws ResourceNotFoundException;
 
+	Document findDocument(TumblerAddress address, String message) throws ResourceNotFoundException;
+
 	Optional<Document> findDocumentOpt(TumblerAddress address);
 
-	Document findDocument(TumblerAddress address, String message) throws ResourceNotFoundException;
+	Collection<Thing> findEndsetsOfDoc(TumblerAddress docId) throws Exception;
 
 	Optional<InvariantLink> findInvariantLink(TumblerAddress tumbler);
 
+	InvariantLink findInvariantLink(TumblerAddress address, String message) throws ResourceNotFoundException;
+
 	Optional<InvariantLink> findInvariantLinkOpt(TumblerAddress address) throws ResourceNotFoundException;
 
-	InvariantLink findInvariantLink(TumblerAddress address, String message) throws ResourceNotFoundException;
+	InvariantSpan findInvariantSpan(TumblerAddress tumbler) throws ResourceNotFoundException;
 
 	Node findNode(TumblerAddress address) throws ResourceNotFoundException;
 
@@ -58,22 +69,21 @@ public interface ThingRepository {
 
 	Optional<User> findUserByXandle(int network, String xandle) throws Exception;
 
-	InvariantSpan findInvariantSpan(TumblerAddress tumbler) throws ResourceNotFoundException;
-
 	Collection<Thing> getAllDocuments(int network, Map<String, String> queryParams);
-
-	Collection<Thing> getAllUsers(int network, Map<String, String> queryParams);
-
-	void update(Thing thing);
-
-	Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams);
-
-	void removeInvariantSpansOfLink(InvariantLink link);
 
 	Collection<Thing> getAllInvariantLinks(int network, Map<String, String> queryParams);
 
-	Collection<Thing> findEndsetsOfDoc(TumblerAddress docId) throws Exception;
-
 	Collection<Thing> getAllNodes(int network, Map<String, String> params);
+
+	Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams);
+	
+	Collection<Thing> getAllUsers(int network, Map<String, String> queryParams);
+	
+	String getPublicKeyOfNode(TumblerAddress node) throws Exception;
+	
+	void removeInvariantSpansOfLink(InvariantLink link);
+	
+	void update(Thing thing);
+
 
 }

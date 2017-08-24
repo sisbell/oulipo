@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -21,14 +21,13 @@ import org.oulipo.net.IRI;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.net.TumblerField;
-import org.oulipo.resources.Schema;
-import org.oulipo.resources.rdf.annotations.ObjectBoolean;
-import org.oulipo.resources.rdf.annotations.ObjectIRI;
-import org.oulipo.resources.rdf.annotations.ObjectNonNegativeInteger;
-import org.oulipo.resources.rdf.annotations.ObjectString;
-import org.oulipo.resources.rdf.annotations.ObjectTumbler;
-import org.oulipo.resources.rdf.annotations.Predicate;
-import org.oulipo.resources.rdf.annotations.Subject;
+import org.oulipo.rdf.annotations.ObjectBoolean;
+import org.oulipo.rdf.annotations.ObjectIRI;
+import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
+import org.oulipo.rdf.annotations.ObjectString;
+import org.oulipo.rdf.annotations.ObjectTumbler;
+import org.oulipo.rdf.annotations.Predicate;
+import org.oulipo.rdf.annotations.Subject;
 import org.oulipo.resources.utils.Add;
 
 import com.google.common.collect.ImmutableSet;
@@ -39,6 +38,10 @@ import com.google.common.collect.ImmutableSet;
 @Subject(value = Schema.DOCUMENT, key = "resourceId")
 public class Document extends Thing {
 
+	@Predicate("description")
+	@ObjectString
+	public String description;
+
 	@Predicate("isPublic")
 	@ObjectBoolean
 	public Boolean isPublic;
@@ -47,28 +50,6 @@ public class Document extends Thing {
 	@ObjectTumbler
 	public TumblerAddress[] links;// links can be from previous versions (allows
 									// reuse)
-
-	@Predicate("title")
-	@ObjectString
-	public String title;
-
-	@Predicate("description")
-	@ObjectString
-	public String description;
-
-	/**
-	 * This will be set by the system. Do not use in request
-	 */
-	@Predicate("account")
-	@ObjectIRI
-	public IRI user;
-
-	/**
-	 * This will be set by the system. Do not use in request
-	 */
-	@Predicate("revision")
-	@ObjectNonNegativeInteger
-	public int revision;
 
 	/**
 	 * This will be set by the system. Do not use in request
@@ -84,9 +65,51 @@ public class Document extends Thing {
 	@ObjectNonNegativeInteger
 	public int minorVersion;
 
+	/**
+	 * This will be set by the system. Do not use in request
+	 */
+	@Predicate("revision")
+	@ObjectNonNegativeInteger
+	public int revision;
+
+	@Predicate("title")
+	@ObjectString
+	public String title;
+
+	/**
+	 * This will be set by the system. Do not use in request
+	 */
+	@Predicate("account")
+	@ObjectIRI
+	public IRI user;
+
 	@Predicate("containsVSpan")
 	@ObjectIRI
 	public TumblerAddress[] vspans;
+
+	public void addLink(Collection<TumblerAddress> link) {
+		links = Add.both(links, link, TumblerAddress.class);
+	}
+
+	public void addLink(TumblerAddress link) {
+		links = Add.one(links, link);
+	}
+
+	public void addLink(TumblerAddress[] link) {
+		links = Add.both(links, link, TumblerAddress.class);
+	}
+
+	public void addVSpan(Collection<TumblerAddress> vspan) {
+		vspans = Add.both(vspans, vspan, TumblerAddress.class);
+	}
+
+	public void addVSpan(TumblerAddress vspan) {
+		vspans = Add.one(vspans, vspan);
+	}
+
+	public void addVSpan(TumblerAddress[] vspan) {
+		vspans = Add.both(vspans, vspan, TumblerAddress.class);
+	}
 
 	public Document newVersion() throws MalformedTumblerException {
 		TumblerAddress address = TumblerAddress.create(resourceId.value);
@@ -113,39 +136,15 @@ public class Document extends Thing {
 		return document;
 	}
 
-	public void addLink(Collection<TumblerAddress> link) {
-		links = Add.both(links, link, TumblerAddress.class);
-	}
-
-	public void addLink(TumblerAddress link) {
-		links = Add.one(links, link);
-	}
-
-	public void addLink(TumblerAddress[] link) {
-		links = Add.both(links, link, TumblerAddress.class);
-	}
-
-	public void addVSpan(Collection<TumblerAddress> vspan) {
-		vspans = Add.both(vspans, vspan, TumblerAddress.class);
-	}
-
-	public void addVSpan(TumblerAddress vspan) {
-		vspans = Add.one(vspans, vspan);
-	}
-
-	public void addVSpan(TumblerAddress[] vspan) {
-		vspans = Add.both(vspans, vspan, TumblerAddress.class);
+	public void removeDuplicateLinks() {
+		if (links != null) {
+			links = ImmutableSet.copyOf(links).toArray(new TumblerAddress[0]);
+		}
 	}
 
 	public void removeDuplicates() {
 		removeDuplicateLinks();
 		removeDuplicateVSpans();
-	}
-
-	public void removeDuplicateLinks() {
-		if (links != null) {
-			links = ImmutableSet.copyOf(links).toArray(new TumblerAddress[0]);
-		}
 	}
 
 	public void removeDuplicateVSpans() {

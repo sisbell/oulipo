@@ -24,8 +24,8 @@ import org.oulipo.resources.model.Node;
 import org.oulipo.resources.model.User;
 import org.oulipo.resources.model.VSpan;
 import org.oulipo.resources.model.Virtual;
-import org.oulipo.resources.responses.EndsetByType;
-import org.oulipo.resources.responses.Network;
+import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.services.responses.Network;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

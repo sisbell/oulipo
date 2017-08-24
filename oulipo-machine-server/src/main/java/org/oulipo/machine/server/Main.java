@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -25,6 +25,49 @@ import org.apache.commons.cli.PosixParser;
 
 public class Main {
 
+	private static Options addOptions() {
+        Options options = new Options();
+        Option helpOption = Option.builder("h").longOpt("help")
+                .desc("Display help").build();
+        Option databaseOption = Option.builder("db").longOpt("databaseDir")
+                .desc("Directory of database").build();
+        Option portOption = Option.builder("p").longOpt("port")
+                .desc("Server port").build();
+        
+        OptionBuilder.withLongOpt("summary");
+		OptionBuilder
+                .withDescription("Output as summary statics");
+		Option summaryOption = OptionBuilder
+                .create("s");
+        OptionBuilder.withLongOpt("output");
+		OptionBuilder
+                .withDescription("Log output file");
+		Option outputOption = OptionBuilder
+                .create("o");
+        OptionBuilder.withLongOpt("raw");
+		OptionBuilder
+                .withDescription("Output as raw delimited format");
+		Option rawOption = OptionBuilder
+                .create("r");
+
+        
+        OptionBuilder.hasOptionalArg();
+		OptionBuilder.withLongOpt("config");
+		OptionBuilder
+                .withDescription("config.json file for defining log events");
+		Option configOption = OptionBuilder
+                .create("c");
+
+        return options.addOption(portOption).addOption(databaseOption).addOption(helpOption).addOption(rawOption)
+                .addOption(outputOption).addOption(configOption);
+    }
+	
+    private static void exit(String message) {
+        System.out.println("\r\n" + message + "\r\n");
+      //  printHelp();
+        System.exit(-1);
+    }
+    
 	public static void main(String[] args) {
 		  CommandLineParser parser = new PosixParser();
 	        CommandLine commandLine = null;
@@ -37,38 +80,4 @@ public class Main {
 	        
 	        
 	}
-	
-    private static void exit(String message) {
-        System.out.println("\r\n" + message + "\r\n");
-      //  printHelp();
-        System.exit(-1);
-    }
-    
-	private static Options addOptions() {
-        Options options = new Options();
-        Option helpOption = Option.builder("h").longOpt("help")
-                .desc("Display help").build();
-        Option databaseOption = Option.builder("db").longOpt("databaseDir")
-                .desc("Directory of database").build();
-        Option portOption = Option.builder("p").longOpt("port")
-                .desc("Server port").build();
-        
-        Option summaryOption = OptionBuilder.withLongOpt("summary")
-                .withDescription("Output as summary statics")
-                .create("s");
-        Option outputOption = OptionBuilder.withLongOpt("output")
-                .withDescription("Log output file")
-                .create("o");
-        Option rawOption = OptionBuilder.withLongOpt("raw")
-                .withDescription("Output as raw delimited format")
-                .create("r");
-
-        
-        Option configOption = OptionBuilder.hasOptionalArg().withLongOpt("config")
-                .withDescription("config.json file for defining log events")
-                .create("c");
-
-        return options.addOption(portOption).addOption(databaseOption).addOption(helpOption).addOption(rawOption)
-                .addOption(outputOption).addOption(configOption);
-    }
 }

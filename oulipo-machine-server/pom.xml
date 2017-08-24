@@ -91,6 +91,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>oulipo-services</artifactId>
+			<version>${project.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>oulipo-storage</artifactId>
 			<version>${project.version}</version>
 		</dependency>

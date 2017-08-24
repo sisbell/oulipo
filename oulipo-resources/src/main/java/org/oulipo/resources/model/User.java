@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -19,12 +19,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.oulipo.net.IRI;
-import org.oulipo.resources.Schema;
-import org.oulipo.resources.rdf.annotations.ObjectIRI;
-import org.oulipo.resources.rdf.annotations.ObjectNonNegativeInteger;
-import org.oulipo.resources.rdf.annotations.ObjectString;
-import org.oulipo.resources.rdf.annotations.Predicate;
-import org.oulipo.resources.rdf.annotations.Subject;
+import org.oulipo.net.TumblerAddress;
+import org.oulipo.rdf.annotations.ObjectIRI;
+import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
+import org.oulipo.rdf.annotations.ObjectString;
+import org.oulipo.rdf.annotations.Predicate;
+import org.oulipo.rdf.annotations.Subject;
 import org.oulipo.resources.utils.Add;
 
 import com.google.common.base.Strings;
@@ -32,13 +32,13 @@ import com.google.common.base.Strings;
 @Subject(value = Schema.USER, key = "resourceId")
 public class User extends Thing {
 
-	@Predicate("node")
-	@ObjectIRI
-	public IRI node ;
+	@Predicate("bitcoinPayinAddress")
+	@ObjectString
+	public String[] bitcoinPayinAddresses;//increase reserves in system (for payments)
 
-	@Predicate("rootId")
-	@ObjectNonNegativeInteger
-	public int rootId;
+	@Predicate("bitcoinPayoutAddress")
+	@ObjectString
+	public String bitcoinPayoutAddress;
 
 	@Predicate("ownedDocument")
 	@ObjectIRI
@@ -52,6 +52,18 @@ public class User extends Thing {
 	@ObjectString
 	public String givenName;
 
+	@Predicate("node")
+	@ObjectIRI
+	public TumblerAddress node ;
+
+	@Predicate("publicKey")
+	@ObjectString
+	public String publicKey;
+
+	@Predicate("rootId")
+	@ObjectNonNegativeInteger
+	public int rootId;
+
 	/**
 	 * Handle for user
 	 */
@@ -59,17 +71,29 @@ public class User extends Thing {
 	@ObjectString
 	public String xandle;
 
-	@Predicate("publicKey")
-	@ObjectString
-	public String publicKey;
+	public void addBitcoinAddress(String address) {
+		bitcoinPayinAddresses = Add.one(bitcoinPayinAddresses, address);
+	}
 
-	@Predicate("bitcoinPayoutAddress")
-	@ObjectString
-	public String bitcoinPayoutAddress;
+	public void addBitcoinAddress(String[] address) {
+		bitcoinPayinAddresses = Add.both(bitcoinPayinAddresses, address, String.class);
+	}
 
-	@Predicate("bitcoinPayinAddress")
-	@ObjectString
-	public String[] bitcoinPayinAddresses;//increase reserves in system (for payments)
+	public void addBitcoinPayinAddress(Collection<String> address) {
+		bitcoinPayinAddresses = Add.both(bitcoinPayinAddresses, address, String.class);
+	}
+
+	public void addDocument(Collection<IRI> document) {
+		documents = Add.both(documents, document, IRI.class);
+	}
+
+	public void addDocument(IRI document) {
+		documents = Add.one(documents, document);
+	}
+
+	public void addDocument(IRI[] document) {
+		documents = Add.both(documents, document, IRI.class);
+	}
 
 	public boolean hasPublicKey() {
 		return !Strings.isNullOrEmpty(publicKey);
@@ -84,30 +108,6 @@ public class User extends Thing {
 			return false;
 		}
 		return publicKey.equals(this.publicKey);
-	}
-
-	public void addBitcoinPayinAddress(Collection<String> address) {
-		bitcoinPayinAddresses = Add.both(bitcoinPayinAddresses, address, String.class);
-	}
-
-	public void addBitcoinAddress(String address) {
-		bitcoinPayinAddresses = Add.one(bitcoinPayinAddresses, address);
-	}
-
-	public void addBitcoinAddress(String[] address) {
-		bitcoinPayinAddresses = Add.both(bitcoinPayinAddresses, address, String.class);
-	}
-
-	public void addDocument(Collection<IRI> document) {
-		documents = Add.both(documents, document, IRI.class);
-	}
-
-	public void addDocument(IRI document) {
-		documents = Add.one(documents, document);
-	}
-
-	public void addDocument(IRI[] document) {
-		documents = Add.both(documents, document, IRI.class);
 	}
 
 	@Override

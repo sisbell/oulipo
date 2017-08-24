@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -77,12 +77,6 @@ public final class VAddress extends CompactTumblerAddress {
 	}
 
 	@Override
-	public String toString() {
-		return "VAddress [exponent=" + exponent + ", sequence=" + sequence
-				+ ", type=" + type + "]";
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -120,5 +114,11 @@ public final class VAddress extends CompactTumblerAddress {
 		result = prime * result + sequence;
 		result = prime * result + type;
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "VAddress [exponent=" + exponent + ", sequence=" + sequence
+				+ ", type=" + type + "]";
 	}
 }

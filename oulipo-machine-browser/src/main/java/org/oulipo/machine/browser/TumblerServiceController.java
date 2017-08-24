@@ -16,7 +16,6 @@
 package org.oulipo.machine.browser;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -25,9 +24,7 @@ import org.oulipo.client.services.ServiceBuilder;
 import org.oulipo.client.services.TedRouter;
 import org.oulipo.client.services.TumblerService;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.model.Thing;
-import org.oulipo.resources.responses.ErrorResponseDto;
-import org.oulipo.resources.transforms.ThingToString;
+import org.oulipo.services.responses.ErrorResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
@@ -139,7 +136,7 @@ public class TumblerServiceController implements Initializable {
 				});
 
 			} else {
-				ErrorResponseDto error = mapper.readValue(response.errorBody().bytes(), ErrorResponseDto.class);
+				ErrorResponse error = mapper.readValue(response.errorBody().bytes(), ErrorResponse.class);
 				writeErrorMessage(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(error));
 			}
 		} catch (Exception e) {
