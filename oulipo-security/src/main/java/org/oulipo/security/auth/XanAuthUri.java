@@ -22,18 +22,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 import org.bitcoinj.core.ECKey;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.common.base.Strings;
 
 public final class XanAuthUri {
 
@@ -71,73 +66,6 @@ public final class XanAuthUri {
 		} finally {
 			inputStream.close();
 		}
-	}
-
-	/**
-	 * Create a XanAuth URI from specified string URI
-	 * 
-	 * @param uri xanauth uri
-	 * @param key client key
-	 * @return 
-	 * @throws URISyntaxException
-	 */
-	public static XanAuthUri create(String uri, ECKey key)
-			throws URISyntaxException {
-		if (Strings.isNullOrEmpty(uri)) {
-			throw new IllegalArgumentException("xanAuthUri is null");
-		}
-
-		XanAuthUri authUri = new XanAuthUri();
-		authUri.mRawUri = uri;
-		authUri.mUri = URI.create(uri);
-		authUri.mKey = key;
-
-		verifyParams(authUri.mUri);
-
-		authUri.mToken = getQueryParameter(authUri.mUri, "token");
-		String uValue = getQueryParameter(authUri.mUri, "secured");
-		authUri.mIsSecured = Boolean.getBoolean(uValue);//TODO: check null
-
-		return authUri;
-	}
-
-	private static String getQueryParameter(URI uri, String param) {
-		try {
-			Map<String, String> params = split(uri);
-			return params.get(param);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	// TODO: Remove
-	public static Map<String, String> split(URI url)
-			throws UnsupportedEncodingException {
-		Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-		String query = url.getQuery();
-		String[] pairs = query.split("&");
-		for (String pair : pairs) {
-			int idx = pair.indexOf("=");
-			query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
-					URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
-		}
-		return query_pairs;
-	}
-
-	private static void verifyParams(URI uri) throws URISyntaxException {
-		if (Strings.isNullOrEmpty(getQueryParameter(uri, "token"))) {
-			throw new URISyntaxException(uri.toString(),
-					"Missing token parameter");
-		}
-
-		/*
-		String uValue = getQueryParameter(uri, "u");
-		if (!Strings.isNullOrEmpty(uValue) && (!uValue.equals("0"))
-				&& !uValue.equals("1")) {
-			throw new URISyntaxException(uValue, "Illegal value for u param");
-		}
-		*/
 	}
 
 	private HttpURLConnection mConnection;
