@@ -29,6 +29,7 @@ import org.oulipo.resources.model.Node;
 import org.oulipo.resources.model.User;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.google.common.base.Strings;
 
 /**
@@ -84,37 +85,37 @@ public final class TedRouter {
 				if (tumbler.isNetworkTumbler()) {
 					service.getNodes(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			} else if (path.equals("/users")) {
 				if (tumbler.isNodeTumbler()) {
 					service.getUsers(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			} else if (path.equals("/documents")) {
 				if (tumbler.isUserTumbler()) {
 					service.getDocuments(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			} else if (path.equals("/links")) {
 				if (tumbler.isDocumentTumbler()) {
 					service.getLinks(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			} else if (path.equals("/virtual")) {
 				if (tumbler.isDocumentTumbler()) {
 					service.getVirtual(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			} else if (path.equals("/endsets")) {
 				if (tumbler.isDocumentTumbler()) {
 					service.getEndsets(tumbler.toTumblerAuthority(), callback);
 				} else {
-					throw new IOException("Malformed request: ");
+					throw new IOException("Malformed request: " + path);
 				}
 			}
 
@@ -143,8 +144,8 @@ public final class TedRouter {
 				if (tumbler.isSystemAddress()) {
 					if (tumbler.hasWidth()) {
 						if (!tumbler.isBytesElement()) {
-							throw new MalformedSpanException(
-									"Tumbler span currently only supports byte ranges: " + tumbler.toTumblerAuthority());
+							throw new MalformedSpanException("Tumbler span currently only supports byte ranges: "
+									+ tumbler.toTumblerAuthority());
 						}
 						service.getSystemVSpans(queryParams, callback);
 					} else {
@@ -153,8 +154,8 @@ public final class TedRouter {
 				} else {
 					if (tumbler.hasSpan()) {
 						if (!tumbler.isBytesElement()) {
-							throw new MalformedSpanException(
-									"Tumbler span currently only supports byte ranges: " + tumbler.toTumblerAuthority());
+							throw new MalformedSpanException("Tumbler span currently only supports byte ranges: "
+									+ tumbler.toTumblerAuthority());
 						}
 						service.getVSpan(tumbler, callback);
 					} else {
@@ -179,22 +180,34 @@ public final class TedRouter {
 	 *             if there is I/O exception in making the network request
 	 */
 	public void routePutRequest(TumblerAddress tumbler, String body, TumblerSuccess callback) throws IOException {
-		if (tumbler.isNodeTumbler()) {
-			Node node = mapper.readValue(body, Node.class);
-			node.resourceId = tumbler;
-			service.createOrUpdateNode(node, callback);
-		} else if (tumbler.isUserTumbler()) {
-			User user = mapper.readValue(body, User.class);
-			user.resourceId = tumbler;
-			service.createOrUpdateUser(user, callback);
-		} else if (tumbler.isDocumentTumbler()) {
-			Document document = mapper.readValue(body, Document.class);
-			document.resourceId = tumbler;
-			service.createOrUpdateDocument(document, callback);
-		} else if (tumbler.isElementTumbler() && tumbler.isLinkElement()) {
-			Link link = mapper.readValue(body, Link.class);
-			link.resourceId = tumbler;
-			service.createOrUpdateLink(link, callback);
+		try {
+			if (tumbler.isNodeTumbler()) {
+				Node node = mapper.readValue(body, Node.class);
+				node.resourceId = tumbler;
+				service.createOrUpdateNode(node, callback);
+			} else if (tumbler.isUserTumbler()) {
+				User user = mapper.readValue(body, User.class);
+				user.resourceId = tumbler;
+				service.createOrUpdateUser(user, callback);
+			} else if (tumbler.isDocumentTumbler()) {
+				Document document = mapper.readValue(body, Document.class);
+				document.resourceId = tumbler;
+				service.createOrUpdateDocument(document, callback);
+			} else if (tumbler.isElementTumbler() && tumbler.isLinkElement()) {
+				Link link = mapper.readValue(body, Link.class);
+				link.resourceId = tumbler;
+				service.createOrUpdateLink(link, callback);
+			}
+		} catch (UnrecognizedPropertyException e) {
+			if (tumbler.isNodeTumbler()) {
+				throw new IOException("Not valid node: " + e.getMessage());
+			} else if (tumbler.isUserTumbler()) {
+				throw new IOException("Not valid user: " + e.getMessage());
+			} else if (tumbler.isDocumentTumbler()) {
+				throw new IOException("Not valid document: " + e.getMessage());
+			} else if (tumbler.isElementTumbler() && tumbler.isLinkElement()) {
+				throw new IOException("Not valid link: " + e.getMessage());
+			}
 		}
 	}
 }
