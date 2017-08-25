@@ -106,4 +106,55 @@ public class TumblerFieldTest {
 		TumblerField partition = TumblerField.createEmpty();
 		partition.append(0);
 	}
+	
+	@Test
+	public void systemField() throws Exception {
+		TumblerField partition = TumblerField.create("1.1");
+		assertTrue(partition.isSystemField());
+	}
+	
+	@Test
+	public void notSystemField() throws Exception {
+		TumblerField partition = TumblerField.create("1.2");
+		assertFalse(partition.isSystemField());
+	}
+	
+	@Test
+	public void remove() throws Exception {
+		TumblerField partition = TumblerField.create("1.2.3");
+		partition.remove(1);
+		assertTrue(TumblerField.create("1.3").equals(partition));
+	}
+
+	@Test(expected = MalformedTumblerException.class)
+	public void multipleField() throws Exception {
+		TumblerField.create("1.1.0.1.0.1.1.1");
+	}
+	
+	@Test
+	public void isEquals() throws Exception {
+		TumblerField f1 = TumblerField.create("1.1.1");
+		TumblerField f2 = TumblerField.create("1.1.1");
+		assertTrue(f1.equals(f2));
+		assertTrue(f2.equals(f1));
+	}
+	
+	@Test
+	public void notEquals() throws Exception {
+		TumblerField f1 = TumblerField.create("2.1.1");
+		TumblerField f2 = TumblerField.create("1.1.1");
+		assertFalse(f1.equals(f2));
+		assertFalse(f2.equals(f1));
+	}
+	
+	@Test
+	public void notEqualsDifferentSize() throws Exception {
+		TumblerField f1 = TumblerField.create("1.1.1");
+		TumblerField f2 = TumblerField.create("1.1.1.2");
+		assertFalse(f1.equals(f2));
+		assertFalse(f2.equals(f1));
+	}
+
+
+
 }
