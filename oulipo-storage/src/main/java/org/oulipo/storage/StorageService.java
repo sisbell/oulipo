@@ -114,6 +114,14 @@ public final class StorageService {
 		}
 		return c;
 	}
+	
+	public void close() {
+		try {
+			db.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public <T> T load(String id, Class<T> clazz) throws StorageException {
 
