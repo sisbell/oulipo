@@ -1,11 +1,15 @@
 package org.oulipo.storage;
 
+import java.util.Date;
+
 public class TestObject {
 
 	@Id
 	public String id;
 	
 	public String value;
+	
+	public Date created;
 	
 	public TestObject() { }
 	

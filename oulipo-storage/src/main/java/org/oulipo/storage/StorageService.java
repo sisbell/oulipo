@@ -29,10 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
@@ -76,10 +74,6 @@ public final class StorageService {
 		db = factory.open(new File(name), options);
 	}
 
-	private <T> T createObject(Class<T> clazz) {
-		return null;
-	}
-
 	public byte[] get(byte[] key) {
 		return db.get(key);
 	}
@@ -91,7 +85,7 @@ public final class StorageService {
 	 * @return
 	 * @throws ClassNotFoundException
 	 * @throws StorageException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public <T> Collection<T> getAll(Class<T> clazz) throws ClassNotFoundException, StorageException, IOException {
 		List<T> c = new ArrayList<>();
@@ -144,7 +138,7 @@ public final class StorageService {
 		for (Field field : fields) {
 			field.setAccessible(true);
 			String value = asString(db.get(bytes(key + "!" + field.getName())));
-			if (Strings.isNullOrEmpty(value)) {
+			if (Strings.isNullOrEmpty(value) || "null".equals(value)) {
 				continue;
 			}
 			exists = true;
@@ -152,7 +146,7 @@ public final class StorageService {
 			try {
 				if (field.getType().equals(String.class)) {
 					field.set(object, value);
-				} else if (field.getType().equals(Date.class)) {
+				} else if (field.getType().equals(Date.class) && value != null) {
 					DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 					field.set(object, df.parse(value));
 				} else if (field.getType().equals(Integer.class)) {

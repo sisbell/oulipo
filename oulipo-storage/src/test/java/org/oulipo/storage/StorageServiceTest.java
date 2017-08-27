@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Date;
 
 public class StorageServiceTest {
 
@@ -36,6 +37,16 @@ public class StorageServiceTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void parseDate() throws Exception {
+		TestObject to1 = new TestObject("1", "456");
+		to1.created = new Date();
+		service.save(to1);
+		
+		TestObject result = service.load("1", TestObject.class);
+		assertEquals(to1.created, result.created);	
 	}
 	
 	@Test
