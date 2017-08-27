@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 
 import com.google.common.base.Strings;
@@ -90,28 +91,32 @@ public final class StorageService {
 	 * @return
 	 * @throws ClassNotFoundException
 	 * @throws StorageException
+	 * @throws IOException 
 	 */
-	public <T> Collection<T> getAll(Class<T> clazz) throws ClassNotFoundException, StorageException {
+	public <T> Collection<T> getAll(Class<T> clazz) throws ClassNotFoundException, StorageException, IOException {
 		List<T> c = new ArrayList<>();
 		Map<String, String> ids = new HashMap<>();
-		Iterator<Entry<byte[], byte[]>> it = db.iterator();
-		String prevId = null;
-		while (it.hasNext()) {
-			String key = new String(it.next().getKey());
-			String[] tokens = key.split("!");
+		try (DBIterator it = db.iterator()) {
+			it.seekToFirst();
 
-			String id = tokens[0];
-			String className = tokens[1];
-			if (!id.equals(prevId)) {
-				if (clazz.getName().equals(className)) {
-					ids.put(id, className);
+			String prevId = null;
+			while (it.hasNext()) {
+				String key = new String(it.next().getKey());
+				String[] tokens = key.split("!");
+
+				String id = tokens[0];
+				String className = tokens[1];
+				if (!id.equals(prevId)) {
+					if (clazz.getName().equals(className)) {
+						ids.put(id, className);
+					}
+					prevId = id;
 				}
-				prevId = id;
 			}
-		}
-		for (Map.Entry<String, String> id : ids.entrySet()) {
-			T o = (T) load(id.getKey(), Class.forName(id.getValue()));
-			c.add(o);
+			for (Map.Entry<String, String> id : ids.entrySet()) {
+				T o = (T) load(id.getKey(), Class.forName(id.getValue()));
+				c.add(o);
+			}
 		}
 		return c;
 	}
@@ -172,6 +177,24 @@ public final class StorageService {
 		db.put(key, value);
 	}
 
+	public <T> void delete(String id, Class<T> clazz) throws StorageException {
+
+		if (Strings.isNullOrEmpty(id)) {
+			throw new IllegalArgumentException("Id is null");
+		}
+
+		if (clazz == null) {
+			throw new IllegalArgumentException("Class is null");
+		}
+
+		String key = id + "!" + clazz.getName();
+		Field[] fields = clazz.getDeclaredFields();
+		for (Field field : fields) {
+			field.setAccessible(true);
+			db.delete(bytes(key + "!" + field.getName()));
+		}
+	}
+
 	private void put(String id, Object object, Field field) throws StorageException {
 
 		String className = object.getClass().getName();
@@ -202,7 +225,7 @@ public final class StorageService {
 		Class<?> clazz = entity.getClass();
 		Field[] fields = clazz.getDeclaredFields();
 		String id = getId(entity, fields);
-		if(Strings.isNullOrEmpty(id)) {
+		if (Strings.isNullOrEmpty(id)) {
 			throw new StorageException("Object id is null");
 		}
 		for (Field field : fields) {
