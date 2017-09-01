@@ -39,8 +39,9 @@
 		<module>oulipo-client</module>
 		<module>oulipo-machine-browser</module>
 		<module>oulipo-machine-server</module>
-	<module>oulipo-services</module>
-	</modules>
+		<module>oulipo-services</module>
+		<module>oulipo-browser-framework</module>
+</modules>
 
 	<properties>
 		<bitcoinj.version>0.14.4</bitcoinj.version>
@@ -61,7 +62,7 @@
 		<andrewoma.dexx.version>0.7</andrewoma.dexx.version>
 		<retrofit.version>2.3.0</retrofit.version>
 		<okhttp.version>3.8.1</okhttp.version>
-		<jfoenix.version>1.1.0</jfoenix.version>
+		<jfoenix.version>1.4.0</jfoenix.version>
 		<fxmisc.richtext.version>0.7-M5</fxmisc.richtext.version>
 		<fuseki.version>2.6.0</fuseki.version>
 		<sparkjava.version>2.5.5</sparkjava.version>

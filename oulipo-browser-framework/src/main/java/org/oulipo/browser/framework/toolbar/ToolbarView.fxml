@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+
+<VBox prefHeight="400.0" prefWidth="640.0"
+	xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.oulipo.browser.framework.toolbar.ToolbarController">
+	<children>
+		<MenuBar VBox.vgrow="NEVER" fx:id="menuBar">
+			<menus>
+				<Menu mnemonicParsing="false" text="OulipoMachine">
+					<items>
+						<MenuItem mnemonicParsing="false" text="About OulipoMachine" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Preferences" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Quit OulipoMachine" />
+					</items>
+				</Menu>
+
+				<Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
+					<items>
+						<MenuItem mnemonicParsing="false" text="New Edit Tab" />
+						<MenuItem mnemonicParsing="false" text="New Incognito Window" onAction="#incognito"/>
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Close Tab" onAction="#closeTab"/>
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Print" />
+
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Edit">
+					<items>
+						<MenuItem mnemonicParsing="false" text="Undo" />
+						<MenuItem mnemonicParsing="false" text="Redo" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Cut" />
+						<MenuItem mnemonicParsing="false" text="Copy" />
+						<MenuItem mnemonicParsing="false" text="Paste" />
+						<MenuItem mnemonicParsing="false" text="Delete" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Select All" />
+						<MenuItem mnemonicParsing="false" text="Unselect All" />
+					</items>
+				</Menu>
+
+				<Menu mnemonicParsing="false" text="History" fx:id="historyMenu">
+
+				</Menu>
+
+				<Menu mnemonicParsing="false" text="Bookmarks" fx:id="bookmarkMenu">
+					<items>
+						<MenuItem mnemonicParsing="false" text="Bookmark Manager" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="People">
+					<items>
+						<MenuItem mnemonicParsing="false" text="Edit" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" text="Add Person" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Tools">
+					<items>
+						<MenuItem mnemonicParsing="false"
+							text="TED Network Tool" />
+					</items>
+				</Menu>
+				<Menu mnemonicParsing="false" text="Help">
+					<items>
+						<MenuItem mnemonicParsing="false" text="About OulipoMachine" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+		<StackPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
+			prefWidth="-1.0" VBox.vgrow="ALWAYS" fx:id="stack">
+			<children>
+				<Label alignment="CENTER" layoutX="155.0" layoutY="177.0"
+					style="&#10;" text="Drag components from Library here…"
+					textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
+					<font>
+						<Font size="18.0" />
+					</font>
+				</Label>
+				<TabPane layoutY="6.0" prefHeight="361.0" prefWidth="631.0"
+					tabClosingPolicy="SELECTED_TAB" fx:id="navigationTabs">
+				</TabPane>
+			</children>
+		</StackPane>
+	</children>
+</VBox>

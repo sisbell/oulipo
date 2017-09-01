@@ -62,7 +62,7 @@ public class RangeTumblerMatcherTest {
 	
 	@Test
 	public void overlapEdge2() throws Exception {
-		TumblerAddress t1 = TumblerAddress.create("1.1.0.2.0.2.2.4.0.1.1~1.1000");
+		TumblerAddress t1 = TumblerAddress.create("1.1.0.2.0.2.2.4.0.1.1~1.500");
 		TumblerAddress t2 = TumblerAddress.create("1.1.0.2.0.2.2.4.0.1.500~1.500");
 		
 		Set<TumblerAddress> addresses = Sets.newHashSet(t2);

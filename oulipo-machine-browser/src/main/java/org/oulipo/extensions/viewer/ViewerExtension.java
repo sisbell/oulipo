@@ -1,0 +1,46 @@
+/*******************************************************************************
+ * OulipoMachine licenses this file to you under the Apache License, Version 2.0
+ * (the "License");  you may not use this file except in compliance with the License.  
+ *
+ * You may obtain a copy of the License at
+ *   
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *    
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See the NOTICE file distributed with this work for 
+ * additional information regarding copyright ownership. 
+ *******************************************************************************/
+package org.oulipo.extensions.viewer;
+
+import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.api.Extension;
+
+public class ViewerExtension implements Extension {
+
+	@Override
+	public void init(BrowserContext ctx) {
+		
+		//This should add Browse Tab to Menu
+		/*
+		Document document = new Document();
+		try {
+			document.resourceId = TumblerAddress.create("1.2.0.5.0.2.3.4");
+		} catch (MalformedTumblerException e) {
+			e.printStackTrace();
+		}
+		document.description = "My Short Stories";
+		document.title = "SciFi Banaza";
+
+		DocumentViewer viewer = new DocumentViewer(document);
+
+		ViewerTab editTab = new ViewerTab(viewer);
+		editTab.setText(document.title);
+		editTab.setTooltip(new Tooltip("Sample Tool"));
+		ctx.getTabManager().add(editTab);
+		*/
+	}
+
+}

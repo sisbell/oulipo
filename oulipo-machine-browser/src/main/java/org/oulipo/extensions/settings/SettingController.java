@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -13,34 +13,18 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.machine.browser;
+package org.oulipo.extensions.settings;
 
-import com.jfoenix.controls.JFXDecorator;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import javafx.fxml.Initializable;
 
-public class BrowserApplication extends Application  {
+public class SettingController implements Initializable {
 
 	@Override
-	public void start(Stage stage) throws Exception {
-		Parent root = FXMLLoader.load(getClass().getResource("TumblerServiceView.fxml"));
-
-		JFXDecorator decorator = new JFXDecorator(stage, root);
-        decorator.setCustomMaximize(true);
-
-        Scene scene = new Scene(decorator);
-
-        stage.setScene(scene);
-        stage.show();
-
+	public void initialize(URL location, ResourceBundle resources) {
+		
 	}
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 
 }

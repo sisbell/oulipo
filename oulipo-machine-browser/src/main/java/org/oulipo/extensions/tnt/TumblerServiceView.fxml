@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.oulipo.machine.browser.TumblerServiceController">
+<AnchorPane prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.oulipo.browser.extensions.tnt.TumblerServiceController">
    <children>
       <VBox prefHeight="793.0" prefWidth="715.0">
          <children>
@@ -61,18 +61,18 @@
                </VBox.margin></Separator>
             <JFXTabPane fx:id="messageBodyTabs" prefHeight="276.0" prefWidth="675.0">
                <tabs>
-                  <Tab text="JSON Payload">
+                  <Tab text="Raw Data">
                      <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <JFXTextArea fx:id="jsonPayload" prefHeight="246.0" prefWidth="675.0" />
+                              <JFXTextArea fx:id="rawPayloadData" prefHeight="246.0" prefWidth="675.0" />
                            </children>
                            <padding>
                               <Insets top="15.0" />
                            </padding></AnchorPane>
                      </content>
                   </Tab>
-                  <Tab text="Form">
+                  <Tab text="Form Data">
                      <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="76.0" prefWidth="624.0">
                            <children>
@@ -98,17 +98,12 @@
                </VBox.margin></Separator>
             <JFXTabPane prefHeight="294.0" prefWidth="624.0">
                <tabs>
-                  <Tab text="JSON">
+                  <Tab text="Body">
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <JFXTextArea fx:id="jsonOutput" prefHeight="262.0" prefWidth="673.0" />
+                              <JFXTextArea fx:id="bodyResponse" prefHeight="262.0" prefWidth="673.0" />
                            </children></AnchorPane>
-                    </content>
-                  </Tab>
-                  <Tab text="Table">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                   </Tab>
                </tabs>

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -13,7 +13,7 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.machine.browser;
+package org.oulipo.extensions.tnt;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -42,41 +42,55 @@ import retrofit2.Response;
 public class TumblerServiceController implements Initializable {
 
 	@FXML
-	private JFXRadioButton getOp;
-
-	@FXML
-	private JFXRadioButton putOp;
-
-	@FXML
-	private JFXRadioButton postOp;
+	private JFXTextArea bodyResponse;
 
 	@FXML
 	private JFXRadioButton deleteOp;
 
 	@FXML
-	private JFXTextField sessionToken;
+	private JFXRadioButton getOp;
+
+	private ObjectMapper mapper = new ObjectMapper();
+
+	@FXML
+	private JFXTabPane messageBodyTabs;
+
+	@FXML
+	private JFXRadioButton postOp;
 
 	@FXML
 	private JFXTextField publicKey;
 
 	@FXML
-	private JFXTextArea jsonOutput;
+	private JFXRadioButton putOp;
 
 	@FXML
-	private JFXTextArea jsonPayload;
+	private JFXTextArea rawPayloadData;
+
+	@FXML
+	private JFXTextField sessionToken;
 
 	@FXML
 	private JFXTextField tedAddress;
 
-	@FXML
-	private JFXTabPane messageBodyTabs;
+	private Pattern tedPattern = Pattern.compile("\"ted://.*?\"");
+
+	private TedRouter tedRouter;
 
 	@FXML
 	private JFXButton tumbleButton;
 
 	private TumblerService tumblerService;
 
-	private TedRouter tedRouter;
+	@FXML
+	private void delete(ActionEvent event) {
+		messageBodyTabs.setVisible(false);
+	}
+
+	@FXML
+	private void get(ActionEvent event) {
+		messageBodyTabs.setVisible(false);
+	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -96,28 +110,16 @@ public class TumblerServiceController implements Initializable {
 		// getResource();
 	}
 
+
 	@FXML
-	public void tumble() {
-		try {
-			TumblerAddress address = TumblerAddress.create(tedAddress.getText());
-			if (getOp.isSelected()) {
-				tedRouter.routeGetRequest(address, this::showResponses);
-			} else if (putOp.isSelected()) {
-				tedRouter.routePutRequest(address, jsonPayload.getText(), this::showResponses);
-			} else if (postOp.isSelected()) {
-				tedRouter.postRequest(tedAddress.getText(), jsonPayload.getText(), this::showResponses);
-			} else if (deleteOp.isSelected()) {
-				tedRouter.deleteRequest(tedAddress.getText(), this::showResponses);
-			}
-		} catch (Exception e) {
-			writeErrorMessage(e.getMessage());
-			e.printStackTrace();
-		}
+	private void post(ActionEvent event) {
+		messageBodyTabs.setVisible(true);
 	}
 
-	private Pattern tedPattern = Pattern.compile("\"ted://.*?\"");
-
-	private ObjectMapper mapper = new ObjectMapper();
+	@FXML
+	private void put(ActionEvent event) {
+		messageBodyTabs.setVisible(true);
+	}
 
 	public void showResponses(Response<?> response) {
 		try {
@@ -128,7 +130,7 @@ public class TumblerServiceController implements Initializable {
 					@Override
 					public void run() {
 						try {
-							jsonOutput.setText(text);
+							bodyResponse.setText(text);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -145,29 +147,27 @@ public class TumblerServiceController implements Initializable {
 		}
 	}
 
+	@FXML
+	public void tumble() {
+		try {
+			TumblerAddress address = TumblerAddress.create(tedAddress.getText());
+			if (getOp.isSelected()) {
+				tedRouter.routeGetRequest(address, this::showResponses);
+			} else if (putOp.isSelected()) {
+				tedRouter.routePutRequest(address, rawPayloadData.getText(), this::showResponses);
+			} else if (postOp.isSelected()) {
+				tedRouter.postRequest(tedAddress.getText(), rawPayloadData.getText(), this::showResponses);
+			} else if (deleteOp.isSelected()) {
+				tedRouter.deleteRequest(tedAddress.getText(), this::showResponses);
+			}
+		} catch (Exception e) {
+			writeErrorMessage(e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
 	private void writeErrorMessage(String message) {
-		jsonOutput.setText(message);
-	}
-
-	@FXML
-	private void post(ActionEvent event) {
-		messageBodyTabs.setVisible(true);
-	}
-
-	@FXML
-	private void delete(ActionEvent event) {
-		messageBodyTabs.setVisible(false);
-	}
-
-	@FXML
-	private void put(ActionEvent event) {
-		messageBodyTabs.setVisible(true);
-	}
-
-	@FXML
-	private void get(ActionEvent event) {
-		messageBodyTabs.setVisible(false);
+		bodyResponse.setText(message);
 	}
 
 }
