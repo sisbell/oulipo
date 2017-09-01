@@ -58,13 +58,13 @@ public class OulipoRequest {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private final String publicKey;
+	private String publicKey;
 
 	private ResourceSessionManager sessionManager;
 
 	private final String spans;
 	
-	private final String token;
+	private String token;
 
 	private TumblerAddress userAddress;
 
@@ -80,8 +80,10 @@ public class OulipoRequest {
 		this.documentId = params.get(":docId");
 		this.elementId = params.get(":elementId");
 		this.spans = params.get(":spans");
-		this.publicKey = headers.get("x-oulipo-user");
-		this.token = headers.get("x-oulipo-token");
+		if(headers != null) {
+			this.publicKey = headers.get("x-oulipo-user");
+			this.token = headers.get("x-oulipo-token");	
+		}
 	}
 	
 	public void authenticate() throws AuthenticationException {

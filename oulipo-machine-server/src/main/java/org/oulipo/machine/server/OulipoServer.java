@@ -88,7 +88,7 @@ public class OulipoServer {
 
 		// Templates
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_26);
-		cfg.setDirectoryForTemplateLoading(new File("./src/main/resources/templates"));
+		cfg.setClassForTemplateLoading(RdfDataMapper.class, "/templates");
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		cfg.setLogTemplateExceptions(false);
