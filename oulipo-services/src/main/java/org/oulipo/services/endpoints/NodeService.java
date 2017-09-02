@@ -71,18 +71,15 @@ public class NodeService {
 	}
 	
 	public Collection<Thing> getNodeUsers(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
-
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 		queryParams.put("node", oulipoRequest.getNodeAddress().toTumblerAuthority());
-		return thingRepo.getAllUsers(network, queryParams);
+		return thingRepo.getAllUsers(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
 	
 	public Collection<Thing> getSystemNodes(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
 
 		Map<String, String> queryParams = oulipoRequest.queryParams();
-		return thingRepo.getAllNodes(network, queryParams);
+		return thingRepo.getAllNodes(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
 	
 

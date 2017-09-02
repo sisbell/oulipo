@@ -84,7 +84,7 @@ public class UserService {
 
 		if (account.hasXandle()) {
 			Optional<User> currentUserOfXandle = thingRepo
-					.findUserByXandle(Integer.parseInt(oulipoRequest.getNetworkId()), account.xandle);
+					.findUserByXandle(oulipoRequest.getNetworkIdAsInt(), account.xandle);
 			if (currentUserOfXandle.isPresent()) {
 				User current = currentUserOfXandle.get();
 				if (!current.publicKeyMatches(account.publicKey) || !current.resourceId.equals(account.resourceId)) {
@@ -99,9 +99,9 @@ public class UserService {
 		return account;
 	}
 
-	public Collection<Thing> getSystemUsers(OulipoRequest oulipoRequest) {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
-		return thingRepo.getAllUsers(network, oulipoRequest.queryParams());
+	public Collection<Thing> getSystemUsers(OulipoRequest oulipoRequest)
+			throws NumberFormatException, MalformedTumblerException {
+		return thingRepo.getAllUsers(oulipoRequest.getNetworkIdAsInt(), oulipoRequest.queryParams());
 	}
 
 	public User getUser(OulipoRequest oulipoRequest) throws ResourceNotFoundException, MalformedTumblerException {
@@ -109,12 +109,11 @@ public class UserService {
 	}
 
 	public Collection<Thing> getUserDocuments(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
 		TumblerAddress userAddress = oulipoRequest.getUserAddress();
 
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 		queryParams.put("account", userAddress.toTumblerAuthority());
-		return thingRepo.getAllDocuments(network, queryParams);
+		return thingRepo.getAllDocuments(oulipoRequest.getNetworkIdAsInt(), queryParams);
 
 	}
 }

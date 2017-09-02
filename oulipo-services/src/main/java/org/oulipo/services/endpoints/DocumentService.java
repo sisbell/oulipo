@@ -145,8 +145,8 @@ public class DocumentService {
 		return false;
 	}
 
-	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
+	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) throws NumberFormatException, MalformedTumblerException {
+		int network = oulipoRequest.getNetworkIdAsInt();
 
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 		return thingRepo.getAllDocuments(network, queryParams);

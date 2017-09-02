@@ -69,13 +69,12 @@ public class ElementsService {
 	 * @param vSpanRepo
 	 * @return
 	 * @return
+	 * @throws MalformedTumblerException 
+	 * @throws NumberFormatException 
 	 */
-	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
-
+	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) throws NumberFormatException, MalformedTumblerException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
-
-		return thingRepo.getAllInvariantLinks(network, queryParams);
+		return thingRepo.getAllInvariantLinks(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
 
 	/**
@@ -85,12 +84,13 @@ public class ElementsService {
 	 * @param vSpanRepo
 	 * @return 
 	 * @return
+	 * @throws MalformedTumblerException 
+	 * @throws NumberFormatException 
 	 */
-	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest) {
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
-
+	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest)
+			throws NumberFormatException, MalformedTumblerException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
-		return thingRepo.getAllThings(network, "InvariantSpan", queryParams);
+		return thingRepo.getAllThings(oulipoRequest.getNetworkIdAsInt(), "InvariantSpan", queryParams);
 	}
 
 	/**
