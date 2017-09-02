@@ -20,12 +20,14 @@ import java.io.IOException;
 import org.oulipo.browser.api.bookmark.BookmarkManager;
 import org.oulipo.browser.api.history.HistoryManager;
 import org.oulipo.browser.api.history.HistoryRepository;
+import org.oulipo.browser.api.storage.RemoteStorage;
 import org.oulipo.browser.api.tabs.TabManager;
 import org.oulipo.browser.framework.MenuContext;
 import org.oulipo.browser.framework.StorageContext;
 import org.oulipo.browser.framework.impl.BookmarkManagerImpl;
 import org.oulipo.browser.framework.impl.DummyHistoryRepository;
 import org.oulipo.browser.framework.impl.HistoryRepositoryImpl;
+import org.oulipo.browser.framework.impl.IpfsRemoteStorage;
 import org.oulipo.browser.framework.impl.TabManagerImpl;
 import org.oulipo.browser.framework.toolbar.ToolbarController;
 import org.oulipo.storage.StorageException;
@@ -55,6 +57,8 @@ public final class BrowserContext {
 
 	private HistoryManager historyManager = new HistoryManager();
 
+	private IpfsRemoteStorage remoteStorage;
+
 	/**
 	 * Constructs a browser context
 	 * 
@@ -74,6 +78,7 @@ public final class BrowserContext {
 		this.historyRepository = new HistoryRepositoryImpl(menuContext.getHistoryMenu(),
 				storageContext.getHistoryStorage());
 		this.tabManager = new TabManagerImpl(storageContext.getTabStorage(), menuContext.getTabs());
+		this.remoteStorage = new IpfsRemoteStorage();
 	}
 
 	/**
@@ -108,6 +113,10 @@ public final class BrowserContext {
 
 	public HistoryManager getHistoryManager() {
 		return historyManager;
+	}
+	
+	public RemoteStorage getRemoteStorage() {
+		return remoteStorage;
 	}
 
 	/**
