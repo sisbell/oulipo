@@ -17,11 +17,9 @@ package org.oulipo.services;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ResourceFoundException;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.ThingRepository;
@@ -85,8 +83,8 @@ public class OulipoRequestService {
 		return thingRepo.getAllThings(network, "Document", request.queryParams());
 	}
 
-	public Collection<Thing> getAllDocuments(OulipoRequest request) {
-		return getAllDocuments(Integer.parseInt(request.getNetworkId()), request);
+	public Collection<Thing> getAllDocuments(OulipoRequest request) throws MalformedTumblerException {
+		return getAllDocuments(request.getNetworkIdAsInt(), request);
 	}
 
 	public Collection<Thing> getAllInvariantLinks(int network, OulipoRequest request) {
@@ -94,32 +92,32 @@ public class OulipoRequestService {
 				request.queryParams());
 	}
 
-	public Collection<Thing> getAllInvariantLinks(OulipoRequest request) {
-		return getAllInvariantLinks(Integer.parseInt(request.getNetworkId()), request);
+	public Collection<Thing> getAllInvariantLinks(OulipoRequest request) throws MalformedTumblerException {
+		return getAllInvariantLinks(request.getNetworkIdAsInt(), request);
 	}
 
 	public Collection<Thing> getAllInvariantSpans(int network, OulipoRequest request) {
 		return thingRepo.getAllThings(network, "InvariantSpan", request.queryParams());
 	}
 
-	public Collection<Thing> getAllInvariantSpans(OulipoRequest request) {
-		return getAllInvariantSpans(Integer.parseInt(request.getNetworkId()), request);
+	public Collection<Thing> getAllInvariantSpans(OulipoRequest request) throws MalformedTumblerException {
+		return getAllInvariantSpans(request.getNetworkIdAsInt(), request);
 	}
 
 	public Collection<Thing> getAllNodes(int network, OulipoRequest request) {
 		return thingRepo.getAllThings(network, "Node", request.queryParams());
 	}
 
-	public Collection<Thing> getAllNodes(OulipoRequest request) {
-		return getAllNodes(Integer.parseInt(request.getNetworkId()), request);
+	public Collection<Thing> getAllNodes(OulipoRequest request) throws MalformedTumblerException {
+		return getAllNodes(request.getNetworkIdAsInt(), request);
 	}
 
 	public Collection<Thing> getAllUsers(int network, OulipoRequest request) {
 		return thingRepo.getAllThings(network, "Person", request.queryParams());
 	}
 
-	public Collection<Thing> getAllUsers(OulipoRequest request) {
-		return getAllUsers(Integer.parseInt(request.getNetworkId()), request);
+	public Collection<Thing> getAllUsers(OulipoRequest request) throws MalformedTumblerException {
+		return getAllUsers(request.getNetworkIdAsInt(), request);
 	}
 
 	public String copyContent(OulipoRequest oulipoRequest)
@@ -164,11 +162,11 @@ public class OulipoRequestService {
 		return nodeService.getSystemNodes(oulipoRequest);
 	}
 
-	public User createOrUpdateUser(OulipoRequest oulipoRequest) throws NumberFormatException, Exception {
+	public User createOrUpdateUser(OulipoRequest oulipoRequest) throws Exception {
 		return userService.createOrUpdateUser(oulipoRequest);
 	}
 
-	public Collection<Thing> getSystemUsers(OulipoRequest oulipoRequest) {
+	public Collection<Thing> getSystemUsers(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return userService.getSystemUsers(oulipoRequest);
 	}
 
@@ -195,7 +193,7 @@ public class OulipoRequestService {
 		//return documentService.getDocumentLinks(oulipoRequest);
 	}
 
-	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) {
+	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return documentService.getSystemDocuments(oulipoRequest);
 	}
 
@@ -219,11 +217,11 @@ public class OulipoRequestService {
 		return elementsService.getElement(oulipoRequest);
 	}
 	
-	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) {
+	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return elementsService.getSystemLinks(oulipoRequest);
 	}
 	
-	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest) {
+	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return elementsService.getSystemVSpans(oulipoRequest);
 	}
 	
