@@ -59,6 +59,9 @@ public class ToolbarController implements Initializable {
 	FXMLLoader loader;
 
 	@FXML
+	public Menu managerMenu;
+
+	@FXML
 	MenuBar menuBar;
 
 	/**
@@ -108,9 +111,10 @@ public class ToolbarController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		MenuContext menuContext = new MenuContext(toolsMenu, fileMenu, bookmarkMenu, historyMenu, navigationTabs);
+		MenuContext menuContext = new MenuContext(managerMenu, toolsMenu, fileMenu, bookmarkMenu, historyMenu,
+				navigationTabs);
 		try {
-			context = new BrowserContext(loader, storageContext, menuContext);
+			context = new BrowserContext(loader, stack, storageContext, menuContext);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (StorageException e1) {

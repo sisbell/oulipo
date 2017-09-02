@@ -44,6 +44,11 @@
 
 					</items>
 				</Menu>
+				<Menu mnemonicParsing="false" text="Manager" fx:id="managerMenu">
+					<items>
+					</items>
+				</Menu>
+				
 				<Menu mnemonicParsing="false" text="Edit">
 					<items>
 						<MenuItem mnemonicParsing="false" text="Undo" />
@@ -93,7 +98,7 @@
 			prefWidth="-1.0" VBox.vgrow="ALWAYS" fx:id="stack">
 			<children>
 				<Label alignment="CENTER" layoutX="155.0" layoutY="177.0"
-					style="&#10;" text="Drag components from Library here…"
+					style="&#10;"
 					textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
 					<font>
 						<Font size="18.0" />

@@ -29,11 +29,14 @@ public final class MenuContext {
 
 	private final Menu historyMenu;
 
-	private final TabPane tabs;
+	private final Menu managerMenu;
 
+	private final TabPane tabs;
+	
 	private final Menu toolsMenu;
 
-	public MenuContext(Menu toolsMenu, Menu fileMenu, Menu bookmarkMenu, Menu historyMenu, TabPane tabs) {
+	public MenuContext(Menu managerMenu, Menu toolsMenu, Menu fileMenu, Menu bookmarkMenu, Menu historyMenu, TabPane tabs) {
+		this.managerMenu = managerMenu;
 		this.toolsMenu = toolsMenu;
 		this.fileMenu = fileMenu;
 		this.bookmarkMenu = bookmarkMenu;
@@ -51,6 +54,10 @@ public final class MenuContext {
 
 	public Menu getHistoryMenu() {
 		return historyMenu;
+	}
+
+	public Menu getManagerMenu() {
+		return managerMenu;
 	}
 
 	public TabPane getTabs() {

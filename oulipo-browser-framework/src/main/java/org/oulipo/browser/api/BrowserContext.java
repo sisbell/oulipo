@@ -35,6 +35,7 @@ import org.oulipo.storage.StorageException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -59,6 +60,8 @@ public final class BrowserContext {
 
 	private IpfsRemoteStorage remoteStorage;
 
+	private StackPane contentArea;
+
 	/**
 	 * Constructs a browser context
 	 * 
@@ -68,9 +71,10 @@ public final class BrowserContext {
 	 * @throws IOException
 	 * @throws StorageException
 	 */
-	public BrowserContext(FXMLLoader loader, StorageContext storageContext, MenuContext menuContext)
+	public BrowserContext(FXMLLoader loader, StackPane contentArea, StorageContext storageContext, MenuContext menuContext)
 			throws IOException, StorageException {
 		this.loader = loader;
+		this.contentArea = contentArea;
 		this.storageContext = storageContext;
 		this.menuContext = menuContext;
 		this.bookmarkManager = new BookmarkManagerImpl(menuContext.getBookmarkMenu(),
@@ -117,6 +121,10 @@ public final class BrowserContext {
 	
 	public RemoteStorage getRemoteStorage() {
 		return remoteStorage;
+	}
+	
+	public StackPane getContentArea() {
+		return contentArea;
 	}
 
 	/**
