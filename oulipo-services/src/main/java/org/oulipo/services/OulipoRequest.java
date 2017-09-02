@@ -63,36 +63,38 @@ public class OulipoRequest {
 	private ResourceSessionManager sessionManager;
 
 	private final String spans;
-	
+
 	private String token;
 
 	private TumblerAddress userAddress;
 
 	private final String userId;
 
-	public OulipoRequest(ResourceSessionManager sessionManager, Map<String, String> headers, Map<String, String> params, String body) {
+	public OulipoRequest(ResourceSessionManager sessionManager, Map<String, String> headers, Map<String, String> params,
+			String body) {
 		this.sessionManager = sessionManager;
 		this.body = body;
 		this.headers = headers;
-		this.networkId = params.get(":networkId");
-		this.nodeId = params.get(":nodeId");
-		this.userId = params.get(":userId");
-		this.documentId = params.get(":docId");
-		this.elementId = params.get(":elementId");
+		this.networkId = params.get(":networkid");
+		this.nodeId = params.get(":nodeid");
+		this.userId = params.get(":userid");
+		this.documentId = params.get(":docid");
+		this.elementId = params.get(":elementid");
 		this.spans = params.get(":spans");
-		if(headers != null) {
+		if (headers != null) {
 			this.publicKey = headers.get("x-oulipo-user");
-			this.token = headers.get("x-oulipo-token");	
+			this.token = headers.get("x-oulipo-token");
 		}
 	}
-	
+
 	public void authenticate() throws AuthenticationException {
 		sessionManager.authenticateSession(this);
 	}
+
 	public void authorize() throws UnauthorizedException, MalformedTumblerException, ResourceNotFoundException {
 		sessionManager.authorizeResource(this);
 	}
-	
+
 	public Document getDocument() throws IOException, MissingBodyException {
 		if (!hasBody()) {
 			throw new MissingBodyException(getDocumentAddress(),
@@ -151,8 +153,19 @@ public class OulipoRequest {
 		return elementAddress;
 	}
 
-	public String getNetworkId() {
+	public String getNetworkId() throws MalformedTumblerException {
+		if (Strings.isNullOrEmpty(networkId)) {
+			throw new MalformedTumblerException("Missing networkId");
+		}
 		return networkId;
+	}
+
+	public int getNetworkIdAsInt() throws MalformedTumblerException {
+		try {
+			return Integer.parseInt(getNetworkId());
+		} catch (NumberFormatException e) {
+			throw new MalformedTumblerException(e.getMessage());
+		}
 	}
 
 	public Node getNode() throws IOException, MissingBodyException {
@@ -226,6 +239,13 @@ public class OulipoRequest {
 
 	public Map<String, String> queryParams() {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "OulipoRequest [documentId=" + documentId + ", elementId=" + elementId + ", headers=" + headers
+				+ ", networkId=" + networkId + ", nodeId=" + nodeId + ", publicKey=" + publicKey + ", spans=" + spans
+				+ ", token=" + token + ", userId=" + userId + "]";
 	}
 
 }
