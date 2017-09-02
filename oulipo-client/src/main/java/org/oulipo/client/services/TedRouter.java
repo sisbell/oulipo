@@ -56,6 +56,10 @@ public final class TedRouter {
 	public TedRouter(TumblerService service) {
 		this.service = service;
 	}
+	
+	public TedRouter(DocuverseService docuverseService) {
+		this(new TumblerService(docuverseService));
+	}
 
 	public void deleteRequest(String address, TumblerSuccess callback) {
 
