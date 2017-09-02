@@ -76,7 +76,7 @@
 						<MenuItem mnemonicParsing="false" text="Add Person" />
 					</items>
 				</Menu>
-				<Menu mnemonicParsing="false" text="Tools">
+				<Menu mnemonicParsing="false" text="Tools" fx:id="toolsMenu">
 					<items>
 						<MenuItem mnemonicParsing="false"
 							text="TED Network Tool" />

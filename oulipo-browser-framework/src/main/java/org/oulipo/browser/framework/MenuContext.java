@@ -24,14 +24,17 @@ import javafx.scene.control.TabPane;
 public final class MenuContext {
 
 	private final Menu bookmarkMenu;
-	
+
 	private final Menu fileMenu;
 
 	private final Menu historyMenu;
 
 	private final TabPane tabs;
 
-	public MenuContext(Menu fileMenu, Menu bookmarkMenu, Menu historyMenu, TabPane tabs) {
+	private final Menu toolsMenu;
+
+	public MenuContext(Menu toolsMenu, Menu fileMenu, Menu bookmarkMenu, Menu historyMenu, TabPane tabs) {
+		this.toolsMenu = toolsMenu;
 		this.fileMenu = fileMenu;
 		this.bookmarkMenu = bookmarkMenu;
 		this.historyMenu = historyMenu;
@@ -41,7 +44,7 @@ public final class MenuContext {
 	public Menu getBookmarkMenu() {
 		return bookmarkMenu;
 	}
-	
+
 	public Menu getFileMenu() {
 		return fileMenu;
 	}
@@ -52,5 +55,9 @@ public final class MenuContext {
 
 	public TabPane getTabs() {
 		return tabs;
-	}	
+	}
+
+	public Menu getToolsMenu() {
+		return toolsMenu;
+	}
 }

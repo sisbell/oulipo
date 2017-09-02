@@ -53,13 +53,13 @@ public class ToolbarController implements Initializable {
 	@FXML
 	public Menu historyMenu;
 
+	private boolean isIcognitoMode;
+
 	@Inject
 	FXMLLoader loader;
 
 	@FXML
 	MenuBar menuBar;
-	
-	private boolean isIcognitoMode;
 
 	/**
 	 * The tab pane that contains the browser tabs
@@ -73,6 +73,14 @@ public class ToolbarController implements Initializable {
 	@Inject
 	StorageContext storageContext;
 
+	@FXML
+	public Menu toolsMenu;
+
+	@FXML
+	public void closeTab() {
+		context.getTabManager().removeSelectedTab();
+	}
+
 	/**
 	 * Gets the <code>BrowserContext</code> for this instance of the toolbar
 	 * 
@@ -80,10 +88,6 @@ public class ToolbarController implements Initializable {
 	 */
 	public BrowserContext getContext() {
 		return context;
-	}
-	
-	public void setIncognitoMode() {
-		this.isIcognitoMode = true;
 	}
 
 	/**
@@ -98,18 +102,13 @@ public class ToolbarController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
-	@FXML
-	public void closeTab() {
-		context.getTabManager().removeSelectedTab();
-	}
 
 	/**
 	 * Initializes the BrowserContext and loads all extensions
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		MenuContext menuContext = new MenuContext(fileMenu, bookmarkMenu, historyMenu, navigationTabs);
+		MenuContext menuContext = new MenuContext(toolsMenu, fileMenu, bookmarkMenu, historyMenu, navigationTabs);
 		try {
 			context = new BrowserContext(loader, storageContext, menuContext);
 		} catch (IOException e1) {
@@ -124,5 +123,9 @@ public class ToolbarController implements Initializable {
 		} catch (InstantiationException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setIncognitoMode() {
+		this.isIcognitoMode = true;
 	}
 }
