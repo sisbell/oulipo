@@ -1,13 +1,16 @@
 SELECT * WHERE 
 { 
     ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <schema://oulipo/${type}>;   
-    <#list queryParams?keys as key> 
+   <#if queryParams??>
+     <#list queryParams?keys as key> 
     	<#if queryParams[key]?starts_with("ted://")>
    		 <schema://oulipo/${key}> <${queryParams[key]}>;
    		<#else>
    		 <schema://oulipo/${key}> "${queryParams[key]}";
    		</#if>
 	</#list> 
+   </#if>
+   
     ?predicate ?object .   
     FILTER regex(str(?subject), "ted://${networkId}") .
 }
