@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.oulipo.machine.server;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.oulipo.resources.ThingRepository;
@@ -75,7 +76,12 @@ public class RequestsMapper {
 	};
 
 	private OulipoRequest createOulipoRequest(Request request) {
-		return new OulipoRequest(sessionManager, null, request.params(), request.body());
+		Map<String, String> headers = new HashMap<>();
+		for(String key : request.headers()) {
+			String value = request.headers(key);
+			headers.put(key, value);
+		}
+		return new OulipoRequest(sessionManager, headers, request.params(), request.body());
 	};
 
 	public Route deleteContent() {
@@ -131,7 +137,7 @@ public class RequestsMapper {
 			response.header("content-type", "application/json");
 			OulipoRequest oulipoRequest = createOulipoRequest(request);
 			Map<String, String> queryParams = oulipoRequest.queryParams();
-			return thingRepo.getAllNodes(Integer.parseInt(oulipoRequest.getNetworkId()), queryParams);
+			return thingRepo.getAllNodes(oulipoRequest.getNetworkIdAsInt(), queryParams);
 		};
 	}
 
