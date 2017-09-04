@@ -25,72 +25,48 @@
 			<menus>
 				<Menu mnemonicParsing="false" text="OulipoMachine">
 					<items>
-						<MenuItem mnemonicParsing="false" text="About OulipoMachine" />
+						<MenuItem mnemonicParsing="false" text="%about.menu.item" />
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Preferences" />
+						<MenuItem mnemonicParsing="false" text="%preference.menu.item"
+							accelerator="Shortcut+," />
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Quit OulipoMachine" />
+						<MenuItem mnemonicParsing="false" text="%quit.menu.item"
+							accelerator="Shortcut+Q" />
 					</items>
 				</Menu>
 
-				<Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
+				<Menu mnemonicParsing="false" text="%file.menu" fx:id="fileMenu">
 					<items>
-						<MenuItem mnemonicParsing="false" text="New Edit Tab" />
-						<MenuItem mnemonicParsing="false" text="New Incognito Window" onAction="#incognito"/>
+						<MenuItem mnemonicParsing="false" text="%incognito.menu.item"
+							onAction="#incognito" accelerator="Shortcut+N" />
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Close Tab" onAction="#closeTab"/>
+						<MenuItem mnemonicParsing="false" text="%closetab.menu.item"
+							onAction="#closeTab" accelerator="Shortcut+W" />
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Print" />
-
 					</items>
 				</Menu>
-				<Menu mnemonicParsing="false" text="Manager" fx:id="managerMenu">
-					<items>
-					</items>
-				</Menu>
-				
-				<Menu mnemonicParsing="false" text="Edit">
-					<items>
-						<MenuItem mnemonicParsing="false" text="Undo" />
-						<MenuItem mnemonicParsing="false" text="Redo" />
-						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Cut" />
-						<MenuItem mnemonicParsing="false" text="Copy" />
-						<MenuItem mnemonicParsing="false" text="Paste" />
-						<MenuItem mnemonicParsing="false" text="Delete" />
-						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Select All" />
-						<MenuItem mnemonicParsing="false" text="Unselect All" />
-					</items>
-				</Menu>
-
-				<Menu mnemonicParsing="false" text="History" fx:id="historyMenu">
+				<Menu mnemonicParsing="false" text="%manager.menu" fx:id="managerMenu">
 
 				</Menu>
 
-				<Menu mnemonicParsing="false" text="Bookmarks" fx:id="bookmarkMenu">
-					<items>
-						<MenuItem mnemonicParsing="false" text="Bookmark Manager" />
-						<SeparatorMenuItem mnemonicParsing="false" />
-					</items>
+				<Menu mnemonicParsing="false" text="%edit.menu">
+
 				</Menu>
-				<Menu mnemonicParsing="false" text="People">
-					<items>
-						<MenuItem mnemonicParsing="false" text="Edit" />
-						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" text="Add Person" />
-					</items>
+
+				<Menu mnemonicParsing="false" text="%history.menu" fx:id="historyMenu">
+
 				</Menu>
-				<Menu mnemonicParsing="false" text="Tools" fx:id="toolsMenu">
-					<items>
-						<MenuItem mnemonicParsing="false"
-							text="TED Network Tool" />
-					</items>
+
+				<Menu mnemonicParsing="false" text="%bookmarks.menu" fx:id="bookmarkMenu">
+
 				</Menu>
-				<Menu mnemonicParsing="false" text="Help">
-					<items>
-						<MenuItem mnemonicParsing="false" text="About OulipoMachine" />
-					</items>
+				<Menu mnemonicParsing="false" text="%people.menu" fx:id="peopleMenu">
+				</Menu>
+
+				<Menu mnemonicParsing="false" text="%tools.menu" fx:id="toolsMenu">
+
+				</Menu>
+				<Menu mnemonicParsing="false" text="%help.menu">
 				</Menu>
 			</menus>
 		</MenuBar>
@@ -98,8 +74,7 @@
 			prefWidth="-1.0" VBox.vgrow="ALWAYS" fx:id="stack">
 			<children>
 				<Label alignment="CENTER" layoutX="155.0" layoutY="177.0"
-					style="&#10;"
-					textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
+					style="&#10;" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
 					<font>
 						<Font size="18.0" />
 					</font>
