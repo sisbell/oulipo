@@ -43,7 +43,7 @@ public final class TumblerField {
 	private static List<Integer> createList(String field) throws MalformedTumblerException {
 
 		if (Strings.isNullOrEmpty(field)) {
-			throw new MalformedTumblerException("Field is empty");
+			throw new MalformedTumblerException("Tumbler field is empty");
 		}
 
 		if (field.endsWith(".")) {
@@ -77,7 +77,7 @@ public final class TumblerField {
 
 	private TumblerField(List<Integer> numbers) throws MalformedTumblerException {
 		if (numbers.isEmpty()) {
-			throw new MalformedTumblerException("Field is empty");
+			throw new MalformedTumblerException("Tumbler field is empty");
 		}
 		if (numbers.stream().anyMatch(x -> x <= 0)) {
 			throw new MalformedTumblerException("Illegal value(s): " + numbers);
