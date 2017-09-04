@@ -64,6 +64,9 @@ public class ToolbarController implements Initializable {
 	@FXML
 	MenuBar menuBar;
 
+	@FXML
+	Menu peopleMenu;
+
 	/**
 	 * The tab pane that contains the browser tabs
 	 */
@@ -111,8 +114,8 @@ public class ToolbarController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		MenuContext menuContext = new MenuContext(managerMenu, toolsMenu, fileMenu, bookmarkMenu, historyMenu,
-				navigationTabs);
+		MenuContext menuContext = new MenuContext(peopleMenu, managerMenu, toolsMenu, fileMenu, bookmarkMenu,
+				historyMenu, navigationTabs);
 		try {
 			context = new BrowserContext(loader, stack, storageContext, menuContext);
 		} catch (IOException e1) {
