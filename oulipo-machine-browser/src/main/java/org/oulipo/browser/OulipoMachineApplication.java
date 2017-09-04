@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.oulipo.browser;
 
+import java.util.ResourceBundle;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -35,6 +37,7 @@ public class OulipoMachineApplication extends Application {
 		Injector injector = Guice.createInjector(new GuiceModule());
 		FXMLLoader loader = injector.getInstance(FXMLLoader.class);
 		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/toolbar/ToolbarView.fxml"));
+        loader.setResources(ResourceBundle.getBundle("bundles.browser"));
 
 		Parent browser = loader.load();
 		Scene scene = new Scene(browser);
