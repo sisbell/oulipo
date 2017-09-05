@@ -14,6 +14,9 @@ public class PeopleExtension extends BaseExtension implements Extension {
 			OulipoTab tab = new OulipoTab();
 			tab.setText("Add Person");
 			ctx.getTabManager().add(tab);
+			ctx.getTabManager().selectTab(tab);
+			
+			
 		});
 	}
 

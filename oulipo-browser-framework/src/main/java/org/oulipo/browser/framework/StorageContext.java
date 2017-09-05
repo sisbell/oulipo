@@ -29,6 +29,8 @@ public final class StorageContext {
 	private final StorageService historyStorage;
 
 	private final StorageService tabStorage;
+	
+	private final StorageService accountsStorage;
 
 	/**
 	 * Creates a StorageContext
@@ -40,6 +42,7 @@ public final class StorageContext {
 		this.historyStorage = new StorageService("history");
 		this.bookmarkStorage = new StorageService("bookmark");
 		this.tabStorage = new StorageService("tab");
+		this.accountsStorage = new StorageService("accounts-local");
 	}
 
 	/**
@@ -50,6 +53,7 @@ public final class StorageContext {
 		this.historyStorage.close();
 		this.bookmarkStorage.close();
 		this.tabStorage.close();
+		this.accountsStorage.close();
 	}
 
 	public StorageService getBookmarkStorage() {
@@ -62,5 +66,9 @@ public final class StorageContext {
 
 	public StorageService getTabStorage() {
 		return tabStorage;
+	}
+	
+	public StorageService getAccountsStorage() {
+		return accountsStorage;
 	}
 }
