@@ -79,23 +79,6 @@ public final class XanAuthUri {
 		}
 	}
 
-	public static class Response {
-
-		public final String message;
-
-		public final int resultCode;
-
-		public Response(int resultCode, String message) {
-			this.resultCode = resultCode;
-			this.message = message;
-		}
-
-		@Override
-		public String toString() {
-			return "Response{" + "resultCode=" + resultCode + ", message='" + message + '\'' + '}';
-		}
-	}
-
 	public final class ResultCode {
 
 		public static final int NO_CONNECTION = -1;
@@ -152,7 +135,7 @@ public final class XanAuthUri {
 		return token;
 	}
 
-	public Response makeRequest() {
+	public SessionResponse makeRequest() {
 		try {
 			openConnection();
 			writeRequest(buildRequest());
@@ -160,7 +143,7 @@ public final class XanAuthUri {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new Response(ResultCode.UNKNOWN_ERROR, null);
+		return new SessionResponse(ResultCode.UNKNOWN_ERROR, null);
 	}
 
 	private void openConnection() throws IOException, URISyntaxException {
@@ -174,25 +157,31 @@ public final class XanAuthUri {
 		connection.connect();
 	}
 
-	private Response readResponse() throws IOException {
+	private SessionResponse readResponse() throws IOException {
 		int rc = connection.getResponseCode();
 		if (rc == -1) {
-			return new Response(ResultCode.NO_CONNECTION, null);
+			return new SessionResponse(ResultCode.NO_CONNECTION, null);
 		}
 		if (rc < 300 && rc >= 200) {
-			return new Response(ResultCode.OK, asString(connection.getInputStream()));
+			JSONObject jo = new JSONObject(asString(connection.getInputStream()));
+			SessionResponse response = new SessionResponse(ResultCode.OK, "OK");
+			response.isAuthorized = true;
+			response.publicKey = jo.getString("publicKey");
+			response.masterToken = jo.getString("masterToken");	
+			response.expiresIn = jo.getLong("expiresIn");
+			return response;
 		} else if (rc >= 400) {
 			String message = asString(connection.getErrorStream());
 			try {
 				JSONObject jo = new JSONObject(message);
-				return new Response(jo.getInt("code"), jo.getString("message"));
+				return new SessionResponse(jo.getInt("code"), jo.getString("message"));
 			} catch (JSONException e) {
 				e.printStackTrace();
 				System.out.println(message);
-				return new Response(-1, e.getMessage());
+				return new SessionResponse(-1, e.getMessage());
 			}
 		} else {
-			return new Response(ResultCode.UNKNOWN_ERROR, null);
+			return new SessionResponse(ResultCode.UNKNOWN_ERROR, null);
 		}
 	}
 

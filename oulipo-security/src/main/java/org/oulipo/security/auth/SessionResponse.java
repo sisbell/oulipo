@@ -28,58 +28,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public final class SessionResponse {
 
 	/**
-	 * The public key (or userId) to which the masterToken is assigned
-	 */
-	public String publicKey;
-
-	/**
-	 * Session token
-	 */
-	public String masterToken;
-
-	/**
-	 * The time in milliseconds that the masterToken expires
-	 */
-	public long expiresIn;
-
-	/**
-	 * Response message
-	 */
-	public String message;
-
-	/**
-	 * Authentication response code
-	 * 
-	 * @see com.oulipo.security.auth.AuthResponseCode
-	 */
-	public int code;
-
-	@JsonIgnore
-	public boolean isAuthorized;
-
-	public SessionResponse() {
-	}
-
-	/**
-	 * Constructs a <code>SessionResponse</code> with the specified code and message
-	 * 
-	 * @param code
-	 *            the authentication response code
-	 * @param message
-	 *            the response message
-	 */
-	public SessionResponse(int code, String message) {
-		this.code = code;
-		this.message = message;
-	}
-
-	@Override
-	public String toString() {
-		return "XanAuthResponseDto [publicKey=" + publicKey + ", masterToken=" + masterToken + ", expiresIn="
-				+ expiresIn + ", message=" + message + ", code=" + code + "]";
-	}
-
-	/**
 	 * Creates a used SessionToken with response code INVALID_TOKEN.
 	 * 
 	 * @return
@@ -116,6 +64,59 @@ public final class SessionResponse {
 		response.isAuthorized = true;
 		response.publicKey = publicKey;
 		return response;
+	}
+
+	/**
+	 * Authentication response code
+	 * 
+	 * @see com.oulipo.security.auth.AuthResponseCode
+	 */
+	public int code;
+
+	/**
+	 * The time in milliseconds that the masterToken expires
+	 */
+	public long expiresIn;
+
+	@JsonIgnore
+	public boolean isAuthorized;
+
+	/**
+	 * Session token
+	 */
+	public String masterToken;
+
+	/**
+	 * Response message
+	 */
+	public String message;
+
+	/**
+	 * The public key (or userId) to which the masterToken is assigned
+	 */
+	public String publicKey;
+
+	
+	public SessionResponse() {
+	}
+
+	/**
+	 * Constructs a <code>SessionResponse</code> with the specified code and message
+	 * 
+	 * @param code
+	 *            the authentication response code
+	 * @param message
+	 *            the response message
+	 */
+	public SessionResponse(int code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+
+	@Override
+	public String toString() {
+		return "SessionResponse [publicKey=" + publicKey + ", masterToken=" + masterToken + ", expiresIn=" + expiresIn
+				+ ", message=" + message + ", code=" + code + ", isAuthorized=" + isAuthorized + "]";
 	}
 
 }
