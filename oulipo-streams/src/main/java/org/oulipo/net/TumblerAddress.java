@@ -57,8 +57,7 @@ public final class TumblerAddress extends IRI {
 		private TumblerField element;
 
 		/**
-		 * If global is 1, then it is the public address space, otherwise it is
-		 * private
+		 * If global is 1, then it is the public address space, otherwise it is private
 		 */
 		private TumblerField network;
 
@@ -72,23 +71,23 @@ public final class TumblerAddress extends IRI {
 		private Map<String, String> queryParams;
 
 		/**
-		 * Protocol used. There are initially only two protocols: 1) ted for
-		 * document delivery and 2) xanauth for authentication
+		 * Protocol used. There are initially only two protocols: 1) ted for document
+		 * delivery and 2) xanauth for authentication
 		 */
 		private String scheme;
 
 		/**
 		 * User id. It may be broken down into additional elements to handle
-		 * organizations, sub-organizations, groups, all the way down to
-		 * individual people
+		 * organizations, sub-organizations, groups, all the way down to individual
+		 * people
 		 */
 		private TumblerField user;
 
 		private TumblerField width;
 
 		/**
-		 * Default builder instance. It automatically sets the tumbler address
-		 * to ted scheme on private network
+		 * Default builder instance. It automatically sets the tumbler address to ted
+		 * scheme on private network
 		 */
 		public Builder() {
 			this.scheme = "ted";
@@ -165,7 +164,7 @@ public final class TumblerAddress extends IRI {
 			TumblerAddress address = new TumblerAddress(scheme, network, node, user, document, element);
 			address.queryParams = queryParams;
 			address.path = path;
-			address.width =width;
+			address.width = width;
 			return address;
 		}
 
@@ -186,20 +185,20 @@ public final class TumblerAddress extends IRI {
 		}
 
 		/**
-		 * Element meta can't have any additional elements. This is always just
-		 * a single value of 1
+		 * Element meta can't have any additional elements. This is always just a single
+		 * value of 1
 		 *
-		 * Overlays only have an additional sequence defined. So 3.1.2, would be
-		 * an overlay at position 2.
+		 * Overlays only have an additional sequence defined. So 3.1.2, would be an
+		 * overlay at position 2.
 		 *
-		 * Element bytes has three components. 2.1.50 would be element starting
-		 * at position 1, with a length of 50 bytes
+		 * Element bytes has three components. 2.1.50 would be element starting at
+		 * position 1, with a length of 50 bytes
 		 *
 		 * A link starts with the number 3. 3.2.3 is overlay. 3.1.2 is jump link
 		 * 3.3.4.1.100 is transclusion from 1 to 100.
 		 *
-		 * This method will throw a MalformedTumblerException if the element is
-		 * an unrecognized type
+		 * This method will throw a MalformedTumblerException if the element is an
+		 * unrecognized type
 		 *
 		 * @param element
 		 * @return
@@ -260,7 +259,7 @@ public final class TumblerAddress extends IRI {
 			this.user = user;
 			return this;
 		}
-		
+
 		public Builder width(long width) throws MalformedTumblerException {
 			return width(String.valueOf(width));
 		}
@@ -310,12 +309,12 @@ public final class TumblerAddress extends IRI {
 		try {
 			String addressAuthority = addressAuthority(address);
 			String[] width = addressAuthority.split("[~]");
-			if(width.length > 1) {
+			if (width.length > 1) {
 				addressAuthority = width[0];
 				widthSpan = TumblerField.create(width[1]);
 			}
 			String[] tokens = addressAuthority.split("://");
-			tumblerURI = tokens.length == 1 ? new URI("ted://" + addressAuthority) : new URI(addressAuthority) ;
+			tumblerURI = tokens.length == 1 ? new URI("ted://" + addressAuthority) : new URI(addressAuthority);
 		} catch (URISyntaxException e) {
 			throw new MalformedTumblerException(e.getMessage());
 		}
@@ -569,16 +568,21 @@ public final class TumblerAddress extends IRI {
 		return hasSpan() ? width.get(1) : -1;
 	}
 
+	public String toExternalForm() throws MalformedTumblerException {
+		String authority = toTumblerAuthority();
+		return !Strings.isNullOrEmpty(path) ? authority + path : authority;
+	}
+
 	public IRI toIRI() throws MalformedTumblerException {
 		return new IRI(toTumblerAuthority());
 	}
-	
+
 	@Override
 	public String toString() {
 		return "TumblerAddress [document=" + document + ", element=" + element + ", network=" + network + ", node="
 				+ node + ", resourcePath=" + resourcePath + ", scheme=" + scheme + ", user=" + user + "]";
 	}
-	
+
 	public String toTumblerAuthority() throws MalformedTumblerException {
 		String delim = ".0.";
 		StringBuilder sb = new StringBuilder();
@@ -598,7 +602,7 @@ public final class TumblerAddress extends IRI {
 		}
 		return sb.toString();
 	}
-	
+
 	public String userVal() throws MalformedTumblerException {
 		return user.asString();
 	}
