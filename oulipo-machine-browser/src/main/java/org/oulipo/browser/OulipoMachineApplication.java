@@ -37,21 +37,18 @@ public class OulipoMachineApplication extends Application {
 		Injector injector = Guice.createInjector(new GuiceModule());
 		FXMLLoader loader = injector.getInstance(FXMLLoader.class);
 		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/toolbar/ToolbarView.fxml"));
-        loader.setResources(ResourceBundle.getBundle("bundles.browser"));
+		loader.setResources(ResourceBundle.getBundle("bundles.browser"));
 
 		Parent browser = loader.load();
 		Scene scene = new Scene(browser);
-		
-	//	scene.getStylesheets().clear();
-//        setUserAgentStylesheet(null);
-     
-		/*
-        scene.getStylesheets()
-                .add(getClass()
-                        .getResource("material.css")
-                        .toExternalForm());
-		*/
+
+		scene.getStylesheets().clear();
+		setUserAgentStylesheet(null);
+
+		scene.getStylesheets().add(getClass().getResource("oulipo.css").toExternalForm());
+
 		stage.setScene(scene);
+		stage.setMaximized(true);
 		stage.show();
 	}
 

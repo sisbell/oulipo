@@ -15,36 +15,60 @@
  *******************************************************************************/
 package org.oulipo.browser.framework.impl;
 
+import java.io.IOException;
+
+import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.tabs.OulipoTab;
 import org.oulipo.browser.api.tabs.TabManager;
+import org.oulipo.browser.framework.AddressController;
+import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.storage.StorageService;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 public class TabManagerImpl implements TabManager {
 
+	private final BrowserContext ctx;
+
 	private final TabPane tabs;
-	
+
 	private final StorageService tabStorage;
 
-	public TabManagerImpl(StorageService tabStorage, TabPane tabs) {
+	private PageRouter router;
+
+	public TabManagerImpl(BrowserContext ctx, PageRouter router, StorageService tabStorage, TabPane tabs) {
+		this.ctx = ctx;
+		this.router = router;
 		this.tabs = tabs;
 		this.tabStorage = tabStorage;
 	}
-	
+
 	@Override
 	public void add(OulipoTab tab) {
 		tabs.getTabs().add(tab);
 	}
-	
-	public void removeSelectedTab() {
-		remove(getSelectedTab());
-	}
-	
-	public void remove(OulipoTab tab) {
-		tabs.getTabs().remove(tab);
+
+	@Override
+	public OulipoTab addTabWithAddressBar(String address, String title) throws IOException {
+		OulipoTab tab = new OulipoTab(title);
+
+		FXMLLoader loader = ctx.getLoader();
+		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/AddressBar.fxml"));
+
+		AddressController addressController = new AddressController(router);
+		loader.setController(addressController);
+
+		Node node = loader.load();
+		tab.setContent(node);
+		add(tab);
+		selectTab(tab);
+
+		addressController.show(address, ctx);
+		return tab;
 	}
 
 	@Override
@@ -56,6 +80,16 @@ public class TabManagerImpl implements TabManager {
 	@Override
 	public void insert(int position, OulipoTab tab) {
 		tabs.getTabs().add(position, tab);
+	}
+
+	@Override
+	public void remove(OulipoTab tab) {
+		tabs.getTabs().remove(tab);
+	}
+
+	@Override
+	public void removeSelectedTab() {
+		remove(getSelectedTab());
 	}
 
 	@Override

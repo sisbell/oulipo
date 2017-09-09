@@ -32,6 +32,13 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>de.endrullis.draggabletabs</groupId>
+			<artifactId>draggabletabs</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+
+	
+		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>4.1.0</version>

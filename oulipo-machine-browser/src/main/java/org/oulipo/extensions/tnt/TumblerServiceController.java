@@ -110,7 +110,6 @@ public class TumblerServiceController implements Initializable {
 		// getResource();
 	}
 
-
 	@FXML
 	private void post(ActionEvent event) {
 		messageBodyTabs.setVisible(true);

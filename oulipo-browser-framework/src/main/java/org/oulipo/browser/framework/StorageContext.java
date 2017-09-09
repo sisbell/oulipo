@@ -24,13 +24,17 @@ import org.oulipo.storage.StorageService;
  */
 public final class StorageContext {
 
+	private final StorageService accountsStorage;
+
 	private final StorageService bookmarkStorage;
 
 	private final StorageService historyStorage;
-
-	private final StorageService tabStorage;
 	
-	private final StorageService accountsStorage;
+	private final StorageService keystoreStorage;
+	
+	private final StorageService sessionStorage;
+	
+	private final StorageService tabStorage;
 
 	/**
 	 * Creates a StorageContext
@@ -43,6 +47,8 @@ public final class StorageContext {
 		this.bookmarkStorage = new StorageService("bookmark");
 		this.tabStorage = new StorageService("tab");
 		this.accountsStorage = new StorageService("accounts-local");
+		this.keystoreStorage = new StorageService("keystore");
+		this.sessionStorage = new StorageService("session");
 	}
 
 	/**
@@ -54,6 +60,12 @@ public final class StorageContext {
 		this.bookmarkStorage.close();
 		this.tabStorage.close();
 		this.accountsStorage.close();
+		this.keystoreStorage.close();
+		this.sessionStorage.close();
+	}
+	
+	public StorageService getAccountsStorage() {
+		return accountsStorage;
 	}
 
 	public StorageService getBookmarkStorage() {
@@ -64,11 +76,15 @@ public final class StorageContext {
 		return historyStorage;
 	}
 
-	public StorageService getTabStorage() {
-		return tabStorage;
+	public StorageService getKeystoreStorage() {
+		return keystoreStorage;
 	}
 	
-	public StorageService getAccountsStorage() {
-		return accountsStorage;
+	public StorageService getSessionStorage() {
+		return sessionStorage;
+	}
+	
+	public StorageService getTabStorage() {
+		return tabStorage;
 	}
 }

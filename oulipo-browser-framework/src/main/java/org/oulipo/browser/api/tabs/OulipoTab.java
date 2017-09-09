@@ -17,6 +17,7 @@ package org.oulipo.browser.api.tabs;
 
 import com.google.common.base.Strings;
 
+import de.endrullis.draggabletabs.DraggableTab;
 import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 
@@ -28,7 +29,12 @@ import javafx.scene.image.ImageView;
  * information needed for display,
  *
  */
-public class OulipoTab extends Tab {
+public class OulipoTab extends DraggableTab {
+
+	public OulipoTab(String title) {
+		super(title);
+	}
+	
 
 	/**
 	 * Image displayed in the tab

@@ -24,7 +24,7 @@ import javafx.scene.control.TabPane;
 public final class MenuContext {
 
 	public enum Type {
-		BOOKMARK, FILE, HISTORY, MANAGER, PEOPLE, TOOLS
+		BOOKMARK, FILE, HISTORY, MANAGER, PEOPLE, TOOLS, WINDOW
 	}
 
 	private final Menu bookmarkMenu;
@@ -35,14 +35,17 @@ public final class MenuContext {
 
 	private final Menu managerMenu;
 
+	private Menu peopleMenu;
+
 	private final TabPane tabs;
 
 	private final Menu toolsMenu;
 
-	private Menu peopleMenu;
+	private Menu windowMenu;
 
-	public MenuContext(Menu peopleMenu, Menu managerMenu, Menu toolsMenu, Menu fileMenu, Menu bookmarkMenu, Menu historyMenu,
-			TabPane tabs) {
+	public MenuContext(Menu windowMenu, Menu peopleMenu, Menu managerMenu, Menu toolsMenu, Menu fileMenu,
+			Menu bookmarkMenu, Menu historyMenu, TabPane tabs) {
+		this.windowMenu = windowMenu;
 		this.peopleMenu = peopleMenu;
 		this.managerMenu = managerMenu;
 		this.toolsMenu = toolsMenu;
@@ -67,10 +70,6 @@ public final class MenuContext {
 	public Menu getManagerMenu() {
 		return managerMenu;
 	}
-	
-	public Menu getPeopleMenu() {
-		return peopleMenu;
-	}
 
 	public Menu getMenu(Type type) {
 		if (Type.BOOKMARK.equals(type)) {
@@ -83,8 +82,14 @@ public final class MenuContext {
 			return managerMenu;
 		} else if (Type.TOOLS.equals(type)) {
 			return toolsMenu;
+		} else if (Type.WINDOW.equals(type)) {
+			return windowMenu;
 		}
 		return null;
+	}
+
+	public Menu getPeopleMenu() {
+		return peopleMenu;
 	}
 
 	public TabPane getTabs() {
@@ -93,5 +98,9 @@ public final class MenuContext {
 
 	public Menu getToolsMenu() {
 		return toolsMenu;
+	}
+
+	public Menu getWindowMenu() {
+		return windowMenu;
 	}
 }

@@ -16,6 +16,7 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
+<?import de.endrullis.draggabletabs.DraggableTabPane?>
 
 <VBox prefHeight="400.0" prefWidth="640.0"
 	xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
@@ -66,6 +67,10 @@
 				<Menu mnemonicParsing="false" text="%tools.menu" fx:id="toolsMenu">
 
 				</Menu>
+				<Menu mnemonicParsing="false" text="%window.menu" fx:id="windowMenu">
+
+				</Menu>
+
 				<Menu mnemonicParsing="false" text="%help.menu">
 				</Menu>
 			</menus>
@@ -79,9 +84,9 @@
 						<Font size="18.0" />
 					</font>
 				</Label>
-				<TabPane layoutY="6.0" prefHeight="361.0" prefWidth="631.0"
+				<DraggableTabPane layoutY="6.0" prefHeight="361.0" prefWidth="631.0"
 					tabClosingPolicy="SELECTED_TAB" fx:id="navigationTabs">
-				</TabPane>
+				</DraggableTabPane>
 			</children>
 		</StackPane>
 	</children>

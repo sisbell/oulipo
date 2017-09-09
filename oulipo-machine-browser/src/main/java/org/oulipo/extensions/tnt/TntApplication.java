@@ -38,9 +38,11 @@ public class TntApplication extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		// TED Network tool
-		Parent tnt = FXMLLoader.load(getClass().getResource("/org/oulipo/browser/extensions/tnt/TumblerServiceView.fxml"));
+		Parent tnt = FXMLLoader
+				.load(getClass().getResource("/org/oulipo/browser/extensions/tnt/TumblerServiceView.fxml"));
 
-		Parent dv = FXMLLoader.load(getClass().getResource("/org/oulipo/browser/extensions/tnt/drawer/DrawerView.fxml"));
+		Parent dv = FXMLLoader
+				.load(getClass().getResource("/org/oulipo/browser/extensions/tnt/drawer/DrawerView.fxml"));
 
 		JFXHamburger h1 = new JFXHamburger();
 		HamburgerSlideCloseTransition burgerTask = new HamburgerSlideCloseTransition(h1);
@@ -51,7 +53,7 @@ public class TntApplication extends Application {
 		main.setHgap(20);
 		main.getChildren().add(h1);
 		main.getChildren().add(tnt);
-		
+
 		JFXDrawersStack drawersStack = new JFXDrawersStack();
 		drawersStack.setContent(main);
 

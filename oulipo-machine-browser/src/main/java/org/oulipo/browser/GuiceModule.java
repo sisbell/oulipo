@@ -17,7 +17,10 @@ package org.oulipo.browser;
 
 import java.io.IOException;
 
+import org.oulipo.browser.api.ApplicationContext;
+import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.browser.framework.StorageContext;
+import org.oulipo.browser.pages.AddressRouter;
 
 import com.google.inject.AbstractModule;
 
@@ -27,14 +30,14 @@ public class GuiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		 bind(FXMLLoader.class).toProvider(FXMLLoaderProvider.class);	
-		 try {
+		bind(FXMLLoader.class).toProvider(FXMLLoaderProvider.class);
+		try {
 			bind(StorageContext.class).toInstance(new StorageContext());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	//	 bind(NewBrowseTabExtension.class).toInstance(new NewBrowseTabExtension());
-	//	 bind(ViewerTab.class).toInstance(new ViewerTab());
+		bind(ApplicationContext.class).toInstance(new ApplicationContext());
+		bind(PageRouter.class).toInstance(new AddressRouter());
 
 	}
 }

@@ -17,23 +17,31 @@ package org.oulipo.browser.framework.toolbar;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.oulipo.browser.api.ApplicationContext;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.framework.ExtensionLoader;
 import org.oulipo.browser.framework.MenuContext;
+import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.browser.framework.StorageContext;
+import org.oulipo.security.session.CodeGenerator;
 import org.oulipo.storage.StorageException;
 
 import com.google.inject.Inject;
 
+import de.endrullis.draggabletabs.DraggableTabPane;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 /**
  * The toolbar that displays at the top of the browser. By default the toolbar
@@ -42,8 +50,14 @@ import javafx.scene.layout.StackPane;
  */
 public class ToolbarController implements Initializable {
 
+	@Inject
+	ApplicationContext applicationContext;
+
 	@FXML
 	public Menu bookmarkMenu;
+
+	@FXML
+	public Menu windowMenu;
 
 	private BrowserContext context;
 
@@ -64,14 +78,14 @@ public class ToolbarController implements Initializable {
 	@FXML
 	MenuBar menuBar;
 
-	@FXML
-	Menu peopleMenu;
-
 	/**
 	 * The tab pane that contains the browser tabs
 	 */
 	@FXML
-	public TabPane navigationTabs;
+	public DraggableTabPane navigationTabs;
+
+	@FXML
+	Menu peopleMenu;
 
 	@FXML
 	public StackPane stack;
@@ -79,6 +93,9 @@ public class ToolbarController implements Initializable {
 	@Inject
 	StorageContext storageContext;
 
+	@Inject
+	PageRouter router;
+	
 	@FXML
 	public Menu toolsMenu;
 
@@ -103,7 +120,7 @@ public class ToolbarController implements Initializable {
 	@FXML
 	public void incognito() {
 		try {
-			context.launchNewToolbar(true);
+			context.launchNewToolbar(true, "Incognito-" + CodeGenerator.generateCode(4));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -114,22 +131,37 @@ public class ToolbarController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		MenuContext menuContext = new MenuContext(peopleMenu, managerMenu, toolsMenu, fileMenu, bookmarkMenu,
-				historyMenu, navigationTabs);
+		MenuContext menuContext = new MenuContext(windowMenu, peopleMenu, managerMenu, toolsMenu, fileMenu,
+				bookmarkMenu, historyMenu, navigationTabs);
 		try {
-			context = new BrowserContext(loader, stack, storageContext, menuContext);
+			context = new BrowserContext(applicationContext, loader, stack, storageContext, menuContext, router);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-
+		
 		menuBar.useSystemMenuBarProperty().set(true);
 		try {
 			ExtensionLoader.loadExtensions(context);
 		} catch (InstantiationException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}
+		
+		ToggleGroup group = new ToggleGroup();
+		for (Map.Entry<String, Stage> entry : applicationContext.getStages().entrySet()) {
+			RadioMenuItem item = new RadioMenuItem();
+			item.setText(entry.getKey());
+			item.setUserData(entry.getValue());
+			item.setToggleGroup(group);
+			item.setOnAction(e -> {
+				Stage s = (Stage) item.getUserData();
+				s.show();
+				
+			});
+			menuContext.getWindowMenu().getItems().add(item);
+		}
+
 	}
 
 	public void setIncognitoMode() {

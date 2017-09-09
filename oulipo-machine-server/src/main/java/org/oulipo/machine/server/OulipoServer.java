@@ -123,7 +123,8 @@ public class OulipoServer {
 		get("/docuverse/:networkId/:nodeId", JSON, req.getNode(), transformer);
 		get("/docuverse/:networkId/:nodeId/users", JSON, req.getNodeUsers(), transformer);
 		put("/docuverse/:networkId/:nodeId", JSON, req.createNode(), transformer);
-
+		//put("/docuverse/:networkId/newNode", JSON, req.createNode(), transformer);
+		
 		get("/docuverse/:networkId/1/1", JSON, req.getSystemUser(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId", JSON, req.getUser(), transformer);
 		put("/docuverse/:networkId/:nodeId/:userId", JSON, req.createOrUpdateUser(), transformer);

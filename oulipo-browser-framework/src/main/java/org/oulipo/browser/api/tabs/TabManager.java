@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.oulipo.browser.api.tabs;
 
+import java.io.IOException;
+
 /**
  * Service for adding and inserting OulipoTabs into the brower's toolbar.
  */
@@ -27,6 +29,8 @@ public interface TabManager {
 	 *            the tab to add
 	 */
 	public void add(OulipoTab tab);
+
+	OulipoTab addTabWithAddressBar(String address, String title) throws IOException;
 
 	/**
 	 * Gets the currently selected tab
@@ -46,6 +50,10 @@ public interface TabManager {
 	 */
 	public void insert(int position, OulipoTab tab);
 
+	void remove(OulipoTab tab);
+
+	void removeSelectedTab();
+
 	/**
 	 * Selects the specified tab and makes it active for the user
 	 * 
@@ -60,9 +68,5 @@ public interface TabManager {
 	 * @return the number of tabs in the toolbar
 	 */
 	public int size();
-	
-	void removeSelectedTab();
-	
-	void remove(OulipoTab tab);
 
 }
