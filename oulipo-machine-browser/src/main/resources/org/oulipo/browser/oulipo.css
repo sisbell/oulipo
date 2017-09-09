@@ -1,0 +1,28 @@
+@font-face {
+    src: url('NotoSans-Regular.ttf');
+}
+
+.text {
+    -fx-font-family: "Noto Sans";
+}
+
+.addressButton {
+  -fx-background-color:transparent;
+}
+
+.addressButton:hover {
+  -fx-background-color:#dae7f3;
+}
+
+.button-raised{
+	-fx-padding: 0.7em 0.57em;
+	fx-font-size: 14px;
+	-jfx-button-type: RAISED;
+	-fx-background-color: rgb(77,102,204);
+	-fx-pref-width: 200;
+	-fx-text-fill: WHITE;
+}
+
+
+
+
