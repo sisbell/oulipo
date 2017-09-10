@@ -23,6 +23,17 @@
 	-fx-text-fill: WHITE;
 }
 
+.tab:selected .focus-indicator {
+    -fx-border-radius: 10 10 0 0, 10 10 0 0;
+    -fx-border-insets: -6 -9 -8 -8, -5 -8 -7 -7;
+}
+
+.tab-header-area .tab{
+    -fx-padding:4 10 5 10;
+    -fx-background-radius: 10 10 0 0;
+}
+
+
 
 
 
