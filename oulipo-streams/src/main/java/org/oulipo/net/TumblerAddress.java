@@ -442,6 +442,9 @@ public final class TumblerAddress extends IRI {
 	}
 
 	public Map<String, String> getQueryParams() {
+		if(queryParams == null) {
+			queryParams = new HashMap<>();
+		}
 		return queryParams;
 	}
 
@@ -601,6 +604,31 @@ public final class TumblerAddress extends IRI {
 			}
 		}
 		return sb.toString();
+	}
+
+	
+	public String toTumblerFields() throws MalformedTumblerException {
+		String delim = ".0.";
+		StringBuilder sb = new StringBuilder();
+		sb.append(network.asString());
+		if (hasNode()) {
+			sb.append(".").append(node.asString());
+			if (hasUser()) {
+				sb.append(delim).append(user.asString());
+
+				if (hasDocument()) {
+					sb.append(delim).append(document.asString());
+					if (hasElement()) {
+						sb.append(delim).append(element.asString());
+					}
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
+	public void setScheme(String scheme) {
+		this.scheme = scheme;
 	}
 
 	public String userVal() throws MalformedTumblerException {
