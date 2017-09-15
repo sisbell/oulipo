@@ -215,7 +215,7 @@ public class DefaultThingRepository implements ThingRepository {
 
 	@Override
 	public Collection<Thing> getAllUsers(int network, Map<String, String> queryParams) {
-		return getAllThings(network, "Person", queryParams);
+		return getAllThings(network, "User", queryParams);
 	}
 
 	@Override
