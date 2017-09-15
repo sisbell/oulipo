@@ -138,7 +138,7 @@ class StatementsToThing {
 						}
 						field.set(thing, addresses);
 					} else {
-						field.set(thing, new IRI(statements2.iterator().next()
+						field.set(thing, TumblerAddress.create(statements2.iterator().next()
 								.getObject().getValue()));
 					}
 
@@ -180,7 +180,7 @@ class StatementsToThing {
 				} else if (annotation instanceof ObjectBoolean) {
 					field.set(
 							thing,
-							Boolean.getBoolean(statements2.iterator().next()
+							Boolean.valueOf(statements2.iterator().next()
 									.getObject().getValue()));
 				} else if (annotation instanceof ObjectDate) {
 
