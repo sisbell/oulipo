@@ -74,7 +74,7 @@ public class RequestsMapper {
 			return service.createOrUpdateUser(createOulipoRequest(request));
 		};
 	};
-
+	
 	private OulipoRequest createOulipoRequest(Request request) {
 		Map<String, String> headers = new HashMap<>();
 		for(String key : request.headers()) {
@@ -83,6 +83,7 @@ public class RequestsMapper {
 		}
 		return new OulipoRequest(sessionManager, headers, request.params(), request.body());
 	};
+
 
 	public Route deleteContent() {
 		return (request, response) -> {
@@ -95,7 +96,7 @@ public class RequestsMapper {
 			response.header("content-type", "application/json");
 			return service.getDocument(createOulipoRequest(request));
 		};
-	}
+	};
 
 	public Route getDocumentLinks() {
 		return (request, response) -> {
@@ -147,7 +148,7 @@ public class RequestsMapper {
 			return service.getNodeUsers(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getSystemDocuments() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
@@ -210,6 +211,19 @@ public class RequestsMapper {
 		};
 	}
 	
+	public Route newDocument() {
+		return (request, response) -> {
+			response.header("content-type", "application/json");
+			return service.newDocument(createOulipoRequest(request));
+		};
+	}
+	
+	public Route newUser() {
+		return (request, response) -> {
+			response.header("content-type", "application/json");
+			return service.newUser(createOulipoRequest(request));
+		};
+	}
 	public Route newVersion() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");

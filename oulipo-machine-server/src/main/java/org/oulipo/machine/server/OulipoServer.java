@@ -123,14 +123,16 @@ public class OulipoServer {
 		get("/docuverse/:networkId/:nodeId", JSON, req.getNode(), transformer);
 		get("/docuverse/:networkId/:nodeId/users", JSON, req.getNodeUsers(), transformer);
 		put("/docuverse/:networkId/:nodeId", JSON, req.createNode(), transformer);
-		//put("/docuverse/:networkId/newNode", JSON, req.createNode(), transformer);
 		
 		get("/docuverse/:networkId/1/1", JSON, req.getSystemUser(), transformer);
+		get("/docuverse/:networkId/:nodeId/newUser", JSON, req.newUser(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId", JSON, req.getUser(), transformer);
 		put("/docuverse/:networkId/:nodeId/:userId", JSON, req.createOrUpdateUser(), transformer);
+
 		get("/docuverse/:networkId/:nodeId/:userId/documents", JSON, req.getUserDocuments(), transformer);
 
 		get("/docuverse/:networkId/1/1/1.1.1", req.getSystemDocuments(), transformer);
+		get("/docuverse/:networkId/:nodeId/:userId/newDocument", req.newDocument(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId/:docId", req.getDocument(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId/:docId/links", req.getDocumentLinks(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId/:docId/virtual", req.getVirtual(), transformer);
