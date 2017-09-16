@@ -135,9 +135,11 @@ public interface DocuverseService {
 	Call<List<Node>> getNodes(@Path("network") String network, @QueryMap Map<String, String> options);
 
 	/**
-	 * Gets a list of all documents in the system, without filter for network, node or user.
+	 * Gets a list of all documents in the system, without filter for network, node
+	 * or user.
 	 * 
-	 * @param options additional filters
+	 * @param options
+	 *            additional filters
 	 * @return
 	 */
 	@GET("1/1/1/1.1.1")
@@ -170,5 +172,11 @@ public interface DocuverseService {
 	@GET("{network}/{node}/{user}/{document}/{vspan}")
 	Call<VSpan> getVSpan(@Path("network") String network, @Path("node") String node, @Path("user") String user,
 			@Path("document") String document, @Path("vspan") String vspan);
+
+	@GET("{network}/{node}/{user}/newDocument")
+	Call<Document> newDocument(@Path("network") String network, @Path("node") String node, @Path("user") String user);
+
+	@GET("{network}/{node}/newUser")
+	Call<User> newUser(@Path("network") String network, @Path("node") String node);
 
 }
