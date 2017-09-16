@@ -113,8 +113,7 @@ public final class ButtonsCreator {
 				if (openTab) {
 					ctx.getTabManager().addTabWithAddressBar(address + "/users", "Users - " + tabTitle);
 				} else {
-					controller.show(address);
-					// ctx.getTabManager().showInTab(tab, address, tabTitle);
+					controller.show(address + "/users");
 				}
 			} catch (IOException e1) {
 				e1.printStackTrace();
