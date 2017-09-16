@@ -1,5 +1,5 @@
 /*******************************************************************************
- * OulipoMachine licenses this file to you under the Apache License, Version 2.0
+  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
  * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 package org.oulipo.services;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -238,7 +239,12 @@ public class OulipoRequest {
 	}
 
 	public Map<String, String> queryParams() {
-		return null;
+		try {
+			return getNodeAddress().getQueryParams();
+		} catch (MalformedTumblerException e) {
+			e.printStackTrace();
+		}
+		return new HashMap<>();
 	}
 
 	@Override

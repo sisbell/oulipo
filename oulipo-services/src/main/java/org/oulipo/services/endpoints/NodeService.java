@@ -72,6 +72,9 @@ public class NodeService {
 	
 	public Collection<Thing> getNodeUsers(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
+		if(oulipoRequest.getNodeAddress() == null) {
+			throw new MalformedTumblerException("Node address not specified: " + oulipoRequest);
+		}
 		queryParams.put("node", oulipoRequest.getNodeAddress().toTumblerAuthority());
 		return thingRepo.getAllUsers(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}

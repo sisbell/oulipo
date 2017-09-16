@@ -50,8 +50,6 @@ import org.oulipo.streams.StreamLoader;
  */
 public class OulipoRequestService {
 
-	private final ThingRepository thingRepo;
-
 	private ContentService contentService;
 
 	private DocumentService documentService;
@@ -63,6 +61,8 @@ public class OulipoRequestService {
 	private NetworkService networkService;
 
 	private NodeService nodeService;
+
+	private final ThingRepository thingRepo;
 
 	private UserService userService;
 
@@ -77,6 +77,35 @@ public class OulipoRequestService {
 		elementsService = new ElementsService(thingRepo, sessionManager);
 		endsetsService = new EndsetsService(thingRepo, sessionManager);
 
+	}
+
+	public String copyContent(OulipoRequest oulipoRequest)
+			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
+			MalformedSpanException, EditResourceException, MissingBodyException {
+		return contentService.copyContent(oulipoRequest);
+	}
+
+	public Document createDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, MissingBodyException, IOException {
+		return documentService.createDocument(oulipoRequest);
+	}
+
+	public Node createNode(OulipoRequest oulipoRequest) throws Exception {
+		return nodeService.createNode(oulipoRequest);
+	}
+
+	public Link createOrUpdateLink(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, MissingBodyException, IOException {
+		return elementsService.createOrUpdateLink(oulipoRequest);
+	}
+
+	public User createOrUpdateUser(OulipoRequest oulipoRequest) throws Exception {
+		return userService.createOrUpdateUser(oulipoRequest);
+	}
+	
+	public String deleteContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
+		return contentService.deleteContent(oulipoRequest);
 	}
 
 	public Collection<Thing> getAllDocuments(int network, OulipoRequest request) {
@@ -120,34 +149,28 @@ public class OulipoRequestService {
 		return getAllUsers(request.getNetworkIdAsInt(), request);
 	}
 
-	public String copyContent(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		return contentService.copyContent(oulipoRequest);
+	public Document getDocument(OulipoRequest oulipoRequest) throws MalformedTumblerException,
+			ResourceNotFoundException, UnauthorizedException, AuthenticationException {
+		return documentService.getDocument(oulipoRequest);
 	}
 
-	public String deleteContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
-		return contentService.deleteContent(oulipoRequest);
+	public Collection<Thing> getDocumentLinks(OulipoRequest oulipoRequest) {
+		// TODO: fix
+		return null;
+		// return documentService.getDocumentLinks(oulipoRequest);
 	}
 
-	public String swap(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		return contentService.swap(oulipoRequest);
+	public Thing getElement(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
+			UnauthorizedException, AuthenticationException {
+		return elementsService.getElement(oulipoRequest);
 	}
 
-	public String insertContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
-		return contentService.insertContent(oulipoRequest);
+	public EndsetByType getEndsets(OulipoRequest oulipoRequest) throws Exception {
+		return endsetsService.getEndsets(oulipoRequest);
 	}
 
 	public Network getNetwork(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException {
 		return networkService.getNetwork(oulipoRequest);
-	}
-
-	public Node createNode(OulipoRequest oulipoRequest) throws Exception {
-		return nodeService.createNode(oulipoRequest);
 	}
 
 	public Node getNode(OulipoRequest oulipoRequest) throws ResourceNotFoundException, MalformedTumblerException {
@@ -158,16 +181,24 @@ public class OulipoRequestService {
 		return nodeService.getNodeUsers(oulipoRequest);
 	}
 
+	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) throws MalformedTumblerException {
+		return documentService.getSystemDocuments(oulipoRequest);
+	}
+
+	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) throws MalformedTumblerException {
+		return elementsService.getSystemLinks(oulipoRequest);
+	}
+
 	public Collection<Thing> getSystemNodes(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return nodeService.getSystemNodes(oulipoRequest);
 	}
 
-	public User createOrUpdateUser(OulipoRequest oulipoRequest) throws Exception {
-		return userService.createOrUpdateUser(oulipoRequest);
-	}
-
 	public Collection<Thing> getSystemUsers(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		return userService.getSystemUsers(oulipoRequest);
+	}
+
+	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest) throws MalformedTumblerException {
+		return elementsService.getSystemVSpans(oulipoRequest);
 	}
 
 	public User getUser(OulipoRequest oulipoRequest) throws ResourceNotFoundException, MalformedTumblerException {
@@ -178,28 +209,23 @@ public class OulipoRequestService {
 		return userService.getUserDocuments(oulipoRequest);
 	}
 
-	public EndsetByType getEndsets(OulipoRequest oulipoRequest) throws Exception {
-		return endsetsService.getEndsets(oulipoRequest);
+	public Virtual getVirtual(OulipoRequest oulipoRequest) throws ResourceNotFoundException, UnauthorizedException,
+			AuthenticationException, IOException, MalformedSpanException {
+		return documentService.getVirtual(oulipoRequest);
 	}
 
-	public Document createDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, MissingBodyException, IOException {
-		return documentService.createDocument(oulipoRequest);
+	public String insertContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
+		return contentService.insertContent(oulipoRequest);
 	}
 
-	public Collection<Thing> getDocumentLinks(OulipoRequest oulipoRequest) {
-		//TODO: fix
-		return null;
-		//return documentService.getDocumentLinks(oulipoRequest);
+	public Document newDocument(OulipoRequest oulipoRequest) throws MalformedTumblerException,
+			ResourceNotFoundException, AuthenticationException, UnauthorizedException, ResourceFoundException {
+		return documentService.newVersion(oulipoRequest);
 	}
 
-	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		return documentService.getSystemDocuments(oulipoRequest);
-	}
-
-	public Document getDocument(OulipoRequest oulipoRequest) throws MalformedTumblerException,
-			ResourceNotFoundException, UnauthorizedException, AuthenticationException {
-		return documentService.getDocument(oulipoRequest);
+	public User newUser(OulipoRequest oulipoRequest) throws Exception {
+		return userService.newUser(oulipoRequest);
 	}
 
 	public Document newVersion(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
@@ -207,26 +233,10 @@ public class OulipoRequestService {
 		return documentService.newVersion(oulipoRequest);
 	}
 
-	public Virtual getVirtual(OulipoRequest oulipoRequest) throws ResourceNotFoundException, UnauthorizedException,
-			AuthenticationException, IOException, MalformedSpanException {
-		return documentService.getVirtual(oulipoRequest);
-	}
-
-	public Thing getElement(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
-			UnauthorizedException, AuthenticationException {
-		return elementsService.getElement(oulipoRequest);
-	}
-	
-	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		return elementsService.getSystemLinks(oulipoRequest);
-	}
-	
-	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest) throws MalformedTumblerException {
-		return elementsService.getSystemVSpans(oulipoRequest);
-	}
-	
-	public Link createOrUpdateLink(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, MissingBodyException, IOException {
-		return elementsService.createOrUpdateLink(oulipoRequest);
+	public String swap(OulipoRequest oulipoRequest)
+			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
+			MalformedSpanException, EditResourceException, MissingBodyException {
+		return contentService.swap(oulipoRequest);
 	}
 
 }

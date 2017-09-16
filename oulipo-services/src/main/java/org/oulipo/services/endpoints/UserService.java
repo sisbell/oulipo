@@ -18,6 +18,7 @@ package org.oulipo.services.endpoints;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
@@ -29,7 +30,6 @@ import org.oulipo.resources.model.User;
 import org.oulipo.security.auth.AddressValidator;
 import org.oulipo.security.auth.AuthResponseCodes;
 import org.oulipo.security.auth.AuthorizationException;
-import org.oulipo.security.auth.UnauthorizedException;
 import org.oulipo.services.OulipoRequest;
 
 public class UserService {
@@ -62,7 +62,8 @@ public class UserService {
 						+ ", User = " + oulipoRequest.getUserId());
 
 		if (!node.allowUserToCreateAccount) {
-			//throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed to create account");
+			// throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed
+			// to create account");
 		}
 
 		if (!node.publicKeyMatches(oulipoRequest.getPublicKey())) {
@@ -71,7 +72,7 @@ public class UserService {
 		}
 
 		User account = oulipoRequest.getUser();
-		account.node = (TumblerAddress) node.resourceId;
+		account.node = TumblerAddress.create(node.resourceId.value);
 
 		if (!account.hasPublicKey()) {
 			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY, "Must add publicKey for user");
@@ -83,8 +84,8 @@ public class UserService {
 		}
 
 		if (account.hasXandle()) {
-			Optional<User> currentUserOfXandle = thingRepo
-					.findUserByXandle(oulipoRequest.getNetworkIdAsInt(), account.xandle);
+			Optional<User> currentUserOfXandle = thingRepo.findUserByXandle(oulipoRequest.getNetworkIdAsInt(),
+					account.xandle);
 			if (currentUserOfXandle.isPresent()) {
 				User current = currentUserOfXandle.get();
 				if (!current.publicKeyMatches(account.publicKey) || !current.resourceId.equals(account.resourceId)) {
@@ -115,5 +116,38 @@ public class UserService {
 		queryParams.put("account", userAddress.toTumblerAuthority());
 		return thingRepo.getAllDocuments(oulipoRequest.getNetworkIdAsInt(), queryParams);
 
+	}
+
+	public User newUser(OulipoRequest oulipoRequest) throws NumberFormatException, Exception {
+		oulipoRequest.authenticate();
+		Node node = thingRepo.findNode(oulipoRequest.getNodeAddress(),
+				"Node for this user does not exist. Try creating node first. Node = " + oulipoRequest.getNodeId()
+						+ ", User = " + oulipoRequest.getUserId());
+
+		if (!node.allowUserToCreateAccount) {
+			 //throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed
+			// to create account");
+		}
+
+		if (!node.publicKeyMatches(oulipoRequest.getPublicKey())) {
+			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY,
+					"Incorrect public key for creating new user");
+		}
+
+		Random random = new Random();//TODO: make sequential
+		User account = new User();
+		account.resourceId = TumblerAddress.create(oulipoRequest.getNodeAddress().toExternalForm() 
+				+ ".0." + random.nextInt(10000) + 1);
+		account.node = TumblerAddress.create(node.resourceId.value);
+		account.publicKey = oulipoRequest.getPublicKey();
+	
+		if (!AddressValidator.validateAddress(account.publicKey)) {
+			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY,
+					"Invalid public key: " + account.publicKey);
+		}
+
+		thingRepo.update(account);
+
+		return account;
 	}
 }
