@@ -21,8 +21,7 @@ public class BookmarkCategory {
 
 	@Id
 	public String id;
-	
+
 	public String name;
-	
-	
+
 }

@@ -13,23 +13,21 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.tables;
 
-import org.oulipo.storage.Id;
+import org.oulipo.resources.model.Thing;
 
-public class Account {
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
-	public String bitcoinPayoutAddress;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
-	public String familyName;
+public class ThingTreeObject<T> extends RecursiveTreeObject<T> {
 
-	public String givenName;
+	public final StringProperty address;
 
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
+	public ThingTreeObject(Thing thing) {
+		this.address = new SimpleStringProperty(thing.resourceId.value);
+	}
 
 }

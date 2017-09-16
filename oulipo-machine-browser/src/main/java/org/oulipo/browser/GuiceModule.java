@@ -17,10 +17,9 @@ package org.oulipo.browser;
 
 import java.io.IOException;
 
+import org.oulipo.browser.api.AddressController;
 import org.oulipo.browser.api.ApplicationContext;
-import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.browser.framework.StorageContext;
-import org.oulipo.browser.pages.AddressRouter;
 
 import com.google.inject.AbstractModule;
 
@@ -36,8 +35,9 @@ public class GuiceModule extends AbstractModule {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		bind(ApplicationContext.class).toInstance(new ApplicationContext());
-		bind(PageRouter.class).toInstance(new AddressRouter());
 
+		bind(ApplicationContext.class);
+		// TODO: register per scheme - add annotation by scheme: ted, view-source
+		bind(AddressController.class);
 	}
 }

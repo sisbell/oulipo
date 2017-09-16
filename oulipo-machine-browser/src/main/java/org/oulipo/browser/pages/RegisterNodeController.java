@@ -15,10 +15,13 @@
  *******************************************************************************/
 package org.oulipo.browser.pages;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.oulipo.browser.api.AddressController;
 import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.api.Page;
 import org.oulipo.client.services.DocuverseService;
 import org.oulipo.client.services.TumblerService;
 import org.oulipo.net.MalformedTumblerException;
@@ -26,18 +29,21 @@ import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.model.Node;
 import org.oulipo.storage.StorageException;
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXSnackbar;
 import com.jfoenix.controls.JFXSnackbar.SnackbarEvent;
 import com.jfoenix.controls.JFXTextField;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RegisterNodeController implements Initializable {
+public class RegisterNodeController implements Page.Controller {
+
+	@FXML
+	public JFXCheckBox createAccounts;
 
 	BrowserContext ctx;
 
@@ -56,6 +62,11 @@ public class RegisterNodeController implements Initializable {
 		this.ctx = ctx;
 	}
 
+	@Override
+	public void show(AddressController addressController) throws MalformedTumblerException, IOException {
+
+	}
+
 	@FXML
 	public void submit() {
 
@@ -68,6 +79,8 @@ public class RegisterNodeController implements Initializable {
 		}
 		Node node = new Node();
 		node.nodeName = nodeName.getText();
+		node.allowUserToCreateAccount = createAccounts.isSelected();
+
 		try {
 			node.resourceId = TumblerAddress.create("1." + nodeField.getText());
 		} catch (MalformedTumblerException e1) {

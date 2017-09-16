@@ -15,7 +15,7 @@
 
 
 <ScrollPane xmlns="http://javafx.com/javafx/8.0.111"
-	xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.oulipo.browser.pages.RegisterNodeController">
+	xmlns:fx="http://javafx.com/fxml/1">
 	<content>
 		<GridPane maxHeight="-Infinity" maxWidth="-Infinity"
 			minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0"
@@ -103,6 +103,7 @@
 						<Insets bottom="10.0" top="50.0" />
 					</opaqueInsets>
 				</Label>
+				
 				<HBox GridPane.rowIndex="7">
 					<children>
 						<JFXRadioButton text="MainNet" />
@@ -117,7 +118,7 @@
 						<Insets bottom="10.0" top="10.0" />
 					</opaqueInsets>
 				</Label>
-				<JFXCheckBox text="Allow Users to Create Their Own Accounts"
+				<JFXCheckBox text="Allow Users to Create Their Own Accounts" fx:id="createAccounts"
 					GridPane.rowIndex="9" />
 				<JFXButton alignment="CENTER" buttonType="RAISED"
 					onAction="#submit" prefHeight="27.0" prefWidth="178.0" text="Add"

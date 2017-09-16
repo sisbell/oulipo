@@ -31,6 +31,15 @@ public class ManagerExtension extends BaseExtension implements Extension {
 
 	@Override
 	public void init(BrowserContext ctx) {
+		addMenuItem(ctx, "New Document", Type.MANAGER, e -> {
+
+			// ctx.getTabManager().addTabWithAddressBar(address, title);
+
+			// OulipoTab tab = new OulipoTab("New Document");
+			// ctx.getTabManager().insert(ctx.getTabManager().size(), tab);
+			// ctx.getTabManager().selectTab(tab);
+		});
+
 		addMenuItem(ctx, "Register Node", Type.MANAGER, e -> {
 			FXMLLoader loader = ctx.getLoader();
 			loader.setLocation(getClass().getResource("/org/oulipo/browser/pages/RegisterNodeView.fxml"));

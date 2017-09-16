@@ -15,6 +15,118 @@
  *******************************************************************************/
 package org.oulipo.browser.pages;
 
-public class UpdateUserController {
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.controls.OulipoTable;
+import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.net.MalformedTumblerException;
+import org.oulipo.resources.model.User;
+
+import com.jfoenix.controls.JFXButton;
+
+import javafx.application.Platform;
+import javafx.scene.control.Button;
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class UpdateUserController extends BaseController {
+
+	private void attachAction(Button button, User user, OulipoTable table) {
+		button.setOnAction(e -> {
+			user.xandle = table.getValue("Xandle");
+			try {
+				tumblerService.createOrUpdateUser(user, new retrofit2.Callback<User>() {
+
+					@Override
+					public void onFailure(Call<User> arg0, Throwable arg1) {
+
+					}
+
+					@Override
+					public void onResponse(Call<User> arg0, Response<User> arg1) {
+						address.setScheme("ted");
+						Platform.runLater(() -> {
+							try {
+								addressController.show(address.toExternalForm());
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						});
+
+					}
+
+				});
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+	}
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+
+	}
+
+	@Override
+	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+		super.show(controller);
+
+		tumblerService.getUser(address.toTumblerAuthority(), new retrofit2.Callback<User>() {
+
+			@Override
+			public void onFailure(Call<User> arg0, Throwable arg1) {
+				arg1.printStackTrace();
+			}
+
+			@Override
+			public void onResponse(Call<User> arg0, Response<User> response) {
+				JFXButton submit = new JFXButton("Update");
+
+				if (response.isSuccessful()) {
+					final User user = response.body();
+
+					Platform.runLater(() -> {
+						try {
+							OulipoTable table = new OulipoTable(300, 350)
+									.addEditText("Tumbler Address", address.toTumblerFields(), false)
+									.addEditText("Public Key", user.publicKey, false).addEditText("Xandle", user.xandle)
+									.addActions(submit);
+							attachAction(submit, user, table);
+
+							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
+							addressController.addContent(table, "Update User");
+
+						} catch (MalformedTumblerException e1) {
+							e1.printStackTrace();
+							return;
+						}
+					});
+				} else {
+					Platform.runLater(() -> {
+						OulipoTable table = new OulipoTable(300, 350);
+						try {
+							table.addEditText("Tumbler Address", address.toTumblerFields(), false);
+						} catch (MalformedTumblerException e) {
+							e.printStackTrace();
+						}
+						table.addEditText("Public Key", ctx.getAccountManager().getActiveAccount().publicKey, false)
+								.addEditText("Xandle", "").addActions(submit);
+
+						User user = new User();
+						user.publicKey = ctx.getAccountManager().getActiveAccount().publicKey;
+						user.resourceId = address;
+						attachAction(submit, user, table);
+
+						addressController.addContent(table, "Create User");
+
+					});
+
+				}
+			}
+		});
+	}
 
 }

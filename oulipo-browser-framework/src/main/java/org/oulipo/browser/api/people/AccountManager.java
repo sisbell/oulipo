@@ -24,11 +24,15 @@ import org.oulipo.storage.StorageException;
 
 public interface AccountManager extends MenuManager<Account>, Repository<Account> {
 
-	Account getActiveAccount();
+	Account getActiveAccount();;
+
+	CurrentUser getCurrentUserAddress() throws StorageException;;
 
 	String getTokenFor(Account account) throws StorageException;
-	
+
 	void login(Account account, String uri) throws UnsupportedEncodingException, StorageException;
-	
+
 	Account newAccount() throws IOException, StorageException;
+
+	void setCurrentUserAddress(CurrentUser user) throws StorageException;
 }

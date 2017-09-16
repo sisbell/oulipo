@@ -24,7 +24,6 @@ import org.oulipo.browser.api.ApplicationContext;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.framework.ExtensionLoader;
 import org.oulipo.browser.framework.MenuContext;
-import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.browser.framework.StorageContext;
 import org.oulipo.security.session.CodeGenerator;
 import org.oulipo.storage.StorageException;
@@ -35,10 +34,10 @@ import de.endrullis.draggabletabs.DraggableTabPane;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -55,9 +54,6 @@ public class ToolbarController implements Initializable {
 
 	@FXML
 	public Menu bookmarkMenu;
-
-	@FXML
-	public Menu windowMenu;
 
 	private BrowserContext context;
 
@@ -78,6 +74,9 @@ public class ToolbarController implements Initializable {
 	@FXML
 	MenuBar menuBar;
 
+	@FXML
+	public Label name;
+
 	/**
 	 * The tab pane that contains the browser tabs
 	 */
@@ -93,11 +92,11 @@ public class ToolbarController implements Initializable {
 	@Inject
 	StorageContext storageContext;
 
-	@Inject
-	PageRouter router;
-	
 	@FXML
 	public Menu toolsMenu;
+
+	@FXML
+	public Menu windowMenu;
 
 	@FXML
 	public void closeTab() {
@@ -134,20 +133,20 @@ public class ToolbarController implements Initializable {
 		MenuContext menuContext = new MenuContext(windowMenu, peopleMenu, managerMenu, toolsMenu, fileMenu,
 				bookmarkMenu, historyMenu, navigationTabs);
 		try {
-			context = new BrowserContext(applicationContext, loader, stack, storageContext, menuContext, router);
+			context = new BrowserContext(applicationContext, loader, stack, storageContext, menuContext, name);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (StorageException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		menuBar.useSystemMenuBarProperty().set(true);
 		try {
 			ExtensionLoader.loadExtensions(context);
 		} catch (InstantiationException | IllegalAccessException | IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		ToggleGroup group = new ToggleGroup();
 		for (Map.Entry<String, Stage> entry : applicationContext.getStages().entrySet()) {
 			RadioMenuItem item = new RadioMenuItem();
@@ -157,7 +156,7 @@ public class ToolbarController implements Initializable {
 			item.setOnAction(e -> {
 				Stage s = (Stage) item.getUserData();
 				s.show();
-				
+
 			});
 			menuContext.getWindowMenu().getItems().add(item);
 		}

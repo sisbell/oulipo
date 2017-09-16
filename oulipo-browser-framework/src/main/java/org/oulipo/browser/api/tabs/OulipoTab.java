@@ -15,10 +15,11 @@
  *******************************************************************************/
 package org.oulipo.browser.api.tabs;
 
+import org.oulipo.security.session.CodeGenerator;
+
 import com.google.common.base.Strings;
 
 import de.endrullis.draggabletabs.DraggableTab;
-import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 
 /**
@@ -31,10 +32,9 @@ import javafx.scene.image.ImageView;
  */
 public class OulipoTab extends DraggableTab {
 
-	public OulipoTab(String title) {
-		super(title);
-	}
-	
+	private String description;
+
+	private String id;
 
 	/**
 	 * Image displayed in the tab
@@ -48,20 +48,63 @@ public class OulipoTab extends DraggableTab {
 
 	private String tumblerAddress;
 
-	private String description;
-	
+	public OulipoTab(String title) {
+		super(title);
+		id = CodeGenerator.generateCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OulipoTab other = (OulipoTab) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	public String getTumblerAddress() {
+		return tumblerAddress;
+	}
+
 	public boolean hasAddress() {
 		return !Strings.isNullOrEmpty(tumblerAddress);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
 
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
-	public String getDescription() {
-		return "My Description";
+	public void setImage(String url) {
+		this.image = new ImageView(url);
+		setGraphic(image);
 	}
 
+	@Override
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -70,16 +113,4 @@ public class OulipoTab extends DraggableTab {
 		this.tumblerAddress = tumblerAddress;
 	}
 
-	public String getTitle() {
-		return "Title";
-	}
-
-	public String getTumblerAddress() {
-		return "ted://1.3.0.1.0.1.1.3";
-	}
-
-	public void setImage(String url) {
-		this.image = new ImageView(url);
-		setGraphic(image);
-	}
 }

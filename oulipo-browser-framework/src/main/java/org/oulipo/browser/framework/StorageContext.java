@@ -29,11 +29,11 @@ public final class StorageContext {
 	private final StorageService bookmarkStorage;
 
 	private final StorageService historyStorage;
-	
+
 	private final StorageService keystoreStorage;
-	
+
 	private final StorageService sessionStorage;
-	
+
 	private final StorageService tabStorage;
 
 	/**
@@ -63,7 +63,7 @@ public final class StorageContext {
 		this.keystoreStorage.close();
 		this.sessionStorage.close();
 	}
-	
+
 	public StorageService getAccountsStorage() {
 		return accountsStorage;
 	}
@@ -79,11 +79,11 @@ public final class StorageContext {
 	public StorageService getKeystoreStorage() {
 		return keystoreStorage;
 	}
-	
+
 	public StorageService getSessionStorage() {
 		return sessionStorage;
 	}
-	
+
 	public StorageService getTabStorage() {
 		return tabStorage;
 	}

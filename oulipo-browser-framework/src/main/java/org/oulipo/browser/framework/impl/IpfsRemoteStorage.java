@@ -26,19 +26,19 @@ public final class IpfsRemoteStorage implements RemoteStorage {
 	private final IpfsFileManager fileManager;
 
 	public IpfsRemoteStorage() {
-		this.fileManager = null;//new IpfsFileManager();
+		this.fileManager = null;// new IpfsFileManager();
 	}
-	
+
 	@Override
 	public String add(File file) throws IOException {
 		return "";
-	//	return fileManager.add(file);
+		// return fileManager.add(file);
 	}
 
 	@Override
 	public byte[] get(String hash) throws IOException {
 		return new byte[0];
-		//return fileManager.get(hash);
+		// return fileManager.get(hash);
 	}
 
 }

@@ -13,23 +13,13 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.api;
 
-import org.oulipo.storage.Id;
+import java.io.IOException;
 
-public class Account {
+import org.oulipo.net.MalformedSpanException;
 
-	public String bitcoinPayoutAddress;
+public interface PageRouter {
 
-	public String familyName;
-
-	public String givenName;
-
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
-
+	Page getPage(String tumbler, String body) throws IOException, MalformedSpanException;
 }

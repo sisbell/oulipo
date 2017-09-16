@@ -23,11 +23,11 @@ import org.oulipo.browser.api.history.HistoryManager;
 import org.oulipo.browser.api.history.HistoryRepository;
 import org.oulipo.browser.api.people.Account;
 import org.oulipo.browser.api.people.AccountManager;
+import org.oulipo.browser.api.people.CurrentUser;
 import org.oulipo.browser.api.storage.RemoteStorage;
 import org.oulipo.browser.api.storage.SessionStorage;
 import org.oulipo.browser.api.tabs.TabManager;
 import org.oulipo.browser.framework.MenuContext;
-import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.browser.framework.StorageContext;
 import org.oulipo.browser.framework.impl.AccountManagerImpl;
 import org.oulipo.browser.framework.impl.BookmarkManagerImpl;
@@ -41,9 +41,12 @@ import org.oulipo.client.services.ServiceBuilder;
 import org.oulipo.security.keystore.FileStorage;
 import org.oulipo.storage.StorageException;
 
+import com.google.common.base.Strings;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -80,6 +83,8 @@ public final class BrowserContext {
 
 	private TabManager tabManager;
 
+	private Label userName;
+
 	/**
 	 * Constructs a browser context
 	 * 
@@ -90,7 +95,8 @@ public final class BrowserContext {
 	 * @throws StorageException
 	 */
 	public BrowserContext(ApplicationContext applicationContext, FXMLLoader loader, StackPane contentArea,
-			StorageContext storageContext, MenuContext menuContext, PageRouter router) throws IOException, StorageException {
+			StorageContext storageContext, MenuContext menuContext, Label userName)
+			throws IOException, StorageException {
 		this.applicationContext = applicationContext;
 		this.loader = loader;
 		this.contentArea = contentArea;
@@ -103,9 +109,15 @@ public final class BrowserContext {
 				storageContext.getBookmarkStorage());
 		this.historyRepository = new HistoryRepositoryImpl(menuContext.getHistoryMenu(),
 				storageContext.getHistoryStorage());
-		this.tabManager = new TabManagerImpl(this, router, storageContext.getTabStorage(), menuContext.getTabs());
+		this.tabManager = new TabManagerImpl(this, storageContext.getTabStorage(), menuContext.getTabs());
 		this.accountManager = new AccountManagerImpl(menuContext.getPeopleMenu(), this, sessionStorage,
 				storageContext.getAccountsStorage(), keyStorage, remoteStorage);
+		this.userName = userName;
+		CurrentUser currentUser = accountManager.getCurrentUserAddress();
+		if (currentUser != null) {
+			String name = !Strings.isNullOrEmpty(currentUser.xandle) ? currentUser.xandle : currentUser.address;
+			userName.setText(name);
+		}
 	}
 
 	/**
@@ -119,6 +131,10 @@ public final class BrowserContext {
 		return accountManager;
 	}
 
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
 	public BookmarkManager getBookmarkManager() {
 		return bookmarkManager;
 	}
@@ -130,10 +146,9 @@ public final class BrowserContext {
 	public DocuverseService getDocuverseService() throws StorageException {
 		Account account = accountManager.getActiveAccount();
 		String token = accountManager.getTokenFor(account);
-		return new ServiceBuilder("http://localhost:4567/docuverse/")
-				.publicKey(account.publicKey).sessionToken(token)
+		return new ServiceBuilder("http://localhost:4567/docuverse/").publicKey(account.publicKey).sessionToken(token)
 				.build(DocuverseService.class);
-		
+
 	}
 
 	public HistoryManager getHistoryManager() {
@@ -162,7 +177,7 @@ public final class BrowserContext {
 	public SessionStorage getSessionStorage() {
 		return sessionStorage;
 	}
-	
+
 	public TabManager getTabManager() {
 		return tabManager;
 	}
@@ -186,7 +201,7 @@ public final class BrowserContext {
 
 		FXMLLoader loader = getLoader();
 		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/toolbar/ToolbarView.fxml"));
-        loader.setResources(ResourceBundle.getBundle("bundles.browser"));
+		loader.setResources(ResourceBundle.getBundle("bundles.browser"));
 
 		Parent browser = loader.load();
 		Scene scene = new Scene(browser);
@@ -202,6 +217,23 @@ public final class BrowserContext {
 
 		stage.setScene(scene);
 		stage.show();
+	}
+
+	public boolean ownsResource(String publicKey) {
+		return getAccountManager().getActiveAccount() != null
+				&& getAccountManager().getActiveAccount().publicKey.equals(publicKey);
+	}
+
+	public void setUserName(String address, String xandle) {
+		userName.setText(xandle);
+		CurrentUser currentUser = new CurrentUser();
+		currentUser.address = address;
+		currentUser.xandle = xandle;
+		try {
+			accountManager.setCurrentUserAddress(currentUser);
+		} catch (StorageException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void showToolbar(String id) {

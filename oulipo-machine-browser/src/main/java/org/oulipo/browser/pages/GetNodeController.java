@@ -15,6 +15,92 @@
  *******************************************************************************/
 package org.oulipo.browser.pages;
 
-public class GetNodeController {
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.controls.OulipoTable;
+import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.browser.tables.ButtonsCreator;
+import org.oulipo.net.MalformedTumblerException;
+import org.oulipo.resources.model.Node;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javafx.application.Platform;
+import javafx.scene.layout.HBox;
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class GetNodeController extends BaseController {
+
+	private ObjectMapper mapper = new ObjectMapper();
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+
+	}
+
+	@Override
+	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+		super.show(controller);
+		tumblerService.getNode(address.toTumblerAuthority(), new retrofit2.Callback<Node>() {
+
+			@Override
+			public void onFailure(Call<Node> arg0, Throwable arg1) {
+
+			}
+
+			@Override
+			public void onResponse(Call<Node> arg0, Response<Node> response) {
+				if (response.isSuccessful()) {
+					final Node node = response.body();
+
+					Platform.runLater(() -> {
+						try {
+							OulipoTable table = new OulipoTable(300, 300)
+									.addText("Tumbler Address", address.toTumblerFields())
+									.addText("Public Key", node.publicKey).addText("Node Name", node.nodeName)
+									.addText("Organization Name", node.organizationName).addText("Email", node.email)
+									.addCheckBox("Allow User Creation", node.allowUserToCreateAccount);
+
+							HBox box = new HBox();
+							if (ctx.ownsResource(node.publicKey)) {
+								address.setScheme("edit");
+								box.getChildren()
+										.add(ButtonsCreator.editNode(addressController, address.toExternalForm()));
+								box.getChildren().add(ButtonsCreator.addUser(ctx, address.toExternalForm(), ""));
+							}
+							box.getChildren().add(ButtonsCreator.showUsers(ctx, address.toExternalForm(), "", false,
+									addressController));
+							addressController.addRightAddressBar(box);
+
+							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
+							addressController.addContent(table, "View Node");
+
+						} catch (MalformedTumblerException e) {
+							e.printStackTrace();
+						}
+						/*
+						 * if (node.allowUserToCreateAccount) { try { Button addUserBtn =
+						 * ButtonsCreator.addUser(ctx, address.toTumblerFields(),
+						 * address.toTumblerFields()); addressController.addRightAddressBar(addUserBtn);
+						 * } catch (MalformedTumblerException e) { e.printStackTrace(); } }
+						 */
+					});
+				} else {
+					address.setScheme("edit");
+					Platform.runLater(() -> {
+						try {
+							addressController.show(address.toExternalForm());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+				}
+			}
+		});
+	}
 
 }

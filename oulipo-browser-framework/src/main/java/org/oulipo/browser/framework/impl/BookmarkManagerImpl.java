@@ -36,11 +36,11 @@ public final class BookmarkManagerImpl implements BookmarkManager {
 		item.setUserData(bookmark);
 		return item;
 	}
-	
+
 	private final Menu menu;
 
 	private final StorageService storageService;
-	
+
 	public BookmarkManagerImpl(Menu menu, StorageService storageService) throws StorageException, IOException {
 		this.menu = menu;
 		this.storageService = storageService;
@@ -50,36 +50,36 @@ public final class BookmarkManagerImpl implements BookmarkManager {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void add(Bookmark bookmark) throws StorageException {
 		storageService.save(bookmark);
 		menu.getItems().add(createMenuItemFrom(bookmark));
 	}
-	
+
 	@Override
 	public void add(BookmarkCategory category) throws StorageException {
 		storageService.save(category);
 	}
-	
+
 	@Override
 	public void deleteBookmark(String id) throws StorageException {
 		storageService.delete(id, Bookmark.class);
 		Iterator<MenuItem> it = menu.getItems().iterator();
-		while(it.hasNext()) {
+		while (it.hasNext()) {
 			MenuItem item = it.next();
-			if(item.getText().equals(id)) {
+			if (item.getText().equals(id)) {
 				it.remove();
 				break;
 			}
 		}
 	}
-	
+
 	@Override
 	public void deleteBookmarkCategory(String id) throws StorageException {
 		storageService.delete(id, BookmarkCategory.class);
 	}
-	
+
 	@Override
 	public Collection<BookmarkCategory> getBookmarkCategories() throws StorageException, IOException {
 		try {
@@ -89,14 +89,14 @@ public final class BookmarkManagerImpl implements BookmarkManager {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Collection<Bookmark> getBookmarks() throws ClassNotFoundException, StorageException, IOException {
 		return storageService.getAll(Bookmark.class);
 	}
-	
+
 	private void load() throws ClassNotFoundException, StorageException, IOException {
-		for(Bookmark bookmark : getBookmarks()) {
+		for (Bookmark bookmark : getBookmarks()) {
 			menu.getItems().add(createMenuItemFrom(bookmark));
 		}
 	}

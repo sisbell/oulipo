@@ -29,12 +29,6 @@ import javafx.scene.control.MenuItem;
 
 public final class HistoryRepositoryImpl implements HistoryRepository {
 
-	private ObservableList<History> list;
-
-	private final StorageService storageService;
-
-	private Menu menu;
-
 	private static MenuItem createMenuItemFrom(History history) {
 		MenuItem item = new MenuItem();
 		item.setText(history.title);
@@ -42,7 +36,12 @@ public final class HistoryRepositoryImpl implements HistoryRepository {
 		return item;
 	}
 
-	
+	private ObservableList<History> list;
+
+	private Menu menu;
+
+	private final StorageService storageService;
+
 	public HistoryRepositoryImpl(Menu menu, StorageService storageService) throws StorageException, IOException {
 		this.storageService = storageService;
 		this.menu = menu;

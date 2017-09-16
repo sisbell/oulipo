@@ -24,14 +24,15 @@ public class Bookmark {
 	public String category;
 
 	public Date created;
-	
+
 	@Id
 	public String id;
-	
+
 	public String title;
-	
+
 	public String url;
-	
-	public Bookmark() { }
-	
+
+	public Bookmark() {
+	}
+
 }

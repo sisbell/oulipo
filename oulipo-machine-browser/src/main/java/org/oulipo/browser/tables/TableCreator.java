@@ -13,23 +13,11 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.tables;
 
-import org.oulipo.storage.Id;
+public class TableCreator<T> {
 
-public class Account {
+	public void create() {
 
-	public String bitcoinPayoutAddress;
-
-	public String familyName;
-
-	public String givenName;
-
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
-
+	}
 }

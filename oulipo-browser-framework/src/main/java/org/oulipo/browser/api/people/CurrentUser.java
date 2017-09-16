@@ -17,18 +17,12 @@ package org.oulipo.browser.api.people;
 
 import org.oulipo.storage.Id;
 
-public class Account {
+public class CurrentUser {
 
-	public String bitcoinPayoutAddress;
-
-	public String familyName;
-
-	public String givenName;
-
-	public String imageHash;
+	public String address;
 
 	@Id
-	public String publicKey;
+	public String id = "current_user";
 
 	public String xandle;
 

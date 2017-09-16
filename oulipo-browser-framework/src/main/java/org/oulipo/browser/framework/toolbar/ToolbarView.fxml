@@ -75,17 +75,18 @@
 				</Menu>
 			</menus>
 		</MenuBar>
+		<Label textAlignment="CENTER" wrapText="false"
+			fx:id="name">
+			<font>
+				<Font size="18.0" />
+			</font>
+		</Label>
 		<StackPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0"
 			prefWidth="-1.0" VBox.vgrow="ALWAYS" fx:id="stack">
 			<children>
-				<Label alignment="CENTER" layoutX="155.0" layoutY="177.0"
-					style="&#10;" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
-					<font>
-						<Font size="18.0" />
-					</font>
-				</Label>
-				<DraggableTabPane layoutY="6.0" prefHeight="361.0" prefWidth="631.0"
-					tabClosingPolicy="SELECTED_TAB" fx:id="navigationTabs">
+
+				<DraggableTabPane layoutY="6.0" prefHeight="361.0"
+					prefWidth="631.0" tabClosingPolicy="SELECTED_TAB" fx:id="navigationTabs">
 				</DraggableTabPane>
 			</children>
 		</StackPane>

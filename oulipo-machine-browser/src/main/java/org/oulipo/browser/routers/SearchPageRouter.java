@@ -13,23 +13,23 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.routers;
 
-import org.oulipo.storage.Id;
+import java.io.IOException;
 
-public class Account {
+import org.oulipo.browser.api.Page;
+import org.oulipo.browser.api.Page.View;
+import org.oulipo.browser.api.PageRouter;
+import org.oulipo.browser.api.Scheme;
+import org.oulipo.browser.pages.SearchController;
+import org.oulipo.net.MalformedSpanException;
 
-	public String bitcoinPayoutAddress;
+@Scheme("search")
+public class SearchPageRouter implements PageRouter {
 
-	public String familyName;
-
-	public String givenName;
-
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
+	@Override
+	public Page getPage(String tumbler, String body) throws IOException, MalformedSpanException {
+		return new Page(new SearchController(), new View("/org/oulipo/browser/pages/SearchView.fxml"));
+	}
 
 }

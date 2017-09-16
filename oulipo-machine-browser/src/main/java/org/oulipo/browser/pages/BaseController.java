@@ -13,38 +13,40 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api;
+package org.oulipo.browser.pages;
 
 import java.io.IOException;
-import java.util.Collection;
 
+import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.api.Page;
+import org.oulipo.client.services.TumblerService;
+import org.oulipo.net.MalformedTumblerException;
+import org.oulipo.net.TumblerAddress;
 import org.oulipo.storage.StorageException;
 
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+public abstract class BaseController implements Page.Controller {
 
-public interface MenuManager<T> {
+	protected TumblerAddress address;
 
-	default void addToMenu(T item) throws StorageException, IOException {
-		getMenu().getItems().add(createMenuItemFrom(item));
-	}
+	protected AddressController addressController;
 
-	MenuItem createMenuItemFrom(T item) throws StorageException, IOException;
+	protected BrowserContext ctx;
 
-	Collection<T> getAll() throws StorageException, IOException;
+	protected TumblerService tumblerService;
 
-	Menu getMenu();
-
-	/**
-	 * Loads items in menu
-	 * 
-	 * @throws StorageException
-	 * @throws IOException
-	 */
-	default void load() throws StorageException, IOException {
-		for (T item : getAll()) {
-			addToMenu(item);
+	@Override
+	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+		this.ctx = controller.getContext();
+		this.addressController = controller;
+		this.address = addressController.getTumbler();
+		controller.setTabTitle(address.value);
+		try {
+			this.tumblerService = new TumblerService(ctx.getDocuverseService());
+		} catch (StorageException e) {
+			e.printStackTrace();
 		}
+
 	}
 
 }

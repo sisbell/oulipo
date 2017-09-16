@@ -8,53 +8,68 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.StackPane?>
 
-<VBox prefHeight="100.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="100.0" prefWidth="600.0"
+	xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 		<HBox>
 			<children>
-				<JFXButton onAction="#back" styleClass="addressButton">
+				<JFXButton onAction="#back" styleClass="addressButton" fx:id="backBtn">
 					<graphic>
-						<ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+						<ImageView fitHeight="20.0" fitWidth="20.0"
+							pickOnBounds="true" preserveRatio="true">
 							<image>
 								<Image url="@/images/ic_arrow_back_black_24dp_1x.png" />
 							</image>
-							<HBox.margin>
-								<Insets left="5.0" right="5.0" top="5.0"/>
-							</HBox.margin>
 						</ImageView>
 					</graphic>
+					<HBox.margin>
+						<Insets left="5.0" right="5.0" top="5.0" />
+					</HBox.margin>
+
 				</JFXButton>
-				<JFXButton onAction="#forward" styleClass="addressButton">
+				<JFXButton onAction="#forward" styleClass="addressButton" fx:id="forwardBtn">
 					<graphic>
-						<ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+						<ImageView fitHeight="20.0" fitWidth="20.0"
+							pickOnBounds="true" preserveRatio="true">
 							<image>
 								<Image url="@/images/ic_arrow_forward_black_24dp_1x.png" />
 							</image>
-							<HBox.margin>
-								<Insets left="5.0" right="5.0" top="5.0"/>
-							</HBox.margin>
 						</ImageView>
 					</graphic>
+					<HBox.margin>
+						<Insets top="5.0" />
+					</HBox.margin>
+
 				</JFXButton>
 				<JFXButton onAction="#refresh" styleClass="addressButton">
 					<graphic>
-						<ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+						<ImageView fitHeight="20.0" fitWidth="20.0"
+							pickOnBounds="true" preserveRatio="true">
 							<image>
 								<Image url="@/images/ic_refresh_black_24dp_1x.png" />
 							</image>
-							<HBox.margin>
-								<Insets left="5.0" right="5.0" top="5.0"/>
-							</HBox.margin>
+
 						</ImageView>
 					</graphic>
+					<HBox.margin>
+						<Insets left="5.0" right="5.0" top="5.0" />
+					</HBox.margin>
 				</JFXButton>
-				<TextField fx:id="addressBox" prefHeight="27.0" HBox.hgrow="ALWAYS">
-               <HBox.margin>
-                  <Insets bottom="5.0" right="16.0" top="5.0" />
-               </HBox.margin></TextField>
+				<StackPane HBox.hgrow="ALWAYS" fx:id="addressPane">
+					<children>
+					</children>
+					<HBox.margin>
+						<Insets bottom="5.0" right="16.0" top="5.0" />
+					</HBox.margin>
+
+				</StackPane>
 			</children>
 		</HBox>
-      <VBox fx:id="content" VBox.vgrow="ALWAYS"/>
+		<Separator />
+
+		<VBox fx:id="content" VBox.vgrow="ALWAYS" />
 	</children>
 </VBox>

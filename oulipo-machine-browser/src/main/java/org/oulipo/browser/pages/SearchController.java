@@ -19,20 +19,43 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.controlsfx.control.textfield.CustomTextField;
+import org.oulipo.browser.api.AddressController;
 import org.oulipo.browser.api.Page;
-import org.oulipo.browser.framework.AddressController;
+import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.net.MalformedTumblerException;
+
+import javafx.fxml.FXML;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 
 public class SearchController implements Page.Controller {
 
+	@FXML
+	AnchorPane pane;
+
+	@FXML
+	CustomTextField searchField;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-
+		pane.setStyle("-fx-background-color: white");
 	}
 
 	@Override
 	public void show(AddressController addressController) throws MalformedTumblerException, IOException {
+		ImageView searchView = new ImageView();
+		searchView.setFitWidth(20);
+		searchView.setFitHeight(20);
+		searchView.setImage(new Image("/images/ic_search_black_24dp_1x.png"));
+		addressController.addLeftAddressBar(searchView);
 
+		searchField.setText(addressController.getAddressBoxText());
+		searchField.setRight(ButtonsCreator.search(addressController.getContext(), searchField));
+		searchField.setOnAction(e -> {
+
+		});
 	}
 
 }

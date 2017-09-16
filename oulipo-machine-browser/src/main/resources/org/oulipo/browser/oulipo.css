@@ -33,6 +33,21 @@
     -fx-background-radius: 10 10 0 0;
 }
 
+#content {
+	-fx-padding: 2em 10em;
+  }
+
+#table-title {
+   -fx-font-size: 32px;
+   -fx-fill: #818181;
+   -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+}
+
+#oulipo-table-row {
+   -fx-font-size: 16px;
+   -fx-padding: 5 0 5 0;     
+}
+
 
 
 

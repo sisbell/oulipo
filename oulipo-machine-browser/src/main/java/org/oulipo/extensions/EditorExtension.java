@@ -18,18 +18,11 @@ package org.oulipo.extensions;
 import org.oulipo.browser.api.BaseExtension;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Extension;
-import org.oulipo.browser.api.tabs.OulipoTab;
-import org.oulipo.browser.framework.MenuContext.Type;
 
 public class EditorExtension extends BaseExtension implements Extension {
 
 	@Override
 	public void init(BrowserContext ctx) {
-		addMenuItem(ctx, "New Document", Type.MANAGER, e -> {
-			OulipoTab tab = new OulipoTab("New Document");
-			ctx.getTabManager().insert(ctx.getTabManager().size(), tab);
-			ctx.getTabManager().selectTab(tab);
-		});
 
 	}
 

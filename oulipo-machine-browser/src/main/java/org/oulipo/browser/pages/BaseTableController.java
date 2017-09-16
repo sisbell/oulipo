@@ -13,23 +13,28 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.pages;
 
-import org.oulipo.storage.Id;
+import java.util.List;
 
-public class Account {
+import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.api.Page;
 
-	public String bitcoinPayoutAddress;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
-	public String familyName;
+public abstract class BaseTableController<T, U extends RecursiveTreeObject<U>> extends BaseController
+		implements Page.Controller {
 
-	public String givenName;
+	/*
+	 * protected void populateTable(BrowserContext ctx, List<T> nodes) {
+	 * ObservableList<T> nodesObs = FXCollections.observableArrayList(); for (T node
+	 * : nodes) {
+	 * 
+	 * //nodesObs.add(new NodeTree(node)); }
+	 * 
+	 * }
+	 */
 
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
+	public abstract void populateTable(BrowserContext ctx, List<T> nodes);
 
 }

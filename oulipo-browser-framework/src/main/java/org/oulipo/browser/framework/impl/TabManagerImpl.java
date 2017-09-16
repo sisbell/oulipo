@@ -16,13 +16,16 @@
 package org.oulipo.browser.framework.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.oulipo.browser.api.AddressController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.tabs.OulipoTab;
 import org.oulipo.browser.api.tabs.TabManager;
-import org.oulipo.browser.framework.AddressController;
-import org.oulipo.browser.framework.PageRouter;
 import org.oulipo.storage.StorageService;
+
+import com.google.common.base.Strings;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -32,17 +35,16 @@ import javafx.scene.control.TabPane;
 
 public class TabManagerImpl implements TabManager {
 
+	private Map<OulipoTab, AddressController> controllers = new HashMap<>();
+
 	private final BrowserContext ctx;
 
 	private final TabPane tabs;
 
 	private final StorageService tabStorage;
 
-	private PageRouter router;
-
-	public TabManagerImpl(BrowserContext ctx, PageRouter router, StorageService tabStorage, TabPane tabs) {
+	public TabManagerImpl(BrowserContext ctx, StorageService tabStorage, TabPane tabs) {
 		this.ctx = ctx;
-		this.router = router;
 		this.tabs = tabs;
 		this.tabStorage = tabStorage;
 	}
@@ -54,12 +56,14 @@ public class TabManagerImpl implements TabManager {
 
 	@Override
 	public OulipoTab addTabWithAddressBar(String address, String title) throws IOException {
+		if (Strings.isNullOrEmpty(title)) {
+			title = address;
+		}
 		OulipoTab tab = new OulipoTab(title);
+		AddressController addressController = new AddressController(ctx.getApplicationContext());
 
 		FXMLLoader loader = ctx.getLoader();
 		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/AddressBar.fxml"));
-
-		AddressController addressController = new AddressController(router);
 		loader.setController(addressController);
 
 		Node node = loader.load();
@@ -67,8 +71,41 @@ public class TabManagerImpl implements TabManager {
 		add(tab);
 		selectTab(tab);
 
-		addressController.show(address, ctx);
+		addressController.show(address, tab, ctx);
 		return tab;
+	}
+
+	@Override
+	public OulipoTab addTabWithAddressBar(String address, String title, String body) throws IOException {
+		OulipoTab tab = new OulipoTab(title);
+		/*
+		 * FXMLLoader loader = ctx.getLoader();
+		 * loader.setLocation(getClass().getResource(
+		 * "/org/oulipo/browser/framework/AddressBar.fxml"));
+		 * loader.setController(addressController);
+		 * 
+		 * Node node = loader.load(); tab.setContent(node); add(tab); selectTab(tab);
+		 * 
+		 * addressController.show(address, ctx, body);
+		 */
+		return tab;
+	}
+
+	@Override
+	public void backward(OulipoTab tab) {
+		AddressController controller = controllers.get(tab);
+		if (controller != null) {
+			controller.back();
+		}
+	}
+
+	@Override
+	public void forward(OulipoTab tab) {
+		AddressController controller = controllers.get(tab);
+		if (controller != null) {
+			controller.forward();
+			;
+		}
 	}
 
 	@Override
@@ -96,6 +133,14 @@ public class TabManagerImpl implements TabManager {
 	public void selectTab(OulipoTab tab) {
 		SingleSelectionModel<Tab> selectionModel = tabs.getSelectionModel();
 		selectionModel.select(tab);
+	}
+
+	@Override
+	public void showInTab(OulipoTab tab, String address, String title) throws IOException {
+		AddressController controller = controllers.get(tab);
+		if (controller != null) {
+			controller.show(address, tab, ctx);
+		}
 	}
 
 	@Override

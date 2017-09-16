@@ -28,16 +28,22 @@ public interface TabManager {
 	 * @param tab
 	 *            the tab to add
 	 */
-	public void add(OulipoTab tab);
+	void add(OulipoTab tab);
 
 	OulipoTab addTabWithAddressBar(String address, String title) throws IOException;
+
+	OulipoTab addTabWithAddressBar(String address, String title, String body) throws IOException;
+
+	void backward(OulipoTab tab);
+
+	void forward(OulipoTab tab);
 
 	/**
 	 * Gets the currently selected tab
 	 * 
 	 * @return the currently selected tab
 	 */
-	public OulipoTab getSelectedTab();
+	OulipoTab getSelectedTab();
 
 	/**
 	 * Inserts the specified tab at the specified position (from left to right) in
@@ -48,7 +54,7 @@ public interface TabManager {
 	 * @param tab
 	 *            the tab to insert
 	 */
-	public void insert(int position, OulipoTab tab);
+	void insert(int position, OulipoTab tab);
 
 	void remove(OulipoTab tab);
 
@@ -60,13 +66,15 @@ public interface TabManager {
 	 * @param tab
 	 *            the tab to select
 	 */
-	public void selectTab(OulipoTab tab);
+	void selectTab(OulipoTab tab);
+
+	void showInTab(OulipoTab tab, String address, String title) throws IOException;
 
 	/**
 	 * Returns the number of tabs in the toolbar
 	 * 
 	 * @return the number of tabs in the toolbar
 	 */
-	public int size();
+	int size();
 
 }

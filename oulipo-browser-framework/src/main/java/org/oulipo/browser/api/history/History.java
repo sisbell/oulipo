@@ -22,12 +22,12 @@ import org.oulipo.storage.Id;
 public class History {
 
 	public Date created;
-	
+
 	@Id
 	public String id;
-	
+
 	public String title;
-	
+
 	public String url;
 
 	@Override
@@ -65,6 +65,5 @@ public class History {
 	public String toString() {
 		return "History [id=" + id + ", url=" + url + ", title=" + title + ", created=" + created + "]";
 	}
-	
-	
+
 }

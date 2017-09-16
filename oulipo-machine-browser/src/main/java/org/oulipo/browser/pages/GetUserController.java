@@ -15,6 +15,78 @@
  *******************************************************************************/
 package org.oulipo.browser.pages;
 
-public class GetUserController {
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.controls.OulipoTable;
+import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.browser.tables.ButtonsCreator;
+import org.oulipo.net.MalformedTumblerException;
+import org.oulipo.resources.model.User;
+
+import javafx.application.Platform;
+import javafx.scene.layout.HBox;
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class GetUserController extends BaseController {
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+
+	}
+
+	@Override
+	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+		super.show(controller);
+		tumblerService.getUser(address.toTumblerAuthority(), new retrofit2.Callback<User>() {
+
+			@Override
+			public void onFailure(Call<User> arg0, Throwable arg1) {
+				arg1.printStackTrace();
+			}
+
+			@Override
+			public void onResponse(Call<User> arg0, Response<User> response) {
+				if (response.isSuccessful()) {
+					final User user = response.body();
+
+					Platform.runLater(() -> {
+						try {
+							OulipoTable table = new OulipoTable(300, 350)
+									.addText("Tumbler Address", address.toTumblerFields())
+									.addText("Public Key", user.publicKey).addText("Xandle", user.xandle);
+
+							HBox box = new HBox();
+							if (ctx.ownsResource(user.publicKey)) {
+								// ctx.getAccountManager().
+								box.getChildren().add(ButtonsCreator.signin(addressController, ctx,
+										address.toExternalForm(), user.xandle));
+							}
+							addressController.addRightAddressBar(box);
+
+							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
+							addressController.addContent(table, "View User");
+
+						} catch (MalformedTumblerException e1) {
+							e1.printStackTrace();
+							return;
+						}
+					});
+				} else {
+					address.setScheme("edit");
+					Platform.runLater(() -> {
+						try {
+							addressController.show(address.toExternalForm());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+				}
+			}
+		});
+	}
 
 }

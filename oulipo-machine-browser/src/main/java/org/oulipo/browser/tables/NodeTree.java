@@ -13,23 +13,27 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.tables;
 
-import org.oulipo.storage.Id;
+import org.oulipo.resources.model.Node;
 
-public class Account {
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
-	public String bitcoinPayoutAddress;
+public class NodeTree extends ThingTreeObject<NodeTree> {
 
-	public String familyName;
+	public final BooleanProperty canCreateUsers;
 
-	public String givenName;
+	public final StringProperty name;
 
-	public String imageHash;
+	public final StringProperty publicKey;
 
-	@Id
-	public String publicKey;
-
-	public String xandle;
-
+	public NodeTree(Node node) {
+		super(node);
+		this.publicKey = new SimpleStringProperty(node.publicKey);
+		this.name = new SimpleStringProperty(node.nodeName);
+		this.canCreateUsers = new SimpleBooleanProperty(node.allowUserToCreateAccount);
+	}
 }

@@ -26,12 +26,6 @@ import org.oulipo.storage.StorageService;
 
 public final class SessionStorage implements Repository<org.oulipo.browser.api.storage.SessionStorage.Property> {
 
-	private StorageService service;
-
-	public SessionStorage(StorageService service) {
-		this.service = service;
-	}
-
 	public static class Property {
 
 		@Id
@@ -51,6 +45,12 @@ public final class SessionStorage implements Repository<org.oulipo.browser.api.s
 		public String toString() {
 			return "Property [key=" + key + ", value=" + value + "]";
 		}
+	}
+
+	private StorageService service;
+
+	public SessionStorage(StorageService service) {
+		this.service = service;
 	}
 
 	@Override

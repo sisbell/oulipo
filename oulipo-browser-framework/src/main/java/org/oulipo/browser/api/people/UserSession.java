@@ -19,11 +19,11 @@ import org.oulipo.storage.Id;
 
 public class UserSession {
 
+	public String host;
+
 	@Id
 	public String publicKey;
-	
-	public String host;
-	
+
 	public String sessionToken;
 
 	@Override

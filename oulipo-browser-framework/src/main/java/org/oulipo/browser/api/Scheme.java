@@ -13,23 +13,16 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.api.people;
+package org.oulipo.browser.api;
 
-import org.oulipo.storage.Id;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public class Account {
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-	public String bitcoinPayoutAddress;
-
-	public String familyName;
-
-	public String givenName;
-
-	public String imageHash;
-
-	@Id
-	public String publicKey;
-
-	public String xandle;
-
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface Scheme {
+	String value();
 }

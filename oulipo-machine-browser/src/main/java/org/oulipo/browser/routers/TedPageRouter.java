@@ -13,13 +13,17 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.pages;
+package org.oulipo.browser.routers;
 
 import java.io.IOException;
 
 import org.oulipo.browser.api.Page;
-import org.oulipo.browser.api.Page.View;
-import org.oulipo.browser.framework.PageRouter;
+import org.oulipo.browser.api.PageRouter;
+import org.oulipo.browser.api.Scheme;
+import org.oulipo.browser.pages.GetNodeController;
+import org.oulipo.browser.pages.GetNodesController;
+import org.oulipo.browser.pages.GetUserController;
+import org.oulipo.browser.pages.GetUsersController;
 import org.oulipo.client.services.TumblerService.TumblerSuccess;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
@@ -38,7 +42,8 @@ import com.google.inject.Injector;
  * Routes a tumbler address to the corresponding <code>TumblerService</code>
  * call.
  */
-public final class AddressRouter implements PageRouter {
+@Scheme("ted")
+public final class TedPageRouter implements PageRouter {
 
 	@Inject
 	private Injector injector;
@@ -48,23 +53,20 @@ public final class AddressRouter implements PageRouter {
 	 */
 	private ObjectMapper mapper = new ObjectMapper();
 
-	public AddressRouter() {
-		// injector = Guice.createInjector(new GuiceModule());
+	public TedPageRouter() {
 	}
 
 	@Override
-	public Page getPage(String tumbler) throws MalformedSpanException, IOException {
+	public Page getPage(String tumbler, String body) throws MalformedSpanException, IOException {
 		Page page = getRouteController(tumbler);
-		if (page.controller != null) {
+		if (page != null) {
 			injector.injectMembers(page.controller);
 		}
 		return page;
 	}
 
 	private Page getRouteController(String url) throws MalformedSpanException, IOException {
-		if (Strings.isNullOrEmpty(url) || url.startsWith("search://")) {
-			return new Page(new SearchController(), new View("/org/oulipo/browser/pages/SearchView.fxml"));
-		}
+
 		TumblerAddress tumbler = TumblerAddress.create(url);
 		if (!Strings.isNullOrEmpty(tumbler.getPath())) {
 			String path = tumbler.getPath();
@@ -113,13 +115,14 @@ public final class AddressRouter implements PageRouter {
 				if (tumbler.isSystemAddress()) {
 					// service.getSystemNodes(queryParams, callback);
 				} else {
-					// service.getNode(tumbler.toTumblerAuthority(), callback);
+					return new Page(new GetNodeController());// , new
+																// View("/org/oulipo/browser/pages/GetNodeView.fxml"));
 				}
 			} else if (tumbler.isUserTumbler()) {
 				if (tumbler.isSystemAddress()) {
 					// service.getSystemUsers(queryParams, callback);
 				} else {
-					// service.getUser(tumbler.toTumblerAuthority(), callback);
+					return new Page(new GetUserController());
 				}
 			} else if (tumbler.isDocumentTumbler()) {
 				if (tumbler.isSystemAddress()) {
