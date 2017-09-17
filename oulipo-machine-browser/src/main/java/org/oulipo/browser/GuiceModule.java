@@ -17,7 +17,7 @@ package org.oulipo.browser;
 
 import java.io.IOException;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.ApplicationContext;
 import org.oulipo.browser.framework.StorageContext;
 
@@ -38,6 +38,6 @@ public class GuiceModule extends AbstractModule {
 
 		bind(ApplicationContext.class);
 		// TODO: register per scheme - add annotation by scheme: ted, view-source
-		bind(AddressController.class);
+		bind(AddressBarController.class);
 	}
 }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.browser.tables.ButtonsCreator;
@@ -39,7 +39,7 @@ public class GetUserController extends BaseController {
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 		tumblerService.getUser(address.toTumblerAuthority(), new retrofit2.Callback<User>() {
 
@@ -62,13 +62,13 @@ public class GetUserController extends BaseController {
 							HBox box = new HBox();
 							if (ctx.ownsResource(user.publicKey)) {
 								// ctx.getAccountManager().
-								box.getChildren().add(ButtonsCreator.signin(addressController, ctx,
+								box.getChildren().add(ButtonsCreator.signin(addressBarController, ctx,
 										address.toExternalForm(), user.xandle));
 							}
-							addressController.addRightAddressBar(box);
+							addressBarController.addRightAddressBar(box);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-							addressController.addContent(table, "View User");
+							addressBarController.addContent(table, "View User");
 
 						} catch (MalformedTumblerException e1) {
 							e1.printStackTrace();
@@ -79,7 +79,7 @@ public class GetUserController extends BaseController {
 					address.setScheme("edit");
 					Platform.runLater(() -> {
 						try {
-							addressController.show(address.toExternalForm());
+							addressBarController.show(address.toExternalForm());
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

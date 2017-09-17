@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.browser.tables.HyperLinkTableCell;
@@ -78,7 +78,7 @@ public class GetUsersController extends BaseTableController<User, UserTree> {
 				.setCellFactory(new Callback<TreeTableColumn<UserTree, String>, TreeTableCell<UserTree, String>>() {
 					@Override
 					public TreeTableCell<UserTree, String> call(TreeTableColumn<UserTree, String> param) {
-						return new HyperLinkTableCell<UserTree>(ctx, false, addressController);
+						return new HyperLinkTableCell<UserTree>(ctx, false, addressBarController);
 					}
 				});
 
@@ -111,14 +111,14 @@ public class GetUsersController extends BaseTableController<User, UserTree> {
 		} catch (MalformedTumblerException e) {
 			e.printStackTrace();
 		}
-		addressController.addContent(treeView, header);
+		addressBarController.addContent(treeView, header);
 
 		ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, treeView);
 
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 		tumblerService.getUsers(address.toTumblerAuthority(), address.getQueryParams(),
 				new retrofit2.Callback<List<User>>() {

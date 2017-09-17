@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import org.controlsfx.control.textfield.CustomTextField;
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.Page;
 import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.net.MalformedTumblerException;
@@ -44,15 +44,15 @@ public class SearchController implements Page.Controller {
 	}
 
 	@Override
-	public void show(AddressController addressController) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
 		ImageView searchView = new ImageView();
 		searchView.setFitWidth(20);
 		searchView.setFitHeight(20);
 		searchView.setImage(new Image("/images/ic_search_black_24dp_1x.png"));
-		addressController.addLeftAddressBar(searchView);
+		addressBarController.addLeftAddressBar(searchView);
 
-		searchField.setText(addressController.getAddressBoxText());
-		searchField.setRight(ButtonsCreator.search(addressController.getContext(), searchField));
+		searchField.setText(addressBarController.getAddressBoxText());
+		searchField.setRight(ButtonsCreator.search(addressBarController.getContext(), searchField));
 		searchField.setOnAction(e -> {
 
 		});

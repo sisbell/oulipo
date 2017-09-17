@@ -17,7 +17,7 @@ package org.oulipo.browser.pages;
 
 import java.io.IOException;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Page;
 import org.oulipo.client.services.TumblerService;
@@ -29,17 +29,17 @@ public abstract class BaseController implements Page.Controller {
 
 	protected TumblerAddress address;
 
-	protected AddressController addressController;
+	protected AddressBarController addressBarController;
 
 	protected BrowserContext ctx;
 
 	protected TumblerService tumblerService;
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		this.ctx = controller.getContext();
-		this.addressController = controller;
-		this.address = addressController.getTumbler();
+		this.addressBarController = controller;
+		this.address = addressBarController.getTumbler();
 		controller.setTabTitle(address.value);
 		try {
 			this.tumblerService = new TumblerService(ctx.getDocuverseService());

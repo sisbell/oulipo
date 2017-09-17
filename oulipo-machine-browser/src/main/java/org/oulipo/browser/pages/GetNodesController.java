@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.browser.tables.ButtonsCreator;
@@ -66,7 +66,7 @@ public class GetNodesController extends BaseTableController<Node, NodeTree> {
 
 			HBox buttonBox = new HBox();
 			Button usersBtn = ButtonsCreator.showUsers(ctx, item.address.getValue(), item.name.getValueSafe(), false,
-					addressController);
+					addressBarController);
 			buttonBox.getChildren().add(usersBtn);
 
 			if (item != null && item.canCreateUsers.get()) {
@@ -114,7 +114,7 @@ public class GetNodesController extends BaseTableController<Node, NodeTree> {
 				.setCellFactory(new Callback<TreeTableColumn<NodeTree, String>, TreeTableCell<NodeTree, String>>() {
 					@Override
 					public TreeTableCell<NodeTree, String> call(TreeTableColumn<NodeTree, String> param) {
-						return new HyperLinkTableCell<NodeTree>(ctx, false, addressController);
+						return new HyperLinkTableCell<NodeTree>(ctx, false, addressBarController);
 					}
 				});
 
@@ -157,14 +157,14 @@ public class GetNodesController extends BaseTableController<Node, NodeTree> {
 
 		VBox.setVgrow(treeView, Priority.ALWAYS);
 		String header = address.isMainNet() ? "MainNet Nodes" : "TestNet Nodes";
-		addressController.addContent(treeView, header);
+		addressBarController.addContent(treeView, header);
 
 		ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, treeView);
 
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 		tumblerService.getNodes(address.toTumblerAuthority(), address.getQueryParams(),
 				new retrofit2.Callback<List<Node>>() {

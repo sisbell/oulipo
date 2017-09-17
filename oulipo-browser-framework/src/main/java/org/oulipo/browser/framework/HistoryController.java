@@ -16,12 +16,12 @@
 package org.oulipo.browser.framework;
 
 import org.controlsfx.control.textfield.CustomTextField;
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 
 import javafx.scene.control.Button;
 
 /**
- * Controls forward and backward history views on an AddressController
+ * Controls forward and backward history views on an AddressBarController
  */
 public class HistoryController {
 
@@ -29,14 +29,14 @@ public class HistoryController {
 
 	private Button backBtn;
 
-	private AddressController controller;
+	private AddressBarController controller;
 
 	private Button forwardBtn;
 
 	private HistoryTraverser history = new HistoryTraverser();
 
 	public HistoryController(Button forwardBtn, Button backBtn, CustomTextField addressBox,
-			AddressController controller) {
+			AddressBarController controller) {
 		this.forwardBtn = forwardBtn;
 		this.backBtn = backBtn;
 		this.addressBox = addressBox;

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.net.MalformedTumblerException;
@@ -50,7 +50,7 @@ public class NewUserController extends BaseController {
 						address.setScheme("ted");
 						Platform.runLater(() -> {
 							try {
-								addressController.show(address.toExternalForm());
+								addressBarController.show(address.toExternalForm());
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -71,7 +71,7 @@ public class NewUserController extends BaseController {
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 
 		tumblerService.newUser(address.toTumblerAuthority(), new retrofit2.Callback<User>() {
@@ -96,7 +96,7 @@ public class NewUserController extends BaseController {
 						attachAction(submit, user, table);
 
 						ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-						addressController.addContent(table, "New User");
+						addressBarController.addContent(table, "New User");
 
 					});
 				}

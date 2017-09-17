@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.net.MalformedTumblerException;
@@ -51,7 +51,7 @@ public class UpdateDocumentController extends BaseController {
 						address.setScheme("ted");
 						Platform.runLater(() -> {
 							try {
-								addressController.show(address.toExternalForm());
+								addressBarController.show(address.toExternalForm());
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -72,7 +72,7 @@ public class UpdateDocumentController extends BaseController {
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 
 		tumblerService.getDocument(address.toTumblerAuthority(), new retrofit2.Callback<Document>() {
@@ -98,7 +98,7 @@ public class UpdateDocumentController extends BaseController {
 							attachAction(submit, document, table);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-							addressController.addContent(table, "Update Document");
+							addressBarController.addContent(table, "Update Document");
 
 						} catch (MalformedTumblerException e1) {
 							e1.printStackTrace();
@@ -120,7 +120,7 @@ public class UpdateDocumentController extends BaseController {
 
 						attachAction(submit, document, table);
 
-						addressController.addContent(table, "Create Document");
+						addressBarController.addContent(table, "Create Document");
 
 					});
 

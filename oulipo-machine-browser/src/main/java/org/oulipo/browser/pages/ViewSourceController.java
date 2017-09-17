@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.Page;
 import org.oulipo.client.services.TedRouter;
 import org.oulipo.net.MalformedSpanException;
@@ -40,7 +40,7 @@ public class ViewSourceController implements Page.Controller {
 
 	private final String address;
 
-	private AddressController addressController;
+	private AddressBarController addressBarController;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -54,13 +54,13 @@ public class ViewSourceController implements Page.Controller {
 	}
 
 	@Override
-	public void show(AddressController addressController) throws MalformedTumblerException, IOException {
-		this.addressController = addressController;
+	public void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
+		this.addressBarController = addressBarController;
 
 		String iri = address.substring(address.indexOf(":") + 1, address.length());
 
 		try {
-			TedRouter router = new TedRouter(addressController.getContext().getDocuverseService());
+			TedRouter router = new TedRouter(addressBarController.getContext().getDocuverseService());
 			router.routeGetRequest(TumblerAddress.create(iri), this::showResponses);
 		} catch (StorageException | MalformedSpanException | URISyntaxException e) {
 			e.printStackTrace();
@@ -82,7 +82,7 @@ public class ViewSourceController implements Page.Controller {
 							Label label = new Label(text);
 							label.setStyle("-fx-background-color: white");
 							scroll.setContent(label);
-							addressController.addContent(scroll, "View Source");
+							addressBarController.addContent(scroll, "View Source");
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -90,7 +90,7 @@ public class ViewSourceController implements Page.Controller {
 				});
 			} else {
 				ErrorResponse error = mapper.readValue(response.errorBody().bytes(), ErrorResponse.class);
-				addressController.addContent(
+				addressBarController.addContent(
 						new Label(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(error)), "View Source");
 			}
 		} catch (Exception e) {

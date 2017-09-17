@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Page;
 import org.oulipo.client.services.DocuverseService;
@@ -63,7 +63,7 @@ public class RegisterNodeController implements Page.Controller {
 	}
 
 	@Override
-	public void show(AddressController addressController) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
 
 	}
 

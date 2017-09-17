@@ -32,8 +32,6 @@ public interface TabManager {
 
 	OulipoTab addTabWithAddressBar(String address, String title) throws IOException;
 
-	OulipoTab addTabWithAddressBar(String address, String title, String body) throws IOException;
-
 	void backward(OulipoTab tab);
 
 	void forward(OulipoTab tab);

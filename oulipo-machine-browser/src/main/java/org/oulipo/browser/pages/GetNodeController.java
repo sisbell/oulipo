@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.browser.tables.ButtonsCreator;
@@ -43,7 +43,7 @@ public class GetNodeController extends BaseController {
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 		tumblerService.getNode(address.toTumblerAuthority(), new retrofit2.Callback<Node>() {
 
@@ -69,15 +69,15 @@ public class GetNodeController extends BaseController {
 							if (ctx.ownsResource(node.publicKey)) {
 								address.setScheme("edit");
 								box.getChildren()
-										.add(ButtonsCreator.editNode(addressController, address.toExternalForm()));
+										.add(ButtonsCreator.editNode(addressBarController, address.toExternalForm()));
 								box.getChildren().add(ButtonsCreator.addUser(ctx, address.toExternalForm(), ""));
 							}
 							box.getChildren().add(ButtonsCreator.showUsers(ctx, address.toExternalForm(), "", false,
-									addressController));
-							addressController.addRightAddressBar(box);
+									addressBarController));
+							addressBarController.addRightAddressBar(box);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-							addressController.addContent(table, "View Node");
+							addressBarController.addContent(table, "View Node");
 
 						} catch (MalformedTumblerException e) {
 							e.printStackTrace();
@@ -85,7 +85,7 @@ public class GetNodeController extends BaseController {
 						/*
 						 * if (node.allowUserToCreateAccount) { try { Button addUserBtn =
 						 * ButtonsCreator.addUser(ctx, address.toTumblerFields(),
-						 * address.toTumblerFields()); addressController.addRightAddressBar(addUserBtn);
+						 * address.toTumblerFields()); addressBarController.addRightAddressBar(addUserBtn);
 						 * } catch (MalformedTumblerException e) { e.printStackTrace(); } }
 						 */
 					});
@@ -93,7 +93,7 @@ public class GetNodeController extends BaseController {
 					address.setScheme("edit");
 					Platform.runLater(() -> {
 						try {
-							addressController.show(address.toExternalForm());
+							addressBarController.show(address.toExternalForm());
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

@@ -18,7 +18,7 @@ package org.oulipo.browser.tables;
 import java.io.IOException;
 
 import org.controlsfx.control.HyperlinkLabel;
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.net.TumblerAddress;
 
@@ -27,14 +27,14 @@ import javafx.scene.control.TreeTableCell;
 
 public class HyperLinkTableCell<U> extends TreeTableCell<U, String> {
 
-	private AddressController addressController;
+	private AddressBarController addressBarController;
 	private BrowserContext ctx;
 	private boolean openTab;
 
-	public HyperLinkTableCell(BrowserContext ctx, boolean openTab, AddressController addressController) {
+	public HyperLinkTableCell(BrowserContext ctx, boolean openTab, AddressBarController addressBarController) {
 		this.ctx = ctx;
 		this.openTab = openTab;
-		this.addressController = addressController;
+		this.addressBarController = addressBarController;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class HyperLinkTableCell<U> extends TreeTableCell<U, String> {
 				if (openTab) {
 					ctx.getTabManager().addTabWithAddressBar(address, tumbler.toTumblerFields());
 				} else {
-					addressController.show(address);
+					addressBarController.show(address);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

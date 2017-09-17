@@ -39,7 +39,7 @@ import javafx.scene.layout.VBox;
 /**
  * One instance of this class per open tab
  */
-public class AddressController implements Initializable {
+public class AddressBarController implements Initializable {
 
 	CustomTextField addressBox;
 	
@@ -66,7 +66,7 @@ public class AddressController implements Initializable {
 	private OulipoTab tab;
 
 	@Inject
-	public AddressController(ApplicationContext applicationContext) {
+	public AddressBarController(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
 	

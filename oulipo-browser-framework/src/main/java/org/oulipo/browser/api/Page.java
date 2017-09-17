@@ -27,7 +27,7 @@ public class Page {
 
 	public static interface Controller extends Initializable {
 
-		void show(AddressController addressController) throws MalformedTumblerException, IOException;
+		void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException;
 
 	}
 
@@ -62,16 +62,16 @@ public class Page {
 		this.view = view;
 	}
 
-	public void present(AddressController addressController) throws MalformedTumblerException, IOException {
+	public void present(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
 		if (view != null) {
-			FXMLLoader loader = addressController.getContext().getLoader();
+			FXMLLoader loader = addressBarController.getContext().getLoader();
 			loader.setController(controller);
 			loader.setLocation(getClass().getResource(view.getLocation()));
 			Node node = loader.load();
-			addressController.addContent(node);
+			addressBarController.addContent(node);
 		}
 
-		controller.show(addressController);
+		controller.show(addressBarController);
 
 	}
 }

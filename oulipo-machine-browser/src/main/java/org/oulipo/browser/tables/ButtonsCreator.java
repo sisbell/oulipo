@@ -17,7 +17,7 @@ package org.oulipo.browser.tables;
 
 import java.io.IOException;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.net.TumblerAddress;
 
@@ -57,13 +57,13 @@ public final class ButtonsCreator {
 		return addUserBtn;
 	}
 
-	public static Button editNode(AddressController addressController, String address) {
+	public static Button editNode(AddressBarController addressBarController, String address) {
 		JFXButton btn = new JFXButton();
 		btn.setGraphic(new ImageView(new Image("/images/ic_mode_edit_black_24dp_1x.png")));
 		btn.setTooltip(new Tooltip("Edit This Node"));
 		btn.setOnAction(e -> {
 			try {
-				addressController.show(address);
+				addressBarController.show(address);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -102,7 +102,7 @@ public final class ButtonsCreator {
 	}
 
 	public static Button showUsers(BrowserContext ctx, String address, String tabTitle, boolean openTab,
-			AddressController controller) {
+			AddressBarController controller) {
 		JFXButton usersBtn = new JFXButton();
 		usersBtn.setGraphic(new ImageView(new Image("/images/ic_people_black_24dp_1x.png")));
 		usersBtn.setButtonType(ButtonType.RAISED);
@@ -122,7 +122,7 @@ public final class ButtonsCreator {
 		return usersBtn;
 	}
 
-	public static Button signin(AddressController addressController, BrowserContext ctx, String address,
+	public static Button signin(AddressBarController addressBarController, BrowserContext ctx, String address,
 			String xandle) {
 		JFXButton btn = new JFXButton();
 		btn.setGraphic(new ImageView(new Image("/images/sign_in.png")));

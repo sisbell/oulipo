@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.tabs.OulipoTab;
 import org.oulipo.browser.api.tabs.TabManager;
@@ -35,7 +35,7 @@ import javafx.scene.control.TabPane;
 
 public class TabManagerImpl implements TabManager {
 
-	private Map<OulipoTab, AddressController> controllers = new HashMap<>();
+	private Map<OulipoTab, AddressBarController> controllers = new HashMap<>();
 
 	private final BrowserContext ctx;
 
@@ -60,40 +60,24 @@ public class TabManagerImpl implements TabManager {
 			title = address;
 		}
 		OulipoTab tab = new OulipoTab(title);
-		AddressController addressController = new AddressController(ctx.getApplicationContext());
+		AddressBarController addressBarController = new AddressBarController(ctx.getApplicationContext());
 
 		FXMLLoader loader = ctx.getLoader();
-		loader.setLocation(getClass().getResource("/org/oulipo/browser/framework/AddressBar.fxml"));
-		loader.setController(addressController);
+		loader.setLocation(getClass().getResource("/org/oulipo/browser/api/AddressBar.fxml"));
+		loader.setController(addressBarController);
 
 		Node node = loader.load();
 		tab.setContent(node);
 		add(tab);
 		selectTab(tab);
 
-		addressController.show(address, tab, ctx);
-		return tab;
-	}
-
-	@Override
-	public OulipoTab addTabWithAddressBar(String address, String title, String body) throws IOException {
-		OulipoTab tab = new OulipoTab(title);
-		/*
-		 * FXMLLoader loader = ctx.getLoader();
-		 * loader.setLocation(getClass().getResource(
-		 * "/org/oulipo/browser/framework/AddressBar.fxml"));
-		 * loader.setController(addressController);
-		 * 
-		 * Node node = loader.load(); tab.setContent(node); add(tab); selectTab(tab);
-		 * 
-		 * addressController.show(address, ctx, body);
-		 */
+		addressBarController.show(address, tab, ctx);
 		return tab;
 	}
 
 	@Override
 	public void backward(OulipoTab tab) {
-		AddressController controller = controllers.get(tab);
+		AddressBarController controller = controllers.get(tab);
 		if (controller != null) {
 			controller.back();
 		}
@@ -101,7 +85,7 @@ public class TabManagerImpl implements TabManager {
 
 	@Override
 	public void forward(OulipoTab tab) {
-		AddressController controller = controllers.get(tab);
+		AddressBarController controller = controllers.get(tab);
 		if (controller != null) {
 			controller.forward();
 			;
@@ -137,7 +121,7 @@ public class TabManagerImpl implements TabManager {
 
 	@Override
 	public void showInTab(OulipoTab tab, String address, String title) throws IOException {
-		AddressController controller = controllers.get(tab);
+		AddressBarController controller = controllers.get(tab);
 		if (controller != null) {
 			controller.show(address, tab, ctx);
 		}

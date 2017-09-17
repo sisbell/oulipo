@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.oulipo.browser.api.AddressController;
+import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
 import org.oulipo.browser.tables.ButtonsCreator;
@@ -41,7 +41,7 @@ public class UpdateNodeController extends BaseController {
 	}
 
 	@Override
-	public void show(AddressController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
 		super.show(controller);
 		// Case 1: Node does not exist
 		// Case 2: Node exists but is not owned by user
@@ -88,7 +88,7 @@ public class UpdateNodeController extends BaseController {
 											address.setScheme("ted");
 											Platform.runLater(() -> {
 												try {
-													addressController.show(address.toExternalForm());
+													addressBarController.show(address.toExternalForm());
 												} catch (IOException e) {
 													e.printStackTrace();
 												}
@@ -103,12 +103,12 @@ public class UpdateNodeController extends BaseController {
 							});
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-							addressController.addContent(table, "Update Node");
+							addressBarController.addContent(table, "Update Node");
 
 							if (node.allowUserToCreateAccount) {
 								Button addUserBtn = ButtonsCreator.addUser(ctx, address.toTumblerFields(),
 										address.toTumblerFields());
-								addressController.addRightAddressBar(addUserBtn);
+								addressBarController.addRightAddressBar(addUserBtn);
 							}
 
 						} catch (MalformedTumblerException e1) {
@@ -128,7 +128,7 @@ public class UpdateNodeController extends BaseController {
 								.addEditText("Node Name", "").addEditText("Organization Name", "")
 								.addEditText("Email", "").addCheckBox("Allow User Creation", false);
 
-						addressController.addContent(table, "Create Node");
+						addressBarController.addContent(table, "Create Node");
 
 					});
 
