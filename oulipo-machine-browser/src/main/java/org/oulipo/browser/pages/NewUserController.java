@@ -96,7 +96,7 @@ public class NewUserController extends BaseController {
 						attachAction(submit, user, table);
 
 						ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
-						addressController.addContent(table, "Update User");
+						addressController.addContent(table, "New User");
 
 					});
 				}

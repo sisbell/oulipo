@@ -80,9 +80,9 @@ public final class EditPageRouter implements PageRouter {
 			return new Page(new RegisterNodeController(), new View("/org/oulipo/browser/pages/RegisterNodeView.fxml"));
 		} else if (tumbler.isNodeTumbler()) {
 			if (path.equals("/users")) {
-				return new Page(new UpdateUserController());
-			} else if (path.equals("/newUser")) {
 				return new Page(new NewUserController());
+			} else if (path.equals("/newUser")) {
+			//	return new Page(new NewUserController());
 			} else {
 				return new Page(new UpdateNodeController());
 			}
