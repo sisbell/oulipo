@@ -130,13 +130,15 @@ public class AddressController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		content.setStyle("-fx-background-color: white");
 		addressBox = new CustomTextField();
+		historyController = new HistoryController(forwardBtn, backBtn, addressBox, this);
+
 		addressBox.setOnAction(e -> {
+			historyController.visit(addressBox.getText());
 			refresh();
 		});
 		addressBox.requestFocus();
 		addressPane.getChildren().add(addressBox);
 		
-		this.historyController = new HistoryController(forwardBtn, backBtn, addressBox, this);
 
 	}
 
@@ -149,11 +151,6 @@ public class AddressController implements Initializable {
 		}
 		try {
 			String iri = addressBox.getText();
-			addressBox = new CustomTextField();
-			addressBox.setText(iri);
-			addressBox.setOnAction(e -> {
-				refresh();
-			});
 			addressBox.requestFocus();
 
 			if (Strings.isNullOrEmpty(iri)) {
@@ -161,7 +158,6 @@ public class AddressController implements Initializable {
 			}
 			addressPane.getChildren().add(addressBox);
 
-			//TumblerAddress.create(address)
 			int index = iri.indexOf(":");
 
 			String scheme = index != -1 ? iri.substring(0, index) : "ted";
