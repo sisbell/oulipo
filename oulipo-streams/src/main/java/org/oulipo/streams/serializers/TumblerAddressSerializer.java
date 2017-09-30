@@ -25,20 +25,19 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class TumblerAddressSerializer extends StdSerializer<TumblerAddress> {
 
+	private static final long serialVersionUID = 3336682630396444045L;
+
 	protected TumblerAddressSerializer() {
 		this(null);
 	}
-	
+
 	protected TumblerAddressSerializer(Class<?> t) {
 		super(t, true);
 	}
 
-	private static final long serialVersionUID = 3336682630396444045L;
-
 	@Override
-	public void serialize(TumblerAddress tumblerAddress, JsonGenerator jgen,
-			SerializerProvider sp) throws IOException {
-	        jgen.writeString(tumblerAddress.toTumblerAuthority());	
+	public void serialize(TumblerAddress tumblerAddress, JsonGenerator jgen, SerializerProvider sp) throws IOException {
+		jgen.writeString(tumblerAddress.toExternalForm());
 	}
 
 }

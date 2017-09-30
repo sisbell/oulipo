@@ -21,6 +21,6 @@ public class AbstractOulipoMachineTest {
 
 	@Test
 	public void putOk() throws Exception {
-		
+
 	}
 }

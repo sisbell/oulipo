@@ -27,10 +27,9 @@ import org.oulipo.net.TumblerAddress;
 public final class VariantSpans {
 
 	/**
-	 * The home document of the variant spans in this class. 
+	 * The home document of the variant spans in this class.
 	 */
 	public TumblerAddress homeDocument;
-	
-	
+
 	public List<VariantSpan> spans = new ArrayList<>();
 }

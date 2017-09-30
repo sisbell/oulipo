@@ -25,23 +25,20 @@ public class UnauthorizedException extends TumblerResourceException {
 	 */
 	private static final long serialVersionUID = 628874465598916086L;
 
-	public UnauthorizedException(TumblerAddress tumblerAddress, String message,
-			Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public UnauthorizedException(TumblerAddress tumblerAddress) {
+		super(tumblerAddress);
 	}
 
 	public UnauthorizedException(TumblerAddress tumblerAddress, String message) {
 		super(tumblerAddress, message);
 	}
 
+	public UnauthorizedException(TumblerAddress tumblerAddress, String message, Throwable cause) {
+		super(tumblerAddress, message, cause);
+	}
+
 	public UnauthorizedException(TumblerAddress tumblerAddress, Throwable cause) {
 		super(tumblerAddress, cause);
 	}
-
-	public UnauthorizedException(TumblerAddress tumblerAddress) {
-		super(tumblerAddress);
-	}
-
-
 
 }

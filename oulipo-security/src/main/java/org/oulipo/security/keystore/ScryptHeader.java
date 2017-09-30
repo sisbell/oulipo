@@ -22,24 +22,6 @@ import com.google.common.io.BaseEncoding;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class ScryptHeader {
 
-	private long n;
-
-	private int p;
-
-	private int r;
-
-	private String salt;
-
-	private ScryptHeader() {
-	}
-
-	private ScryptHeader(long n, int p, int r, String salt) {
-		this.n = n;
-		this.p = p;
-		this.r = r;
-		this.salt = salt;
-	}
-
 	public static class Builder {
 
 		private Long n;
@@ -49,6 +31,24 @@ public final class ScryptHeader {
 		private Integer r;
 
 		private String salt;
+
+		public ScryptHeader build() {
+			if (Strings.isNullOrEmpty(salt)) {
+				throw new IllegalArgumentException("Salt is emtpy or null");
+			}
+			if (r == null) {
+				throw new IllegalArgumentException("r is null");
+			}
+
+			if (p == null) {
+				throw new IllegalArgumentException("p is null");
+			}
+
+			if (n == null) {
+				throw new IllegalArgumentException("n is null");
+			}
+			return new ScryptHeader(n, p, r, salt);
+		}
 
 		public Builder n(long n) {
 			this.n = n;
@@ -69,24 +69,24 @@ public final class ScryptHeader {
 			this.salt = BaseEncoding.base64Url().encode(salt);
 			return this;
 		}
+	}
 
-		public ScryptHeader build() {
-			if (Strings.isNullOrEmpty(salt)) {
-				throw new IllegalArgumentException("Salt is emtpy or null");
-			}
-			if (r == null) {
-				throw new IllegalArgumentException("r is null");
-			}
+	private long n;
 
-			if (p == null) {
-				throw new IllegalArgumentException("p is null");
-			}
+	private int p;
 
-			if (n == null) {
-				throw new IllegalArgumentException("n is null");
-			}
-			return new ScryptHeader(n, p, r, salt);
-		}
+	private int r;
+
+	private String salt;
+
+	private ScryptHeader() {
+	}
+
+	private ScryptHeader(long n, int p, int r, String salt) {
+		this.n = n;
+		this.p = p;
+		this.r = r;
+		this.salt = salt;
 	}
 
 	public long getN() {

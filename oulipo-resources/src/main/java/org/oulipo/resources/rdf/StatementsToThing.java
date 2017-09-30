@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.oulipo.net.IRI;
 import org.oulipo.net.TumblerAddress;
@@ -83,8 +84,7 @@ class StatementsToThing {
 	 * 
 	 * @return
 	 */
-	private static HashMap<String, ArrayList<Statement>> toHash(
-			Statement[] statements) {
+	private static HashMap<String, ArrayList<Statement>> toHash(Statement[] statements) {
 		HashMap<String, ArrayList<Statement>> map = new HashMap<>();
 		for (Statement statement : statements) {
 			String key = statement.getPredicate().getValue();
@@ -116,15 +116,13 @@ class StatementsToThing {
 				if (annotation instanceof Predicate) {
 					continue;
 				}
-				Annotation predicateAnnotation = field
-						.getAnnotation(Predicate.class);
+				Annotation predicateAnnotation = field.getAnnotation(Predicate.class);
 				if (predicateAnnotation == null) {
 					continue;
 				}
 				String predicateIRI = ((Predicate) predicateAnnotation).value();
 
-				ArrayList<Statement> statements2 = map.get("schema://oulipo/"
-						+ predicateIRI);
+				ArrayList<Statement> statements2 = map.get("schema://oulipo/" + predicateIRI);
 				if (statements2 == null || statements2.isEmpty()) {
 					continue;
 				}
@@ -133,55 +131,44 @@ class StatementsToThing {
 					if (field.getType().isArray()) {
 						IRI[] addresses = new IRI[statements2.size()];
 						for (int i = 0; i < statements2.size(); i++) {
-							addresses[i] = new IRI(statements2.get(i)
-									.getObject().getValue());
+							addresses[i] = new IRI(statements2.get(i).getObject().getValue());
 						}
 						field.set(thing, addresses);
 					} else {
-						field.set(thing, TumblerAddress.create(statements2.iterator().next()
-								.getObject().getValue()));
+						field.set(thing, TumblerAddress.create(statements2.iterator().next().getObject().getValue()));
 					}
 
 				} else if (annotation instanceof ObjectTumbler) {
 					if (field.getType().isArray()) {
-						TumblerAddress[] addresses = new TumblerAddress[statements2
-								.size()];
+						TumblerAddress[] addresses = new TumblerAddress[statements2.size()];
 						for (int i = 0; i < statements2.size(); i++) {
-							addresses[i] = TumblerAddress.create(statements2
-									.get(i).getObject().getValue());
+							addresses[i] = TumblerAddress.create(statements2.get(i).getObject().getValue());
 						}
 						field.set(thing, addresses);
-						/*
-						 * Method addLinkMethod = thing.getClass().getMethod(
-						 * "addLink", TumblerAddress.class);
-						 * addLinkMethod.invoke(thing, TumblerAddress
-						 * .create(statement.getObject().getValue()));
-						 */
+					} else if (List.class.isAssignableFrom(field.getType())) {
+						List<TumblerAddress> addresses = new ArrayList<>();
+						for (int i = 0; i < statements2.size(); i++) {
+							addresses.add(TumblerAddress.create(statements2.get(i).getObject().getValue()));
+						}
+						field.set(thing, addresses);
 					} else {
-						field.set(
-								thing,
-								TumblerAddress.create(statements2.iterator()
-										.next().getObject().getValue()));
+
+						field.set(thing, TumblerAddress.create(statements2.iterator().next().getObject().getValue()));
 					}
 				} else if (annotation instanceof ObjectString) {
 					if (field.getType().isArray()) {
 						String[] array = new String[statements2.size()];
 						for (int i = 0; i < statements2.size(); i++) {
-							array[i] = (statements2.get(i).getObject()
-									.getValue());
+							array[i] = (statements2.get(i).getObject().getValue());
 						}
 						field.set(thing, array);
 					} else {
-						field.set(thing, statements2.iterator().next()
-								.getObject().getValue());
+						field.set(thing, statements2.iterator().next().getObject().getValue());
 					}
 				} else if (annotation instanceof ObjectEnum) {
 
 				} else if (annotation instanceof ObjectBoolean) {
-					field.set(
-							thing,
-							Boolean.valueOf(statements2.iterator().next()
-									.getObject().getValue()));
+					field.set(thing, Boolean.valueOf(statements2.iterator().next().getObject().getValue()));
 				} else if (annotation instanceof ObjectDate) {
 
 				} else if (annotation instanceof ObjectNumber) {
@@ -206,15 +193,11 @@ class StatementsToThing {
 					if (field.getType().isArray()) {
 						Integer[] array = new Integer[statements2.size()];
 						for (int i = 0; i < statements2.size(); i++) {
-							array[i] = Integer.parseInt((statements2.get(i)
-									.getObject().getValue()));
+							array[i] = Integer.parseInt((statements2.get(i).getObject().getValue()));
 						}
 						field.set(thing, array);
 					} else {
-						field.set(
-								thing,
-								Integer.parseInt(statements2.iterator().next()
-										.getObject().getValue()));
+						field.set(thing, Integer.parseInt(statements2.iterator().next().getObject().getValue()));
 					}
 				}
 			}
@@ -224,8 +207,7 @@ class StatementsToThing {
 
 	}
 
-	public static Collection<Thing> transformThings(Statement[] statements)
-			throws Exception {
+	public static Collection<Thing> transformThings(Statement[] statements) throws Exception {
 		ArrayList<Thing> things = new ArrayList<>();
 		if (statements == null || statements.length == 0) {
 			return things;
@@ -239,8 +221,7 @@ class StatementsToThing {
 					continue;
 				}
 				subject = stmt.getSubject();
-				Thing thing = transform(current.toArray(new Statement[current
-						.size()]));
+				Thing thing = transform(current.toArray(new Statement[current.size()]));
 				if (thing != null) {
 					things.add(thing);
 				}

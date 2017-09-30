@@ -24,11 +24,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class RdfPredicate {
-	
+
 	private String value;
-	
-	public RdfPredicate() { }
-	
+
+	public RdfPredicate() {
+	}
+
 	public RdfPredicate(IRI iri) {
 		this.value = iri.value;
 	}
@@ -66,6 +67,5 @@ public final class RdfPredicate {
 	public String toString() {
 		return "RdfPredicate [value=" + value + "]";
 	}
-	
-	
+
 }

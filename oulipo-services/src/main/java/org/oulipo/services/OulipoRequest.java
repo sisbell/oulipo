@@ -16,6 +16,7 @@
 package org.oulipo.services;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ import com.google.common.base.Strings;
 
 public class OulipoRequest {
 
-	private final String body;
+	private final byte[] body;
 
 	private TumblerAddress documentAddress;
 
@@ -72,7 +73,7 @@ public class OulipoRequest {
 	private final String userId;
 
 	public OulipoRequest(ResourceSessionManager sessionManager, Map<String, String> headers, Map<String, String> params,
-			String body) {
+			byte[] body) {
 		this.sessionManager = sessionManager;
 		this.body = body;
 		this.headers = headers;
@@ -94,6 +95,14 @@ public class OulipoRequest {
 
 	public void authorize() throws UnauthorizedException, MalformedTumblerException, ResourceNotFoundException {
 		sessionManager.authorizeResource(this);
+	}
+
+	public String getBody() {
+		return new String(body, StandardCharsets.UTF_8);
+	}
+
+	public byte[] getBodyAsBytes() {
+		return body;
 	}
 
 	public Document getDocument() throws IOException, MissingBodyException {
@@ -235,7 +244,7 @@ public class OulipoRequest {
 	}
 
 	public boolean hasBody() {
-		return !Strings.isNullOrEmpty(body);
+		return body != null && body.length > 0;
 	}
 
 	public Map<String, String> queryParams() {

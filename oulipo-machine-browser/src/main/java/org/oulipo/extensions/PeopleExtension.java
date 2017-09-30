@@ -15,33 +15,21 @@
  *******************************************************************************/
 package org.oulipo.extensions;
 
-import java.io.IOException;
-
 import org.oulipo.browser.api.BaseExtension;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Extension;
-import org.oulipo.browser.api.people.Account;
-import org.oulipo.browser.api.tabs.OulipoTab;
-import org.oulipo.browser.framework.MenuContext.Type;
-import org.oulipo.storage.StorageException;
+import org.oulipo.browser.api.MenuContext.Type;
+import org.oulipo.browser.wizards.NewAccountWizard;
 
 public class PeopleExtension extends BaseExtension implements Extension {
 
 	@Override
 	public void init(BrowserContext ctx) {
 		addSeparator(ctx, Type.PEOPLE);
+
 		addMenuItem(ctx, "Add Person", Type.PEOPLE, e -> {
-			try {
-				Account newAccount = ctx.getAccountManager().newAccount();
-				ctx.getAccountManager().login(newAccount, "http://localhost:4567/auth");
-				OulipoTab tab = new OulipoTab(newAccount.xandle);
-
-				ctx.getTabManager().add(tab);
-				ctx.getTabManager().selectTab(tab);
-
-			} catch (IOException | StorageException e1) {
-				e1.printStackTrace();
-			}
+			NewAccountWizard wizard = new NewAccountWizard(ctx);
+			wizard.startWizard();
 		});
 
 	}

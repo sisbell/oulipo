@@ -58,14 +58,14 @@ public class Thing {
 	}
 
 	public String documentId() throws MalformedTumblerException {
-		if(resourceId instanceof TumblerAddress) {
+		if (resourceId instanceof TumblerAddress) {
 			return ((TumblerAddress) resourceId).documentVal();
 		}
 		return TumblerAddress.create(resourceId.value).documentVal();
 	}
-	
+
 	public String elementId() throws MalformedTumblerException {
-		if(resourceId instanceof TumblerAddress) {
+		if (resourceId instanceof TumblerAddress) {
 			return ((TumblerAddress) resourceId).getElement().asString();
 		}
 		return TumblerAddress.create(resourceId.value).getElement().asString();
@@ -92,20 +92,19 @@ public class Thing {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((resourceId == null) ? 0 : resourceId.hashCode());
+		result = prime * result + ((resourceId == null) ? 0 : resourceId.hashCode());
 		return result;
 	}
 
 	public String networkId() throws MalformedTumblerException {
-		if(resourceId instanceof TumblerAddress) {
+		if (resourceId instanceof TumblerAddress) {
 			return ((TumblerAddress) resourceId).networkVal();
 		}
 		return TumblerAddress.create(resourceId.value).networkVal();
 	}
 
 	public String nodeId() throws MalformedTumblerException {
-		if(resourceId instanceof TumblerAddress) {
+		if (resourceId instanceof TumblerAddress) {
 			return ((TumblerAddress) resourceId).nodeVal();
 		}
 		return TumblerAddress.create(resourceId.value).nodeVal();
@@ -113,7 +112,7 @@ public class Thing {
 	}
 
 	public String userId() throws MalformedTumblerException {
-		if(resourceId instanceof TumblerAddress) {
+		if (resourceId instanceof TumblerAddress) {
 			return ((TumblerAddress) resourceId).userVal();
 		}
 		return TumblerAddress.create(resourceId.value).userVal();

@@ -38,7 +38,7 @@ import org.oulipo.rdf.annotations.ObjectXSD;
 public final class RdfFactory {
 
 	public final static String BASE_URI = "schema2://oulipo/";
-	
+
 	public final static String SCHEMA_ORG = "schema://oulipo/";
 
 	protected static RdfObject createRdfObject(boolean value) {
@@ -46,18 +46,15 @@ public final class RdfFactory {
 	}
 
 	public static RdfObject createRdfObject(IRI iri, boolean expand) {
-		return new RdfObject(expand ? expandIri(iri, expand).value : iri.value,
-				IRI, null);
+		return new RdfObject(expand ? expandIri(iri, expand).value : iri.value, IRI, null);
 	}
 
 	protected static RdfObject createRdfObject(Number value) {
 		return new RdfObject(value.toString(), literal, getNumberType(value));
 	}
 
-	protected static RdfObject createRdfObject(
-			ObjectNonNegativeInteger nonNegInt, Integer value) {
-		return new RdfObject(String.valueOf(value), literal,
-				XSD_NONNEGATIVEINTEGER);
+	protected static RdfObject createRdfObject(ObjectNonNegativeInteger nonNegInt, Integer value) {
+		return new RdfObject(String.valueOf(value), literal, XSD_NONNEGATIVEINTEGER);
 	}
 
 	protected static RdfObject createRdfObject(ObjectXSD xsd, Object value) {

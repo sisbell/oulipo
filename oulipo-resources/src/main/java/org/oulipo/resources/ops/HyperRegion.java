@@ -13,35 +13,43 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.extensions;
+package org.oulipo.resources.ops;
 
-import java.io.IOException;
+/**
+ * Includes position within a containing rendered view
+ */
+public class HyperRegion {
 
-import org.oulipo.browser.api.BrowserContext;
-import org.oulipo.browser.api.Extension;
+	private int start;
 
-import javafx.scene.control.MenuItem;
+	private final int width;
 
-public class MetaExtension implements Extension {
+	/**
+	 * Constructor specifying start position of a region within a rendered view and
+	 * width of the region.
+	 * 
+	 * @param start
+	 * @param width
+	 */
+	public HyperRegion(int start, int width) {
+		this.start = start;
+		this.width = width;
+	}
+
+	public final int end() {
+		return start + width;
+	}
+
+	public final int getLength() {
+		return width;
+	}
+
+	public final int getStart() {
+		return start;
+	}
 
 	@Override
-	public void init(BrowserContext ctx) {
-		MenuItem item = new MenuItem();
-		item.setText("Show Nodes");
-		item.setOnAction(e -> {
-			try {
-				ctx.getTabManager().addTabWithAddressBar("ted://1/nodes", "Nodes");
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-		});
-		ctx.getMenuContext().getManagerMenu().getItems().add(0, item);
-		/**
-		 * int tabCount = ctx.getTabManager().size();
-		 * ctx.getTabManager().insert(tabCount - 1, tab);
-		 * ctx.getTabManager().selectTab(tab);
-		 * 
-		 */
+	public String toString() {
+		return "HyperRegion [start=" + start + ", length=" + width + "]";
 	}
 }

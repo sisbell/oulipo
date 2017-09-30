@@ -23,7 +23,7 @@ import org.oulipo.rdf.NodeType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface ObjectNumber  {
-	
+public @interface ObjectNumber {
+
 	NodeType type() default NodeType.literal;
 }

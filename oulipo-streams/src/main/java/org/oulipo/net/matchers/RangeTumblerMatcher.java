@@ -24,15 +24,13 @@ import org.oulipo.net.TumblerAddress;
 import org.oulipo.net.TumblerMatcher;
 
 /**
- * Matches a tumbler if the ranges overlap. If there is no span range in the tumbler address,
- * no match will be made.
+ * Matches a tumbler if the ranges overlap. If there is no span range in the
+ * tumbler address, no match will be made.
  */
 public final class RangeTumblerMatcher implements TumblerMatcher {
 
-	private Set<TumblerAddress> ispansToMatch;
-
-	public static RangeTumblerMatcher createFromInvariantSpans(
-			String[] ispans) throws MalformedTumblerException, MalformedSpanException {
+	public static RangeTumblerMatcher createFromInvariantSpans(String[] ispans)
+			throws MalformedTumblerException, MalformedSpanException {
 
 		Set<TumblerAddress> elementDataItems = new HashSet<>();
 		if (ispans != null) {
@@ -40,8 +38,7 @@ public final class RangeTumblerMatcher implements TumblerMatcher {
 				TumblerAddress ispanTumbler = TumblerAddress.create(ispan);
 
 				if (!ispanTumbler.hasSpan()) {
-					throw new MalformedSpanException(
-							"Invalid Invariant Span: " + ispan);
+					throw new MalformedSpanException("Invalid Invariant Span: " + ispan);
 				}
 				elementDataItems.add(ispanTumbler);
 			}
@@ -49,10 +46,17 @@ public final class RangeTumblerMatcher implements TumblerMatcher {
 		return new RangeTumblerMatcher(elementDataItems);
 	}
 
-	RangeTumblerMatcher(Set<TumblerAddress> ispansToMatch) {
+	private static boolean inRange(int position, int start, int end) {
+		return position >= start && position <= end;
+	}
+
+	private Set<TumblerAddress> ispansToMatch;
+
+	public RangeTumblerMatcher(Set<TumblerAddress> ispansToMatch) {
 		this.ispansToMatch = ispansToMatch;
 	}
 
+	@Override
 	public boolean match(TumblerAddress address) {
 		if (ispansToMatch == null || ispansToMatch.isEmpty()) {
 			return true;
@@ -64,24 +68,18 @@ public final class RangeTumblerMatcher implements TumblerMatcher {
 		for (TumblerAddress t : ispansToMatch) {
 			// match overlap/range - any match return true
 			int beginPos = address.spanStart();
-			int endPos = beginPos + address.spanWidth() -1 ;
+			int endPos = beginPos + address.spanWidth() - 1;
 			int startV = t.spanStart();
 			int widthV = t.spanWidth();
 
-			if (inRange(beginPos, startV, startV + widthV)
-					|| inRange(endPos, startV, startV + widthV)
-					|| inRange(startV, beginPos, endPos)
-					|| inRange(startV + widthV, beginPos, endPos)) {
+			if (inRange(beginPos, startV, startV + widthV) || inRange(endPos, startV, startV + widthV)
+					|| inRange(startV, beginPos, endPos) || inRange(startV + widthV, beginPos, endPos)) {
 				return true;
 			}
 
 		}
 		return false;
 
-	}
-
-	private static boolean inRange(int position, int start, int end) {
-		return position >= start && position <= end;
 	}
 
 }

@@ -17,37 +17,37 @@ package org.oulipo.security.auth;
 
 public final class AuthResponseCodes {
 
-    public static final int OK = 0;
+	public static final int INCORRECT_PUBLIC_KEY = 105;
 
-    public static final int INVALID_TOKEN = 101;
+	public static final int INVALID_ADDRESS = 104;
 
-    public static final int TOKEN_EXPIRED = 102;
+	public static final int INVALID_SIGNATURE = 103;
 
-    public static final int INVALID_SIGNATURE = 103;
+	public static final int INVALID_TOKEN = 101;
 
-    public static final int INVALID_ADDRESS = 104;
-    
-    public static final int INCORRECT_PUBLIC_KEY = 105;
-    
-    public static final int NOT_AUTHORIZED = 106;
+	public static final int NOT_AUTHORIZED = 106;
 
-    public static final int UNKNOWN_ERROR = 199;
-    
-    private final int code;
-    
-    public AuthResponseCodes(int code) {
-    	this.code = code;
-    }
+	public static final int OK = 0;
+
+	public static final int TOKEN_EXPIRED = 102;
+
+	public static final int UNKNOWN_ERROR = 199;
+
+	private final int code;
+
+	public AuthResponseCodes(int code) {
+		this.code = code;
+	}
 
 	public int getCode() {
 		return code;
 	}
-	
+
 	public String getMessage() {
 		return "";
 	}
-    
-    public String toJsonResponse() {
-    	return "";
-    }
+
+	public String toJsonResponse() {
+		return "";
+	}
 }

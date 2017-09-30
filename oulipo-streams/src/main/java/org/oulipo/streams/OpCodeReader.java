@@ -17,6 +17,7 @@ package org.oulipo.streams;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.opcodes.InsertTextOp;
 import org.oulipo.streams.opcodes.Op;
 import org.oulipo.streams.opcodes.SwapOp;
 import org.oulipo.streams.opcodes.SwapOp.Data;
@@ -45,13 +47,13 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 			} catch (MalformedSpanException e) {
 				throw new IllegalStateException("Malformed op code", e);
 			}
-
+			System.out.println("hasNext: " + hasNext);
 			if (!hasNext) {
 				try {
+					System.out.println("Closing");
 					input.close();
 				} catch (IOException e) {
-					throw new IllegalStateException("Exception closing stream",
-							e);
+					throw new IllegalStateException("Exception closing stream", e);
 				}
 			}
 			return hasNext;
@@ -60,15 +62,24 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 		@Override
 		public Op<?> next() {
 			if (!hasNext()) {
+				System.out.println("NoSuchElement");
 				throw new NoSuchElementException();
 			}
 			Op<?> result = nextOp;
 			nextOp = null;
+			System.out.println("Next: " + result);
 			return result;
 		}
 
 		private Op<?> nextOp() throws IOException, MalformedSpanException {
-			byte opCode = input.readByte();
+			byte opCode;
+			try {
+				opCode = input.readByte();
+			} catch (EOFException e) {
+				System.out.println("EOF");
+				return null;
+			}
+			System.out.println("OP CODE: " + opCode);
 			switch (opCode) {
 			case Op.COPY:
 
@@ -77,8 +88,9 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 
 				break;
 			case Op.INSERT_TEXT:
+				System.out.println("NextOP: insertText");
 
-				break;
+				return nextOp = InsertTextOp.read(input);
 			case Op.MOVE:
 
 				break;
@@ -86,12 +98,12 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 
 				break;
 			case Op.SWAP:
-				VariantSpan v1 = new VariantSpan(input.readLong(),
-						input.readLong());
-				VariantSpan v2 = new VariantSpan(input.readLong(),
-						input.readLong());
+				VariantSpan v1 = new VariantSpan(input.readLong(), input.readLong());
+				VariantSpan v2 = new VariantSpan(input.readLong(), input.readLong());
 				return nextOp = new SwapOp(new Data(v1, v2));
 			}
+			System.out.println("Return null opCode");
+			;
 			return null;
 		}
 

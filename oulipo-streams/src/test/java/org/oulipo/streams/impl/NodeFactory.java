@@ -21,57 +21,6 @@ import org.oulipo.streams.impl.RopeVariantStream.Node;
 
 final class NodeFactory {
 
-	static Node getA() throws MalformedSpanException {
-		return createTestNode();
-	}
-	
-	static Node getB() throws MalformedSpanException {
-		return createTestNode().left;
-	}
-	
-	static Node getK() throws MalformedSpanException {
-		return createTestNode().left.right.left.right;
-	}
-	
-	static Node getE() throws MalformedSpanException {
-		return createTestNode().left.left.left;
-	}
-	
-	static Node getF() throws MalformedSpanException {
-		return createTestNode().left.left.right;
-	}
-	
-	static Node getH() throws MalformedSpanException {
-		return createTestNode().left.right.right;
-	}
-	
-	static Node getG() throws MalformedSpanException {
-		return createTestNode().left.right.left;
-	}
-	
-	public static Node createTestNode2() throws MalformedSpanException {
-		Node A = new Node(3);
-		Node B = new Node(3, 200, 3);
-		Node C = new Node(6);
-		Node G = getG();
-		Node H = getH();
-		
-		A.tag = "A";
-		B.tag = "B";
-		C.tag = "C";
-		
-		B.parent = A;
-		A.left = B;
-		C.parent = A;
-		A.right = C;
-		C.left = G;
-		C.right = H;
-		G.parent = C;
-		H.parent = C;
-		
-		return A;
-	}
-	
 	private static Node createTestNode() throws MalformedSpanException {
 		Node A = new Node(22);
 		Node B = new Node(9);
@@ -85,7 +34,7 @@ final class NodeFactory {
 		Node K = new Node(4, new InvariantSpan(300, 4));
 		Node M = new Node(1, new InvariantSpan(350, 1));
 		Node N = new Node(6, new InvariantSpan(360, 6));
-		
+
 		A.tag = "A";
 		B.tag = "B";
 		C.tag = "C";
@@ -98,7 +47,7 @@ final class NodeFactory {
 		K.tag = "K";
 		M.tag = "M";
 		N.tag = "N";
-		
+
 		A.left = B;
 		B.parent = A;
 		B.left = C;
@@ -123,5 +72,56 @@ final class NodeFactory {
 		N.parent = H;
 		return A;
 	}
-	
+
+	public static Node createTestNode2() throws MalformedSpanException {
+		Node A = new Node(3);
+		Node B = new Node(3, 200, 3);
+		Node C = new Node(6);
+		Node G = getG();
+		Node H = getH();
+
+		A.tag = "A";
+		B.tag = "B";
+		C.tag = "C";
+
+		B.parent = A;
+		A.left = B;
+		C.parent = A;
+		A.right = C;
+		C.left = G;
+		C.right = H;
+		G.parent = C;
+		H.parent = C;
+
+		return A;
+	}
+
+	static Node getA() throws MalformedSpanException {
+		return createTestNode();
+	}
+
+	static Node getB() throws MalformedSpanException {
+		return createTestNode().left;
+	}
+
+	static Node getE() throws MalformedSpanException {
+		return createTestNode().left.left.left;
+	}
+
+	static Node getF() throws MalformedSpanException {
+		return createTestNode().left.left.right;
+	}
+
+	static Node getG() throws MalformedSpanException {
+		return createTestNode().left.right.left;
+	}
+
+	static Node getH() throws MalformedSpanException {
+		return createTestNode().left.right.right;
+	}
+
+	static Node getK() throws MalformedSpanException {
+		return createTestNode().left.right.left.right;
+	}
+
 }

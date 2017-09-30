@@ -32,14 +32,12 @@ import com.google.common.base.Strings;
 @Subject(value = Schema.NODE, key = "resourceId")
 public final class Node extends Thing {
 
-	public static TumblerAddress parentNodeOf(TumblerAddress address)
-			throws MalformedTumblerException {
+	public static TumblerAddress parentNodeOf(TumblerAddress address) throws MalformedTumblerException {
 		if (address == null) {
 			throw new MalformedTumblerException("address is null");
 		}
-		return new TumblerAddress.Builder("ted", address.getNetwork()
-				.asString()).node(String.valueOf(address.getNode().get(0)))
-				.build();
+		return new TumblerAddress.Builder("ted", address.getNetwork().asString())
+				.node(String.valueOf(address.getNode().get(0))).build();
 	}
 
 	@Predicate("account")
@@ -89,11 +87,10 @@ public final class Node extends Thing {
 	@Predicate("streetAddress")
 	@ObjectString
 	public String streetAddress;
-	
+
 	@Predicate("telephone")
 	@ObjectString
 	public String telephone;
-	
 
 	public Node() {
 	}
@@ -118,15 +115,14 @@ public final class Node extends Thing {
 		accounts = Add.both(accounts, user, TumblerAddress.class);
 	}
 
-	public Optional<TumblerAddress> parentNode()
-			throws MalformedTumblerException {
+	public Optional<TumblerAddress> parentNode() throws MalformedTumblerException {
 		if (resourceId == null) {
 			throw new IllegalStateException("ResourceId has not been set");
 		}
 		TumblerAddress address = parentNodeOf((TumblerAddress) resourceId);
 		return address == null ? Optional.empty() : Optional.of(address);
 	}
-	
+
 	public boolean publicKeyMatches(String publicKey) {
 		if (Strings.isNullOrEmpty(publicKey)) {
 			return false;

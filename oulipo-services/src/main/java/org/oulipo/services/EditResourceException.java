@@ -33,13 +33,12 @@ public final class EditResourceException extends TumblerResourceException {
 		super(tumblerAddress, message);
 	}
 
-	public EditResourceException(TumblerAddress tumblerAddress, String message,
-			Throwable cause) {
+	public EditResourceException(TumblerAddress tumblerAddress, String message, Throwable cause) {
 		super(tumblerAddress, message, cause);
 	}
 
 	public EditResourceException(TumblerAddress tumblerAddress, Throwable cause) {
 		super(tumblerAddress, cause);
 	}
-	
+
 }

@@ -30,5 +30,5 @@ public class Network {
 	public String toString() {
 		return "Network [network=" + network + "]";
 	}
-	
+
 }

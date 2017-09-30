@@ -20,6 +20,8 @@ import java.io.IOException;
 import org.oulipo.browser.api.Page;
 import org.oulipo.browser.api.PageRouter;
 import org.oulipo.browser.api.Scheme;
+import org.oulipo.browser.pages.GetDocumentController;
+import org.oulipo.browser.pages.GetDocumentsController;
 import org.oulipo.browser.pages.GetNodeController;
 import org.oulipo.browser.pages.GetNodesController;
 import org.oulipo.browser.pages.GetUserController;
@@ -84,7 +86,7 @@ public final class TedPageRouter implements PageRouter {
 				}
 			} else if (path.equals("/documents")) {
 				if (tumbler.isUserTumbler()) {
-					// service.getDocuments(tumbler.toTumblerAuthority(), queryParams, callback);
+					return new Page(new GetDocumentsController());
 				} else {
 					throw new IOException("Malformed request: " + path);
 				}
@@ -128,7 +130,7 @@ public final class TedPageRouter implements PageRouter {
 				if (tumbler.isSystemAddress()) {
 					// service.getSystemDocuments(queryParams, callback);
 				} else {
-					// service.getDocument(tumbler.toTumblerAuthority(), callback);
+					return new Page(new GetDocumentController());
 				}
 			} else if (tumbler.isElementTumbler()) {
 				if (tumbler.isSystemAddress()) {

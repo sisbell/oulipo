@@ -51,8 +51,7 @@ class ThingToString {
 	private static final Logger LOG = Logger.getLogger("RdfRepository");
 
 	private static void addObjectLiteral(RdfObject object, StringBuilder sb) {
-		Literal objectLiteral = ResourceFactory.createPlainLiteral(object
-				.getValue());
+		Literal objectLiteral = ResourceFactory.createPlainLiteral(object.getValue());
 
 		String type = object.getDatatype();
 		if (!Strings.isNullOrEmpty(type)) {
@@ -76,29 +75,25 @@ class ThingToString {
 				sb.append("^^<" + XSD_NONNEGATIVEINTEGER + ">");
 			} else if (XSD_LONG.equals(type)) {
 				sb.append(objectLiteral.getLong());
-			} else if (XSD_INTEGER.equals(type) || XSD_GDAY.equals(type)
-					|| XSD_GMONTH.equals(type) || XSD_GYEAR.equals(type)) {
+			} else if (XSD_INTEGER.equals(type) || XSD_GDAY.equals(type) || XSD_GMONTH.equals(type)
+					|| XSD_GYEAR.equals(type)) {
 				sb.append(objectLiteral.getInt());
 			}
 		}
 	}
 
-	private static void addObjectLiteralString(RdfObject object,
-			StringBuilder sb) {
-		Literal objectLiteral = ResourceFactory.createPlainLiteral(object
-				.getValue());
-		sb.append("\"").append(escapeString(objectLiteral.toString()))
-				.append("\"");
+	private static void addObjectLiteralString(RdfObject object, StringBuilder sb) {
+		Literal objectLiteral = ResourceFactory.createPlainLiteral(object.getValue());
+		sb.append("\"").append(escapeString(objectLiteral.toString())).append("\"");
 	}
-	
+
 	private static void addObjectResource(RdfObject object, StringBuilder sb) {
 		Resource obj = ResourceFactory.createResource(object.getValue());
 		sb.append("<").append(obj.toString()).append(">");
 	}
-	
+
 	private static void addPredicate(RdfPredicate predicate, StringBuilder sb) {
-		Property predicateProperty = ResourceFactory.createProperty(predicate
-				.getValue());
+		Property predicateProperty = ResourceFactory.createProperty(predicate.getValue());
 		sb.append("<").append(predicateProperty.toString()).append(">");
 	}
 
@@ -108,8 +103,7 @@ class ThingToString {
 	}
 
 	public static String asString(Thing thing) throws Exception {
-		Collection<Statement> statements = ThingToStatements
-				.transform(thing);
+		Collection<Statement> statements = ThingToStatements.transform(thing);
 		StringBuilder statementBuilder = new StringBuilder();
 		for (Statement statement : statements) {
 			if (isCompleteStatement(statement, thing)) {
@@ -129,26 +123,22 @@ class ThingToString {
 
 	private static boolean isCompleteStatement(Statement statement, Thing t) {
 		if (statement.getSubject() == null) {
-			LOG.info("Subject is null: " + t.toString() + ", "
-					+ t.getClass().getName());
+			LOG.info("Subject is null: " + t.toString() + ", " + t.getClass().getName());
 			return false;
 		}
 		if (statement.getPredicate() == null) {
 			LOG.info("Predicate is null: " + statement.getSubject().getValue());
 			return false;
 		}
-		if (statement.getObject() == null
-				|| Strings.isNullOrEmpty(statement.getObject().getValue())) {
-			LOG.info("Object is null: " + statement.getSubject().getValue()
-					+ ", " + statement.getPredicate().getValue() + ", "
-					+ t.toString());
+		if (statement.getObject() == null || Strings.isNullOrEmpty(statement.getObject().getValue())) {
+			LOG.info("Object is null: " + statement.getSubject().getValue() + ", " + statement.getPredicate().getValue()
+					+ ", " + t.toString());
 			return false;
 		}
 		return true;
 	}
 
-	private static void writeStatement(Statement statement,
-			StringBuilder statementBuilder) {
+	private static void writeStatement(Statement statement, StringBuilder statementBuilder) {
 		addSubject(statement.getSubject(), statementBuilder);
 
 		statementBuilder.append(" ");

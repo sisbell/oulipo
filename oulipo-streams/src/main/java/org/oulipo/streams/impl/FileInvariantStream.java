@@ -34,7 +34,7 @@ import com.google.common.base.Strings;
  */
 public class FileInvariantStream implements InvariantStream {
 
-	private static ByteBuffer buffer = ByteBuffer.allocate(32);
+	private static ByteBuffer buffer = ByteBuffer.allocate(1024);
 
 	private FileChannel channel;
 
@@ -48,10 +48,12 @@ public class FileInvariantStream implements InvariantStream {
 	 *             if there is an I/O exception with the specified file
 	 */
 	public FileInvariantStream(File file) throws IOException {
+		file.getParentFile().mkdirs();
 		file.createNewFile();
 		RandomAccessFile f = new RandomAccessFile(file, "rw");
 
 		channel = f.getChannel();
+		channel.position(channel.size());
 	}
 
 	@Override
@@ -61,21 +63,22 @@ public class FileInvariantStream implements InvariantStream {
 		}
 
 		FileLock lock = channel.lock();
-		InvariantSpan span = new InvariantSpan(channel.position() + 1, (long) text.length());
+		try {
+			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length());
 
-		buffer.clear();
-		buffer.put(text.getBytes());
-		buffer.flip();
+			buffer.clear();
+			buffer.put(text.getBytes());
+			buffer.flip();
 
-		while (buffer.hasRemaining()) {
-			channel.write(buffer);
+			while (buffer.hasRemaining()) {
+				channel.write(buffer);
+			}
+
+			channel.force(true);
+			return span;
+		} finally {
+			lock.release();
 		}
-
-		channel.force(true);
-
-		lock.release();
-
-		return span;
 	}
 
 	@Override

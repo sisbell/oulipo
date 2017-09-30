@@ -38,6 +38,8 @@ public interface VariantStream {
 
 	InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException;
 
+	List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException;
+
 	/**
 	 * Returns the <code>InvariantSpan<code> at the specified character position, or
 	 * null if none exists at that position
@@ -53,15 +55,16 @@ public interface VariantStream {
 
 	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
+	void put(long characterPosition, InvariantSpan invariantSpan) throws MalformedSpanException, IOException;
+
 	default void put(long characterPosition, List<InvariantSpan> ispans) throws MalformedSpanException, IOException {
 		long start = characterPosition;
-		for (InvariantSpan ispan : ispans) {
+		for (int i = 0; i < ispans.size(); i++) {
+			InvariantSpan ispan = ispans.get(i);
 			put(start, ispan);
-			start += ispan.width;
+			start += (i == 0) ? ispan.width - 1 : ispan.width;
 		}
 	}
-
-	void put(long characterPosition, InvariantSpan invariantSpan) throws MalformedSpanException, IOException;
 
 	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
 

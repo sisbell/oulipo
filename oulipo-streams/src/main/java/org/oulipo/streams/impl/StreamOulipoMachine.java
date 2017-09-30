@@ -16,6 +16,7 @@
 package org.oulipo.streams.impl;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,29 +37,29 @@ import org.oulipo.streams.opcodes.PutOp;
 import org.oulipo.streams.opcodes.SwapOp;
 
 /**
- * An OulipoMachine that is backed by a <code>StreamLoader</code>. The StreamLoader can be 
- * remote or local.
+ * An OulipoMachine that is backed by a <code>StreamLoader</code>. The
+ * StreamLoader can be remote or local.
  *
  */
 public final class StreamOulipoMachine extends AbstractOulipoMachine {
 
-	public static StreamOulipoMachine create(StreamLoader loader,
-			TumblerAddress tumbler, boolean writeOpCodes) throws IOException, MalformedSpanException {
+	public static StreamOulipoMachine create(StreamLoader loader, TumblerAddress tumbler, boolean writeOpCodes)
+			throws IOException, MalformedSpanException {
 		return new StreamOulipoMachine(loader, tumbler, writeOpCodes);
 	}
 
+	private final ExecutorService executor = Executors.newFixedThreadPool(5);
+
 	private final InvariantStream iStream;
+
+	protected final StreamLoader stream;
 
 	private final TumblerAddress tumbler;
 
 	private final VariantStream vStream;
 
-	private final ExecutorService executor = Executors.newFixedThreadPool(5);
-
-	protected final StreamLoader stream;
-
 	private final boolean writeOpCodes;
-	
+
 	private StreamOulipoMachine(StreamLoader stream, TumblerAddress tumbler, boolean writeOpCodes)
 			throws IOException, MalformedSpanException {
 		super();
@@ -67,16 +68,20 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 		}
 		this.stream = stream;
 		this.writeOpCodes = writeOpCodes;
-	
+
 		this.iStream = stream.openInvariantStream(tumbler);
 		this.vStream = stream.openVariantStream(tumbler);
 		this.tumbler = tumbler;
 	}
 
 	@Override
-	public InvariantSpan append(String text) throws IOException,
-			MalformedSpanException {
+	public InvariantSpan append(String text) throws IOException, MalformedSpanException {
 		return iStream.append(text);
+	}
+
+	@Override
+	public void flush() {
+		stream.flushVariantCache();
 	}
 
 	@Override
@@ -90,8 +95,23 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 	}
 
 	@Override
+	public InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException {
+		return vStream.getInvariantSpans(variantSpan);
+	}
+
+	@Override
 	public String getText(InvariantSpan ispan) throws IOException {
 		return iStream.getText(ispan);
+	}
+
+	@Override
+	public List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException {
+		return vStream.getVariantSpans(invariantSpan);
+	}
+
+	@Override
+	public InvariantSpan index(long characterPosition) {
+		return vStream.index(characterPosition);
 	}
 
 	@Override
@@ -106,7 +126,7 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 			break;
 		case Op.INSERT_TEXT:
 			InsertTextOp.Data insertOp = (InsertTextOp.Data) op.getData();
-			vStream.put(insertOp.region, iStream.append(insertOp.text));
+			vStream.put(insertOp.to, iStream.append(insertOp.text));
 			break;
 		case Op.MOVE:
 			MoveOp.Data moveOp = (MoveOp.Data) op.getData();
@@ -123,16 +143,6 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 		}
 	}
 
-	@Override
-	public InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException {
-		return vStream.getInvariantSpans(variantSpan);
-	}
-
-	@Override
-	public InvariantSpan index(long characterPosition) {
-		return vStream.index(characterPosition);
-	}
-	
 	@Override
 	public Op<?> writeOp(Op<?> op) {
 		if (writeOpCodes) {

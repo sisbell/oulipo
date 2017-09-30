@@ -15,24 +15,31 @@
  *******************************************************************************/
 package org.oulipo.streams;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.Span;
 
 @RunWith(JUnitPlatform.class)
 public class SpanTest {
-	
+
+	// TODO: should authority include width?
+	public void addTumbler() throws Exception {
+		String input = "ted://1.1.0.2.0.1.2.3";
+		Span s1 = new Span(10, 60, "ted://1");
+		TumblerAddress tumbler = s1.addToTumbler(TumblerAddress.create(input));
+		assertEquals(input + ".0.1.10~1.60", tumbler.toTumblerAuthority());
+	}
+
 	@Test
 	public void equality() throws Exception {
 		Span s1 = new Span(10, 50, "ted://1");
 		Span s2 = new Span(10, 50, "ted://1");
 		assertEquals(s1, s2);
 	}
-	
 
 	@Test
 	public void inequality() throws Exception {
@@ -40,15 +47,5 @@ public class SpanTest {
 		Span s2 = new Span(10, 50, "ted://1");
 		assertFalse(s1.equals(s2));
 	}
-	
-	//TODO: should authority include width?
-	public void addTumbler() throws Exception {	
-		String input = "ted://1.1.0.2.0.1.2.3";
-		Span s1 = new Span(10, 60, "ted://1");
-		TumblerAddress tumbler = s1.addToTumbler(TumblerAddress.create(input));
-		assertEquals(input + ".0.1.10~1.60", tumbler.toTumblerAuthority());
-	}
-
-
 
 }

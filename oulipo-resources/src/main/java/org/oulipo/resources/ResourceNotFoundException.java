@@ -24,7 +24,7 @@ public class ResourceNotFoundException extends TumblerResourceException {
 	 * 
 	 */
 	private static final long serialVersionUID = 440364700238709821L;
-	
+
 	private int code;
 
 	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code) {
@@ -32,25 +32,22 @@ public class ResourceNotFoundException extends TumblerResourceException {
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
-			String message) {
+	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, String message) {
 		super(tumblerAddress, message);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
-			String message, Throwable cause) {
+	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, String message, Throwable cause) {
 		super(tumblerAddress, message, cause);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, 
-			Throwable cause) {
+	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, Throwable cause) {
 		super(tumblerAddress, cause);
 		this.code = code;
 	}
 
 	public int getCode() {
 		return code;
-	}	
+	}
 }

@@ -17,7 +17,7 @@ package org.oulipo.security.keystore;
 
 public final class PrivateKey {
 
-	public String nickname;
-	
 	public byte[] key;
+
+	public String nickname;
 }

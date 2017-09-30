@@ -15,13 +15,16 @@
  *******************************************************************************/
 package org.oulipo.services.endpoints;
 
+import static org.oulipo.services.VariantUtils.fromVariantToInvariant;
+
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-import org.oulipo.net.IRI;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
@@ -41,6 +44,7 @@ import org.oulipo.security.auth.UnauthorizedException;
 import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
+import org.oulipo.services.VariantUtils;
 import org.oulipo.services.responses.LinkAddresses;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.StreamLoader;
@@ -48,7 +52,7 @@ import org.oulipo.streams.impl.StreamOulipoMachine;
 
 public class DocumentService {
 
-	private static boolean matchIt(TumblerAddress[] tumblers, TumblerMatcher matcher) {
+	private static boolean matchIt(List<TumblerAddress> tumblers, TumblerMatcher matcher) {
 		for (TumblerAddress tumbler : tumblers) {
 			if (matcher.match(tumbler)) {
 				return true;
@@ -91,59 +95,86 @@ public class DocumentService {
 		thingRepo.update(document);
 		return document;
 	}
-	// TODO: Fix
-	/*
-	 * public Collection<Thing> getDocumentLinks(OulipoRequest oulipoRequest) {
-	 * 
-	 * int network = Integer.parseInt(oulipoRequest.getNetworkId()); TumblerAddress
-	 * documentAddress = oulipoRequest.getDocumentAddress(); Document document =
-	 * sessionManager.getDocumentForReadAccess(oulipoRequest);
-	 * 
-	 * Map<String, String> queryParams = oulipoRequest.queryParams(); // TODO: These
-	 * are Variant Spans, convert to invariant for matching // This may result in
-	 * more ISpans than VSpans String[] toParams = queryParams.get("to") != null ?
-	 * queryParams.get("to").split("[,]") : null; String[] fromParams =
-	 * queryParams.get("from") != null ? queryParams.get("from").split("[,]") :
-	 * null;
-	 * 
-	 * if (toParams != null || fromParams != null) { String[] typeParams =
-	 * queryParams.get("type") != null ? queryParams.get("type").split("[,]") :
-	 * null;
-	 * 
-	 * RangeTumblerMatcher fromMatcher =
-	 * RangeTumblerMatcher.createFromInvariantSpans(toParams); RangeTumblerMatcher
-	 * toMatcher = RangeTumblerMatcher.createFromInvariantSpans(fromParams);
-	 * AddressTumblerMatcher linkTypeMatcher =
-	 * AddressTumblerMatcher.createLinkTypeMatcher(typeParams);
-	 * 
-	 * TumblerAddress[] linkTumblers = document.links; LinkAddresses linkAddresses =
-	 * new LinkAddresses();
-	 * 
-	 * for (TumblerAddress linkTumbler : linkTumblers) { Optional<InvariantLink>
-	 * optLink = thingRepo.findInvariantLink(linkTumbler); if (!optLink.isPresent())
-	 * { continue; } InvariantLink link = optLink.get();
-	 * 
-	 * if (link.fromInvariantSpans != null && !matchIt(link.fromInvariantSpans,
-	 * fromMatcher)) { continue; }
-	 * 
-	 * if (link.toInvariantSpans != null && !matchIt(link.toInvariantSpans,
-	 * toMatcher)) { continue; }
-	 * 
-	 * if (link.linkTypes != null && !matchIt(link.linkTypes, linkTypeMatcher)) {
-	 * continue; }
-	 * 
-	 * linkAddresses.links.add(link.resourceId); }
-	 * 
-	 * return linkAddresses; }
-	 * 
-	 * queryParams.put("document", documentAddress.toTumblerAuthority()); // TODO:
-	 * Convert Invariant Links to Links return
-	 * thingRepo.getAllInvariantLinks(network, queryParams); }
-	 */
 
 	public Document getDocument(OulipoRequest oulipoRequest) throws MalformedTumblerException,
 			ResourceNotFoundException, UnauthorizedException, AuthenticationException {
 		return sessionManager.getDocumentForReadAccess(oulipoRequest);
+	}
+
+	/**
+	 * Gets all link addresses to and from this document. If no to/from parameters
+	 * are specified, this method returns all link addresses
+	 * 
+	 * @param oulipoRequest
+	 * @return
+	 * @throws AuthenticationException
+	 * @throws UnauthorizedException
+	 * @throws ResourceNotFoundException
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
+	public LinkAddresses getDocumentLinks(OulipoRequest oulipoRequest) throws ResourceNotFoundException,
+			UnauthorizedException, AuthenticationException, IOException, MalformedSpanException {
+
+		int network = Integer.parseInt(oulipoRequest.getNetworkId());
+		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
+		Document document = sessionManager.getDocumentForReadAccess(oulipoRequest);
+
+		OulipoMachine om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
+
+		Map<String, String> queryParams = oulipoRequest.queryParams();
+
+		List<TumblerAddress> toParams = queryParams.get("to") != null
+				? fromVariantToInvariant(queryParams.get("to").split("[,]"), om)
+				: null;
+
+		List<TumblerAddress> fromParams = queryParams.get("from") != null
+				? VariantUtils.fromVariantToInvariant(queryParams.get("from").split("[,]"), om)
+				: null;
+
+		LinkAddresses linkAddresses = new LinkAddresses();
+
+		if (toParams != null || fromParams != null) {
+			String[] typeParams = queryParams.get("type") != null ? queryParams.get("type").split("[,]") : null;
+
+			RangeTumblerMatcher fromMatcher = new RangeTumblerMatcher(new HashSet<>(toParams));
+			RangeTumblerMatcher toMatcher = new RangeTumblerMatcher(new HashSet<>(fromParams));
+			AddressTumblerMatcher linkTypeMatcher = AddressTumblerMatcher.createLinkTypeMatcher(typeParams);
+
+			TumblerAddress[] linkTumblers = document.links;
+
+			for (TumblerAddress linkTumbler : linkTumblers) {
+				Optional<InvariantLink> optLink = thingRepo.findInvariantLink(linkTumbler);
+				if (!optLink.isPresent()) {
+					continue;
+				}
+				InvariantLink link = optLink.get();
+
+				if (link.fromInvariantSpans != null && !matchIt(link.fromInvariantSpans, fromMatcher)) {
+					continue;
+				}
+
+				if (link.toInvariantSpans != null && !matchIt(link.toInvariantSpans, toMatcher)) {
+					continue;
+				}
+
+				if (link.linkTypes != null && !matchIt(link.linkTypes, linkTypeMatcher)) {
+					continue;
+				}
+				linkAddresses.links.addAll(VariantUtils.fromInvariantToVariant(link.resourceId, om));
+			}
+
+			return linkAddresses;
+		}
+
+		queryParams.put("document", documentAddress.toTumblerAuthority());
+
+		Collection<Thing> invariantLinks = thingRepo.getAllInvariantLinks(network, queryParams);
+		for (Thing thing : invariantLinks) {
+			InvariantLink ilink = (InvariantLink) thing;
+			linkAddresses.links.addAll(VariantUtils.fromInvariantToVariant(ilink.resourceId, om));
+		}
+		return linkAddresses;
 	}
 
 	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest)
@@ -154,6 +185,18 @@ public class DocumentService {
 		return thingRepo.getAllDocuments(network, queryParams);
 	}
 
+	/**
+	 * Gets a list of text partitions and invariant addresses of that text for a
+	 * document
+	 * 
+	 * @param oulipoRequest
+	 * @return
+	 * @throws ResourceNotFoundException
+	 * @throws UnauthorizedException
+	 * @throws AuthenticationException
+	 * @throws IOException
+	 * @throws MalformedSpanException
+	 */
 	public Virtual getVirtual(OulipoRequest oulipoRequest) throws ResourceNotFoundException, UnauthorizedException,
 			AuthenticationException, IOException, MalformedSpanException {
 
@@ -162,12 +205,11 @@ public class DocumentService {
 		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
 
 		Virtual virtual = new Virtual();
-		virtual.resourceId = new IRI("ted://1.1.0.1.0.1.1.1.0.2.5");
+		virtual.resourceId = documentAddress;
 		virtual.links = document.links;
 		virtual.content = om.getVirtualContent();
 
 		return virtual;
-
 	}
 
 	public Document newDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,

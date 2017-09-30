@@ -16,6 +16,7 @@
 package org.oulipo.client.services;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.oulipo.resources.model.VSpan;
 import org.oulipo.resources.model.Virtual;
 import org.oulipo.services.responses.EndsetByType;
 import org.oulipo.services.responses.Network;
+import org.oulipo.streams.VirtualContent;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,6 +76,12 @@ public class TumblerService {
 		this.service = service;
 	}
 
+	public void copy(Document document, long position, List<VSpan> spans, Callback<VirtualContent> callback)
+			throws IOException {
+		service.copy(document.networkId(), document.nodeId(), document.userId(), document.documentId(), "1." + position,
+				spans).enqueue(callback);
+	}
+
 	public void createOrUpdateDocument(Document document, Callback<Document> callback) throws IOException {
 		service.createOrUpdateDocument(document.networkId(), document.nodeId(), document.userId(),
 				document.documentId(), document).enqueue(callback);
@@ -112,6 +120,12 @@ public class TumblerService {
 		createOrUpdateUser(user, new TumblerCallback<User>(callback));
 	}
 
+	public void delete(Document document, VSpan range, Callback<VirtualContent> callback) throws IOException {
+		String spans = "1." + range.start + "~" + range.width;
+		service.delete(document.networkId(), document.nodeId(), document.userId(), document.documentId(), spans)
+				.enqueue(callback);
+	}
+
 	public void getDocument(String address, Callback<Document> callback) throws IOException {
 		TumblerAddress ta = TumblerAddress.create(address);
 		service.getDocument(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal()).enqueue(callback);
@@ -120,6 +134,29 @@ public class TumblerService {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void getDocument(String address, final TumblerSuccess callback) throws IOException {
 		getDocument(address, new TumblerCallback<Document>(callback));
+	}
+
+	public void getDocumentLink(TumblerAddress ta, Callback<Link> callback) throws IOException {
+		service.getDocumentLink(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(),
+				ta.getElement().asString()).enqueue(callback);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void getDocumentLink(TumblerAddress address, TumblerSuccess callback) throws IOException {
+		getDocumentLink(address, new TumblerCallback<Link>(callback));
+	}
+
+	public void getDocumentLinks(String address, Map<String, String> options, Callback<List<Link>> callback)
+			throws IOException {
+		TumblerAddress ta = TumblerAddress.create(address);
+		service.getDocumentLinks(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(), options)
+				.enqueue(callback);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void getDocumentLinks(String address, Map<String, String> options, TumblerSuccess callback)
+			throws IOException {
+		getDocumentLinks(address, options, new TumblerCallback<List<Link>>(callback));
 	}
 
 	public void getDocuments(String address, Map<String, String> options, Callback<List<Document>> callback)
@@ -141,27 +178,6 @@ public class TumblerService {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void getEndsets(String address, final TumblerSuccess callback) throws IOException {
 		getEndsets(address, new TumblerCallback<EndsetByType>(callback));
-	}
-
-	public void getLink(TumblerAddress ta, Callback<Link> callback) throws IOException {
-		service.getLink(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(), ta.getElement().asString())
-				.enqueue(callback);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void getLink(TumblerAddress address, TumblerSuccess callback) throws IOException {
-		getLink(address, new TumblerCallback<Link>(callback));
-	}
-
-	public void getLinks(String address, Map<String, String> options, Callback<List<Link>> callback)
-			throws IOException {
-		TumblerAddress ta = TumblerAddress.create(address);
-		service.getLinks(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(), options).enqueue(callback);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void getLinks(String address, Map<String, String> options, TumblerSuccess callback) throws IOException {
-		getLinks(address, options, new TumblerCallback<List<Link>>(callback));
 	}
 
 	public void getNetwork(String address, Callback<Network> callback) throws IOException {
@@ -242,6 +258,9 @@ public class TumblerService {
 	}
 
 	public void getVirtual(String address, Map<String, String> options, Callback<Virtual> callback) throws IOException {
+		if (options == null) {
+			options = new HashMap<>();
+		}
 		TumblerAddress ta = TumblerAddress.create(address);
 		service.getVirtual(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(), options).enqueue(callback);
 	}
@@ -261,14 +280,37 @@ public class TumblerService {
 		getVSpan(address, new TumblerCallback<VSpan>(callback));
 	}
 
+	public void insert(Document document, long position, String text, Callback<VirtualContent> callback)
+			throws IOException {
+		service.insert(document.networkId(), document.nodeId(), document.userId(), document.documentId(),
+				"1." + position, text).enqueue(callback);
+	}
+
+	public void loadOperations(String address, String operations, Callback<String> callback) throws IOException {
+		TumblerAddress ta = TumblerAddress.create(address);
+		service.loadOperations(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal(), operations)
+				.enqueue(callback);
+	}
+
 	public void newDocument(String address, Callback<Document> callback) throws IOException {
 		TumblerAddress ta = TumblerAddress.create(address);
 		service.newDocument(ta.networkVal(), ta.nodeVal(), ta.userVal()).enqueue(callback);
 	}
 
+	public void newLink(String address, Callback<Link> callback) throws IOException {
+		TumblerAddress ta = TumblerAddress.create(address);
+		service.newLink(ta.networkVal(), ta.nodeVal(), ta.userVal(), ta.documentVal()).enqueue(callback);
+	}
+
 	public void newUser(String address, Callback<User> callback) throws IOException {
 		TumblerAddress ta = TumblerAddress.create(address);
 		service.newUser(ta.networkVal(), ta.nodeVal()).enqueue(callback);
+	}
+
+	public void swap(Document document, VSpan from, VSpan to, Callback<VirtualContent> callback) throws IOException {
+		String spans = "1." + from.start + "~" + from.width + ", " + "1." + to.start + "~" + to.width;
+		service.swap(document.networkId(), document.nodeId(), document.userId(), document.documentId(), spans)
+				.enqueue(callback);
 	}
 
 }

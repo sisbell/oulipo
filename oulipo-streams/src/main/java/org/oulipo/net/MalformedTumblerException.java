@@ -18,7 +18,8 @@ package org.oulipo.net;
 import java.io.IOException;
 
 /**
- * Thrown to indicate that a method has been passed an malformed tumbler address.
+ * Thrown to indicate that a method has been passed an malformed tumbler
+ * address.
  */
 public class MalformedTumblerException extends IOException {
 
@@ -31,17 +32,16 @@ public class MalformedTumblerException extends IOException {
 		super();
 	}
 
-	public MalformedTumblerException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
 	public MalformedTumblerException(String message) {
 		super(message);
+	}
+
+	public MalformedTumblerException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 	public MalformedTumblerException(Throwable cause) {
 		super(cause);
 	}
-	
-	
+
 }

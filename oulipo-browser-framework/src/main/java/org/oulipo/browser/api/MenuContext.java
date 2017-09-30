@@ -13,7 +13,7 @@
  * limitations under the License. See the NOTICE file distributed with this work for 
  * additional information regarding copyright ownership. 
  *******************************************************************************/
-package org.oulipo.browser.framework;
+package org.oulipo.browser.api;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.TabPane;

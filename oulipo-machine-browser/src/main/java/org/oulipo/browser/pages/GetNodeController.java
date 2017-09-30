@@ -85,8 +85,9 @@ public class GetNodeController extends BaseController {
 						/*
 						 * if (node.allowUserToCreateAccount) { try { Button addUserBtn =
 						 * ButtonsCreator.addUser(ctx, address.toTumblerFields(),
-						 * address.toTumblerFields()); addressBarController.addRightAddressBar(addUserBtn);
-						 * } catch (MalformedTumblerException e) { e.printStackTrace(); } }
+						 * address.toTumblerFields());
+						 * addressBarController.addRightAddressBar(addUserBtn); } catch
+						 * (MalformedTumblerException e) { e.printStackTrace(); } }
 						 */
 					});
 				} else {

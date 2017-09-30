@@ -156,7 +156,7 @@ public final class AccountManagerImpl implements AccountManager {
 		try {
 			return accountStorage.load("current_user", CurrentUser.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace();// TODO: launch new user page
 		}
 		return null;
 	}
@@ -196,7 +196,7 @@ public final class AccountManagerImpl implements AccountManager {
 
 			@Override
 			public void onFailure(Call<TempTokenResponse> arg0, Throwable arg1) {
-
+				arg1.printStackTrace();
 			}
 
 			@Override
@@ -210,6 +210,12 @@ public final class AccountManagerImpl implements AccountManager {
 					session.publicKey = account.publicKey;
 					session.sessionToken = sessionResponse.masterToken;
 					accountStorage.save(session);
+					try {
+						sessionStorage.add(new Property("activeUser", account.publicKey));
+					} catch (StorageException | IOException e1) {
+						e1.printStackTrace();
+					}
+
 					System.out.println(session);
 				} catch (UnsupportedEncodingException | StorageException e) {
 					e.printStackTrace();
@@ -227,7 +233,8 @@ public final class AccountManagerImpl implements AccountManager {
 		account.publicKey = key.toAddress(MainNetParams.get()).toString();
 		account.xandle = "NewUser-" + account.publicKey;
 		keyStorage.add(account.xandle, account.publicKey, key.getPrivKeyBytes(), key.getPubKey());
-		accountStorage.save(account);
+		add(account);
+		activeAccount = account;
 		return account;
 	}
 

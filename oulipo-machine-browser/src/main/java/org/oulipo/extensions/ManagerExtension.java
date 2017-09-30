@@ -20,42 +20,66 @@ import java.io.IOException;
 import org.oulipo.browser.api.BaseExtension;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Extension;
-import org.oulipo.browser.api.tabs.OulipoTab;
-import org.oulipo.browser.framework.MenuContext.Type;
-import org.oulipo.browser.pages.RegisterNodeController;
+import org.oulipo.browser.api.MenuContext.Type;
+import org.oulipo.browser.api.people.CurrentUser;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 
 public class ManagerExtension extends BaseExtension implements Extension {
 
 	@Override
 	public void init(BrowserContext ctx) {
-		addMenuItem(ctx, "New Document", Type.MANAGER, e -> {
 
-			// ctx.getTabManager().addTabWithAddressBar(address, title);
-
-			// OulipoTab tab = new OulipoTab("New Document");
-			// ctx.getTabManager().insert(ctx.getTabManager().size(), tab);
-			// ctx.getTabManager().selectTab(tab);
-		});
-
-		addMenuItem(ctx, "Register Node", Type.MANAGER, e -> {
-			FXMLLoader loader = ctx.getLoader();
-			loader.setLocation(getClass().getResource("/org/oulipo/browser/pages/RegisterNodeView.fxml"));
-
-			OulipoTab tab = new OulipoTab("Register Node");
+		Menu showNodes = addMenu(ctx, "Show Nodes", Type.MANAGER);
+		MenuItem mainNetNodes = new MenuItem();
+		mainNetNodes.setText("MainNet");
+		mainNetNodes.setOnAction(e -> {
 			try {
-				tab.setContent((Node) loader.load());
+				ctx.getTabManager().addTabWithAddressBar("ted://1/nodes", "MainNet Nodes");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			RegisterNodeController controller = loader.getController();
-			controller.setContext(ctx);
 
-			ctx.getTabManager().add(tab);
-			ctx.getTabManager().selectTab(tab);
 		});
+		MenuItem testNetNodes = new MenuItem();
+		testNetNodes.setText("TestNet");
+		testNetNodes.setOnAction(e -> {
+			try {
+				ctx.getTabManager().addTabWithAddressBar("ted://2/nodes", "TestNet Nodes");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+		});
+
+		showNodes.getItems().addAll(mainNetNodes, testNetNodes);
+
+		addMenuItem(ctx, "My Documents", Type.MANAGER, e -> {
+			try {
+				CurrentUser currentUser = ctx.getCurrentUser();
+				if (currentUser != null) {
+					ctx.getTabManager().addTabWithAddressBar(currentUser.address + "/documents", "My Documents");
+
+				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+		});
+
+		addMenuItem(ctx, "New Document", Type.MANAGER, e -> {
+
+		});
+
+		addMenuItem(ctx, "Register Node", Type.MANAGER, e -> {
+			try {
+				ctx.getTabManager().addTabWithAddressBar("edit://1", "Nodes");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+
 	}
 
 }

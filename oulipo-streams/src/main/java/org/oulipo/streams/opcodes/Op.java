@@ -19,10 +19,6 @@ import java.io.IOException;
 
 public abstract class Op<Data> {
 
-	public static final byte SWAP = 0x0;
-
-	public static final byte PUT = 0x1;
-
 	public static final byte COPY = 0x2;
 
 	public static final byte DELETE = 0x3;
@@ -30,6 +26,10 @@ public abstract class Op<Data> {
 	public static final byte INSERT_TEXT = 0x4;
 
 	public static final byte MOVE = 0x5;
+
+	public static final byte PUT = 0x1;
+
+	public static final byte SWAP = 0x0;
 
 	private final int code;
 

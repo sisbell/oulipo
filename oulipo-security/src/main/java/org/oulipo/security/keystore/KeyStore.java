@@ -22,29 +22,30 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class KeyStore {
 
-    private ScryptHeader scrypt;
+	private ArrayList<KeyEntry> keys = new ArrayList<>();
 
-    private ArrayList<KeyEntry> keys = new ArrayList<>();
+	private ScryptHeader scrypt;
 
-    private KeyStore() { }
-    
-    public KeyStore(ScryptHeader scrypt) {
-    	this.scrypt = scrypt;
-    }
-    
-    public ScryptHeader getScrypt() {
-        return scrypt;
-    }
+	private KeyStore() {
+	}
 
-    public void addKey(KeyEntry key) {
-        keys.add(key);
-    }
+	public KeyStore(ScryptHeader scrypt) {
+		this.scrypt = scrypt;
+	}
 
-    public ArrayList<KeyEntry> getKeys() {
-        return keys;
-    }
+	public void addKey(KeyEntry key) {
+		keys.add(key);
+	}
 
-    public void setKeys(ArrayList<KeyEntry> keys) {
-        this.keys = keys;
-    }
+	public ArrayList<KeyEntry> getKeys() {
+		return keys;
+	}
+
+	public ScryptHeader getScrypt() {
+		return scrypt;
+	}
+
+	public void setKeys(ArrayList<KeyEntry> keys) {
+		this.keys = keys;
+	}
 }

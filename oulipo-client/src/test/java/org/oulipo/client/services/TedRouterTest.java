@@ -44,7 +44,7 @@ public class TedRouterTest {
 	private TumblerService tumblerServiceMock = mock(TumblerService.class);
 
 	private TedRouter tedRouter;
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private TumblerSuccess dummyCallback = new TumblerSuccess() {
@@ -88,26 +88,26 @@ public class TedRouterTest {
 		tedRouter.routeGetRequest(tumbler, dummyCallback);
 		verify(tumblerServiceMock).getSystemVSpans(tumbler.getQueryParams(), dummyCallback);
 	}
-	
+
 	@Test
 	public void getSystemLinks() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.1.0.1.0.1.1.1.0.2.1");
 		tedRouter.routeGetRequest(tumbler, dummyCallback);
 		verify(tumblerServiceMock).getSystemLinks(tumbler.getQueryParams(), dummyCallback);
 	}
-	
+
 	@Test(expected = MalformedSpanException.class)
 	public void getSystemLinksWithSpan() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.1.0.1.0.1.1.1.0.2.1~2.4");
 		tedRouter.routeGetRequest(tumbler, dummyCallback);
 		verify(tumblerServiceMock).getSystemLinks(tumbler.getQueryParams(), dummyCallback);
 	}
-	
+
 	@Test
 	public void getLink() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.5.0.2.2.3.0.2.50");
 		tedRouter.routeGetRequest(tumbler, dummyCallback);
-		verify(tumblerServiceMock).getLink(tumbler, dummyCallback);
+		verify(tumblerServiceMock).getDocumentLink(tumbler, dummyCallback);
 	}
 
 	@Test(expected = MalformedTumblerException.class)
@@ -182,57 +182,57 @@ public class TedRouterTest {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.4.0.1.1.1/nodes");
 		tedRouter.routeGetRequest(tumbler, dummyCallback);
 	}
-	
+
 	@Test
 	public void createNode() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2");
 		Node node = new Node();
 		node.resourceId = tumbler;
-		
+
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(node), dummyCallback);
 		verify(tumblerServiceMock).createOrUpdateNode(node, dummyCallback);
 	}
-	
+
 	@Test
 	public void createUser() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.1");
 		User user = new User();
 		user.resourceId = tumbler;
-		
+
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(user), dummyCallback);
 		verify(tumblerServiceMock).createOrUpdateUser(user, dummyCallback);
 	}
-	
+
 	@Test
 	public void createDocument() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.1.0.2.1.1");
 		Document document = new Document();
 		document.resourceId = tumbler;
-		
+
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(document), dummyCallback);
 		verify(tumblerServiceMock).createOrUpdateDocument(document, dummyCallback);
 	}
-	
+
 	@Test
 	public void createLink() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.1.0.2.1.1.0.2.1");
 		Link link = new Link();
 		link.resourceId = tumbler;
-		
+
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(link), dummyCallback);
 		verify(tumblerServiceMock).createOrUpdateLink(link, dummyCallback);
 	}
-	
+
 	@Test(expected = IOException.class)
 	public void failCreateUserIfNode() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2");
 		User user = new User();
 		user.familyName = "K";
 		user.resourceId = tumbler;
-		
+
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(user), dummyCallback);
 	}
-	
+
 	@Test(expected = IOException.class)
 	public void failCreateUserIfDocument() throws Exception {
 		TumblerAddress tumbler = TumblerAddress.create("1.2.0.2.0.2.1.1");
@@ -241,7 +241,5 @@ public class TedRouterTest {
 		user.familyName = "K";
 		tedRouter.routePutRequest(tumbler, mapper.writeValueAsString(user), dummyCallback);
 	}
-
-
 
 }

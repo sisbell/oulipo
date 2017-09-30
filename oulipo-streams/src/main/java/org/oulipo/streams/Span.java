@@ -26,6 +26,8 @@ import org.oulipo.net.TumblerAddress;
  */
 public class Span {
 
+	public String homeDocument;
+
 	/**
 	 * Start byte position
 	 */
@@ -36,8 +38,6 @@ public class Span {
 	 */
 	public long width;
 
-	public String homeDocument;
-
 	/**
 	 * Default constructor
 	 */
@@ -47,22 +47,12 @@ public class Span {
 	/**
 	 * Creates span
 	 * 
-	 * @param start start byte position of span
-	 * @param width number of characters in span
-	 * @param homeDocument the home document of the span
-	 * @throws MalformedSpanException if start < 1 || width < 1
-	 */
-	public Span(long start, long width, String homeDocument) throws MalformedSpanException {
-		this(start, width);
-		this.homeDocument = homeDocument;
-	}
-
-	/**
-	 * Creates span
-	 * 
-	 * @param start start byte position of span
-	 * @param width number of characters in span
-	 * @throws MalformedSpanException if start < 1 || width < 1
+	 * @param start
+	 *            start byte position of span
+	 * @param width
+	 *            number of characters in span
+	 * @throws MalformedSpanException
+	 *             if start < 1 || width < 1
 	 */
 	public Span(long start, long width) throws MalformedSpanException {
 		this.start = start;
@@ -76,6 +66,23 @@ public class Span {
 	}
 
 	/**
+	 * Creates span
+	 * 
+	 * @param start
+	 *            start byte position of span
+	 * @param width
+	 *            number of characters in span
+	 * @param homeDocument
+	 *            the home document of the span
+	 * @throws MalformedSpanException
+	 *             if start < 1 || width < 1
+	 */
+	public Span(long start, long width, String homeDocument) throws MalformedSpanException {
+		this(start, width);
+		this.homeDocument = homeDocument;
+	}
+
+	/**
 	 * Adds this span to the specified document address to create a tumbler
 	 * 
 	 * @param documentAddress
@@ -86,21 +93,6 @@ public class Span {
 	public TumblerAddress addToTumbler(TumblerAddress documentAddress) throws MalformedTumblerException {
 		return new TumblerAddress.Builder(documentAddress.getDocumentAddress()).element("1." + start).width(width)
 				.build();
-	}
-
-	@Override
-	public String toString() {
-		return "Span [start=" + start + ", width=" + width + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (start ^ (start >>> 32));
-		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
-		result = prime * result + (int) (width ^ (width >>> 32));
-		return result;
 	}
 
 	@Override
@@ -122,6 +114,21 @@ public class Span {
 		if (width != other.width)
 			return false;
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (start ^ (start >>> 32));
+		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
+		result = prime * result + (int) (width ^ (width >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Span [start=" + start + ", width=" + width + "]";
 	}
 
 }

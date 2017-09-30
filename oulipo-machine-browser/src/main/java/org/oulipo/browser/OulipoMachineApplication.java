@@ -26,6 +26,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Starts browser application
+ */
 public class OulipoMachineApplication extends Application {
 
 	public static void main(String[] args) {

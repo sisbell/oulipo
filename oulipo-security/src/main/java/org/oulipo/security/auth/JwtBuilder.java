@@ -32,14 +32,22 @@ import org.json.JSONObject;
  */
 public final class JwtBuilder {
 
+	private static String buildHeaderAndClaims(JSONObject claims)
+			throws InvalidKeyException, NoSuchAlgorithmException, JSONException, UnsupportedEncodingException {
+		JSONObject header = new JSONObject();
+		header.put("alg", "ES256");
+		header.put("typ", "JWT");
+		StringBuilder sb = new StringBuilder();
+		return sb.append(base64Url().encode(header.toString().getBytes("UTF-8"))).append(".")
+				.append(base64Url().encode(claims.toString().getBytes("UTF-8"))).toString();
+	}
+
 	public static String buildRequest(ECKey mKey, XanAuthUri xanAuthUri)
-			throws UnsupportedEncodingException, NoSuchAlgorithmException,
-			JSONException, InvalidKeyException {
+			throws UnsupportedEncodingException, NoSuchAlgorithmException, JSONException, InvalidKeyException {
 
 		JSONObject claims = new JSONObject();
 		long iat = (System.currentTimeMillis() / 1000L);
-		String address = URLDecoder.decode(mKey.toAddress(MainNetParams.get())
-				.toString(), "UTF-8");
+		String address = URLDecoder.decode(mKey.toAddress(MainNetParams.get()).toString(), "UTF-8");
 
 		claims.put("iss", address);
 		claims.put("iat", iat);
@@ -52,24 +60,9 @@ public final class JwtBuilder {
 	}
 
 	private static String signAndBuildWebToken(JSONObject claims, ECKey mKey)
-			throws InvalidKeyException, NoSuchAlgorithmException,
-			JSONException, UnsupportedEncodingException {
+			throws InvalidKeyException, NoSuchAlgorithmException, JSONException, UnsupportedEncodingException {
 		String message = buildHeaderAndClaims(claims);
 		String signature64 = mKey.signMessage(message);
 		return message + "." + signature64;
-	}
-
-	private static String buildHeaderAndClaims(JSONObject claims)
-			throws InvalidKeyException, NoSuchAlgorithmException,
-			JSONException, UnsupportedEncodingException {
-		JSONObject header = new JSONObject();
-		header.put("alg", "ES256");
-		header.put("typ", "JWT");
-		StringBuilder sb = new StringBuilder();
-		return sb
-				.append(base64Url().encode(header.toString().getBytes("UTF-8")))
-				.append(".")
-				.append(base64Url().encode(claims.toString().getBytes("UTF-8")))
-				.toString();
 	}
 }

@@ -23,24 +23,24 @@ import org.oulipo.streams.InvariantSpan;
 
 public final class PutOp extends Op<PutOp.Data> {
 
+	public static class Data {
+
+		public final InvariantSpan invariantSpan;
+
+		public final long to;
+
+		public Data(long to, InvariantSpan invariantSpan) {
+			this.to = to;
+			this.invariantSpan = invariantSpan;
+		}
+	}
+
 	public PutOp(Data data) {
 		super(Op.PUT, data);
 	}
 
 	public PutOp(long to, InvariantSpan invariantSpan) {
 		this(new Data(to, invariantSpan));
-	}
-
-	public static class Data {
-
-		public final long to;
-
-		public final InvariantSpan invariantSpan;
-
-		public Data(long to, InvariantSpan invariantSpan) {
-			this.to = to;
-			this.invariantSpan = invariantSpan;
-		}
 	}
 
 	@Override

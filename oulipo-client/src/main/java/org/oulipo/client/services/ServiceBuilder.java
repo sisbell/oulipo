@@ -17,15 +17,16 @@ package org.oulipo.client.services;
 
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Builds retrofit service interfaces
@@ -54,7 +55,7 @@ public final class ServiceBuilder {
 	 *            the base URL of any service
 	 */
 	public ServiceBuilder(String baseUrl) {
-		if(Strings.isNullOrEmpty(baseUrl)) {
+		if (Strings.isNullOrEmpty(baseUrl)) {
 			throw new IllegalArgumentException("baseURL must not be empty");
 		}
 		this.baseUrl = baseUrl;
@@ -92,7 +93,8 @@ public final class ServiceBuilder {
 	/**
 	 * Builds the Retrofit service
 	 * 
-	 * @param service the service class
+	 * @param service
+	 *            the service class
 	 * @return a service instance
 	 */
 	public <T> T build(Class<T> service) {
@@ -114,6 +116,7 @@ public final class ServiceBuilder {
 				.addInterceptor(logging).readTimeout(60, TimeUnit.SECONDS).build();
 
 		Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl)
+				.addConverterFactory(ScalarsConverterFactory.create())
 				.addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
 
 		return retrofit.create(service);

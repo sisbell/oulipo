@@ -22,7 +22,7 @@ public class EscapeUtils {
 	 * etc.), and non-ascii/non-printable characters are escaped using Unicode
 	 * escapes (<tt>&#x5C;uxxxx</tt> and <tt>&#x5C;Uxxxxxxxx</tt>).
 	 **/
-	//http://grepcode.com/file_/repo1.maven.org/maven2/org.openrdf/rio/1.0.9/org/openrdf/rio/ntriples/NTriplesUtil.java/?v=source
+	// http://grepcode.com/file_/repo1.maven.org/maven2/org.openrdf/rio/1.0.9/org/openrdf/rio/ntriples/NTriplesUtil.java/?v=source
 	public static String escapeString(String label) {
 		int labelLength = label.length();
 		StringBuffer result = new StringBuffer(2 * labelLength);
@@ -33,48 +33,39 @@ public class EscapeUtils {
 
 			if (c == '\\') {
 				result.append("\\\\");
-			}
-			else if (c == '"') {
+			} else if (c == '"') {
 				result.append("\\\"");
-			}
-			else if (c == '\n') {
+			} else if (c == '\n') {
 				result.append("\\n");
-			}
-			else if (c == '\r') {
+			} else if (c == '\r') {
 				result.append("\\r");
-			}
-			else if (c == '\t') {
+			} else if (c == '\t') {
 				result.append("\\t");
-			}
-			else if (
-				cInt >= 0x0 && cInt <= 0x8 ||
-				cInt == 0xB || cInt == 0xC ||
-				cInt >= 0xE && cInt <= 0x1F ||
-				cInt >= 0x7F && cInt <= 0xFFFF)
-			{
+			} else if (cInt >= 0x0 && cInt <= 0x8 || cInt == 0xB || cInt == 0xC || cInt >= 0xE && cInt <= 0x1F
+					|| cInt >= 0x7F && cInt <= 0xFFFF) {
 				result.append("\\u");
 				result.append(toHexString(cInt, 4));
-			}
-			else if (cInt >= 0x10000 && cInt <= 0x10FFFF) {
+			} else if (cInt >= 0x10000 && cInt <= 0x10FFFF) {
 				result.append("\\U");
 				result.append(toHexString(cInt, 8));
-			}
-			else {
+			} else {
 				result.append(c);
 			}
 		}
 
 		return result.toString();
 	}
-	
+
 	/**
-	 * Converts a decimal value to a hexadecimal string represention
-	 * of the specified length.
+	 * Converts a decimal value to a hexadecimal string represention of the
+	 * specified length.
 	 *
-	 * @param decimal A decimal value.
-	 * @param stringLength The length of the resulting string.
+	 * @param decimal
+	 *            A decimal value.
+	 * @param stringLength
+	 *            The length of the resulting string.
 	 **/
-	//http://grepcode.com/file_/repo1.maven.org/maven2/org.openrdf/rio/1.0.9/org/openrdf/rio/ntriples/NTriplesUtil.java/?v=source
+	// http://grepcode.com/file_/repo1.maven.org/maven2/org.openrdf/rio/1.0.9/org/openrdf/rio/ntriples/NTriplesUtil.java/?v=source
 	public static String toHexString(int decimal, int stringLength) {
 		StringBuffer result = new StringBuffer(stringLength);
 

@@ -4,27 +4,19 @@ import java.util.Date;
 
 public class TestObject {
 
+	public Date created;
+
 	@Id
 	public String id;
-	
+
 	public String value;
-	
-	public Date created;
-	
-	public TestObject() { }
-	
+
+	public TestObject() {
+	}
+
 	public TestObject(String id, String value) {
 		this.id = id;
 		this.value = value;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
 	}
 
 	@Override
@@ -50,9 +42,17 @@ public class TestObject {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
 	public String toString() {
 		return "TestObject [id=" + id + ", value=" + value + "]";
 	}
-	
-	
+
 }

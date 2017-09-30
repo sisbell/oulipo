@@ -26,20 +26,19 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 public class TumblerAddressDeserializer extends StdDeserializer<TumblerAddress> {
 
+	private static final long serialVersionUID = -5217900309025517841L;
+
 	protected TumblerAddressDeserializer() {
 		this(null);
 	}
-	
+
 	protected TumblerAddressDeserializer(Class<?> vc) {
 		super(vc);
 	}
 
-	private static final long serialVersionUID = -5217900309025517841L;
-
 	@Override
-	public TumblerAddress deserialize(JsonParser jp,
-			DeserializationContext ctx) throws IOException,
-			JsonProcessingException {
+	public TumblerAddress deserialize(JsonParser jp, DeserializationContext ctx)
+			throws IOException, JsonProcessingException {
 		String node = jp.getCodec().readValue(jp, String.class);
 
 		return TumblerAddress.create(node);

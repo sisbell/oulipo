@@ -15,6 +15,68 @@
  *******************************************************************************/
 package org.oulipo.browser.pages;
 
-public class GetDocumentController {
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+import org.oulipo.browser.api.AddressBarController;
+import org.oulipo.browser.controls.OulipoTable;
+import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.net.MalformedTumblerException;
+import org.oulipo.resources.model.Document;
+
+import javafx.application.Platform;
+import retrofit2.Call;
+import retrofit2.Response;
+
+public class GetDocumentController extends BaseController {
+
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+
+	}
+
+	@Override
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
+		super.show(controller);
+		tumblerService.getDocument(address.toTumblerAuthority(), new retrofit2.Callback<Document>() {
+
+			@Override
+			public void onFailure(Call<Document> arg0, Throwable arg1) {
+				arg1.printStackTrace();
+			}
+
+			@Override
+			public void onResponse(Call<Document> arg0, Response<Document> response) {
+				if (response.isSuccessful()) {
+					final Document document = response.body();
+
+					Platform.runLater(() -> {
+						try {
+							OulipoTable table = new OulipoTable(300, 350)
+									.addText("Tumbler Address", address.toTumblerFields())
+									.addText("Title", document.title).addText("Description", document.description);
+
+							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
+							addressBarController.addContent(table, "View Document");
+
+						} catch (MalformedTumblerException e1) {
+							e1.printStackTrace();
+							return;
+						}
+					});
+				} else {
+					address.setScheme("edit");
+					Platform.runLater(() -> {
+						try {
+							addressBarController.show(address.toExternalForm());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+				}
+			}
+		});
+	}
 
 }

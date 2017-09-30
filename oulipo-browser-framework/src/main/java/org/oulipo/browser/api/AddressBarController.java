@@ -42,7 +42,7 @@ import javafx.scene.layout.VBox;
 public class AddressBarController implements Initializable {
 
 	CustomTextField addressBox;
-	
+
 	@FXML
 	StackPane addressPane;
 
@@ -50,12 +50,12 @@ public class AddressBarController implements Initializable {
 
 	@FXML
 	JFXButton backBtn;
-	
+
 	@FXML
 	VBox content;
-	
+
 	private BrowserContext ctx;
-	
+
 	@FXML
 	JFXButton forwardBtn;
 
@@ -69,7 +69,7 @@ public class AddressBarController implements Initializable {
 	public AddressBarController(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-	
+
 	public void addContent(Node node) {
 		content.getChildren().clear();
 		if (headerNode != null) {
@@ -94,7 +94,6 @@ public class AddressBarController implements Initializable {
 		content.getChildren().add(headerNode);
 		content.getChildren().add(node);
 	}
-	
 
 	public void addLeftAddressBar(Node node) {
 		addressBox.setLeft(node);
@@ -108,7 +107,7 @@ public class AddressBarController implements Initializable {
 	public void back() {
 		historyController.back();
 	}
-	
+
 	@FXML
 	public void forward() {
 		historyController.forward();
@@ -138,12 +137,11 @@ public class AddressBarController implements Initializable {
 		});
 		addressBox.requestFocus();
 		addressPane.getChildren().add(addressBox);
-		
 
 	}
 
 	@FXML
-	public void refresh() {	
+	public void refresh() {
 		content.getChildren().clear();
 		addressPane.getChildren().clear();
 		if (headerNode != null) {
@@ -167,18 +165,17 @@ public class AddressBarController implements Initializable {
 			} catch (Exception e1) {
 
 			}
-			
-			if(page == null) {
+
+			if (page == null) {
 				page = applicationContext.getRouter("search").getPage(iri, null);
 			}
-			
+
 			page.present(this);
 		} catch (Exception e) {
 			// Toast message
 			e.printStackTrace();
 		}
 	}
-
 
 	public void setTabTitle(String title) {
 		this.tab.setText(title);
@@ -188,7 +185,7 @@ public class AddressBarController implements Initializable {
 		addressBox.setText(tumbler.value);
 		refresh();
 	}
-	
+
 	public void show(String address) throws MalformedTumblerException, IOException {
 		historyController.visit(address);
 		this.headerNode = null;

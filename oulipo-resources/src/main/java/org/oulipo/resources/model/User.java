@@ -23,6 +23,7 @@ import org.oulipo.net.TumblerAddress;
 import org.oulipo.rdf.annotations.ObjectIRI;
 import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
 import org.oulipo.rdf.annotations.ObjectString;
+import org.oulipo.rdf.annotations.ObjectTumbler;
 import org.oulipo.rdf.annotations.Predicate;
 import org.oulipo.rdf.annotations.Subject;
 import org.oulipo.resources.utils.Add;
@@ -34,7 +35,7 @@ public class User extends Thing {
 
 	@Predicate("bitcoinPayinAddress")
 	@ObjectString
-	public String[] bitcoinPayinAddresses;//increase reserves in system (for payments)
+	public String[] bitcoinPayinAddresses;// increase reserves in system (for payments)
 
 	@Predicate("bitcoinPayoutAddress")
 	@ObjectString
@@ -53,8 +54,8 @@ public class User extends Thing {
 	public String givenName;
 
 	@Predicate("node")
-	@ObjectIRI
-	public TumblerAddress node ;
+	@ObjectTumbler
+	public TumblerAddress node;
 
 	@Predicate("publicKey")
 	@ObjectString
@@ -104,7 +105,7 @@ public class User extends Thing {
 	}
 
 	public boolean publicKeyMatches(String publicKey) {
-		if(Strings.isNullOrEmpty(publicKey)) {
+		if (Strings.isNullOrEmpty(publicKey)) {
 			return false;
 		}
 		return publicKey.equals(this.publicKey);
@@ -112,10 +113,8 @@ public class User extends Thing {
 
 	@Override
 	public String toString() {
-		return "Person [documents=" + Arrays.toString(documents)
-				+ ", familyName=" + familyName + ", givenName=" + givenName
-				+ ", publicKey=" + publicKey + ", resourceId=" + resourceId
-				+ "]";
+		return "Person [documents=" + Arrays.toString(documents) + ", familyName=" + familyName + ", givenName="
+				+ givenName + ", publicKey=" + publicKey + ", resourceId=" + resourceId + "]";
 	}
 
 }

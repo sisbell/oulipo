@@ -27,7 +27,6 @@ import org.oulipo.browser.api.people.CurrentUser;
 import org.oulipo.browser.api.storage.RemoteStorage;
 import org.oulipo.browser.api.storage.SessionStorage;
 import org.oulipo.browser.api.tabs.TabManager;
-import org.oulipo.browser.framework.MenuContext;
 import org.oulipo.browser.framework.StorageContext;
 import org.oulipo.browser.framework.impl.AccountManagerImpl;
 import org.oulipo.browser.framework.impl.BookmarkManagerImpl;
@@ -64,6 +63,8 @@ public final class BrowserContext {
 	private BookmarkManagerImpl bookmarkManager;
 
 	private StackPane contentArea;
+
+	private CurrentUser currentUser;
 
 	private HistoryManager historyManager = new HistoryManager();
 
@@ -113,7 +114,7 @@ public final class BrowserContext {
 		this.accountManager = new AccountManagerImpl(menuContext.getPeopleMenu(), this, sessionStorage,
 				storageContext.getAccountsStorage(), keyStorage, remoteStorage);
 		this.userName = userName;
-		CurrentUser currentUser = accountManager.getCurrentUserAddress();
+		currentUser = accountManager.getCurrentUserAddress();
 		if (currentUser != null) {
 			String name = !Strings.isNullOrEmpty(currentUser.xandle) ? currentUser.xandle : currentUser.address;
 			userName.setText(name);
@@ -143,8 +144,15 @@ public final class BrowserContext {
 		return contentArea;
 	}
 
+	public CurrentUser getCurrentUser() {
+		return currentUser;
+	}
+
 	public DocuverseService getDocuverseService() throws StorageException {
 		Account account = accountManager.getActiveAccount();
+		if (account == null) {
+			throw new StorageException("Active account not set");
+		}
 		String token = accountManager.getTokenFor(account);
 		return new ServiceBuilder("http://localhost:4567/docuverse/").publicKey(account.publicKey).sessionToken(token)
 				.build(DocuverseService.class);

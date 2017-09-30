@@ -30,9 +30,12 @@ public final class JwtValidator {
 	 * 
 	 * The signature is the signed message, where the message includes the publicKey
 	 * 
-	 * @param publicKey the publicKey of the public/private key pair used for signing
-	 * @param message the payload
-	 * @param signature the signature portion of a JWT
+	 * @param publicKey
+	 *            the publicKey of the public/private key pair used for signing
+	 * @param message
+	 *            the payload
+	 * @param signature
+	 *            the signature portion of a JWT
 	 * @return
 	 * @throws AuthenticationException
 	 *             if publicKey doesn't match signed message

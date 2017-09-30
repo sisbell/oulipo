@@ -1,14 +1,34 @@
+/*******************************************************************************
+ * OulipoMachine licenses this file to you under the Apache License, Version 2.0
+ * (the "License");  you may not use this file except in compliance with the License.  
+ *
+ * You may obtain a copy of the License at
+ *   
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *    
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See the NOTICE file distributed with this work for 
+ * additional information regarding copyright ownership. 
+ *******************************************************************************/
 package org.oulipo.services.endpoints;
+
+import static org.oulipo.services.VariantUtils.fromInvariantToVariant;
+import static org.oulipo.services.VariantUtils.fromVariantToInvariant;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
-import org.oulipo.net.IRI;
+import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
+import org.oulipo.net.TumblerField;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.ThingRepository;
 import org.oulipo.resources.ThingRepository.SpanSource;
@@ -22,16 +42,83 @@ import org.oulipo.security.auth.UnauthorizedException;
 import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
+import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.StreamLoader;
+import org.oulipo.streams.impl.StreamOulipoMachine;
 
 public class ElementsService {
 
 	private final ResourceSessionManager sessionManager;
 
+	private final StreamLoader streamLoader;
+
 	private final ThingRepository thingRepo;
 
-	public ElementsService(ThingRepository thingRepo, ResourceSessionManager sessionManager) {
+	public ElementsService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
+			StreamLoader streamLoader) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
+		this.streamLoader = streamLoader;
+	}
+
+	/**
+	 * Creates a link and all VSpans within that link
+	 *
+	 * @param objectMapper
+	 * @param thingMapper
+	 * @param sessionManager
+	 * @return
+	 * @return
+	 * @throws AuthenticationException
+	 * @throws ResourceNotFoundException
+	 * @throws UnauthorizedException
+	 * @throws IOException
+	 * @throws MissingBodyException
+	 * @throws MalformedSpanException
+	 */
+	public Link createOrUpdateLink(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, MissingBodyException, IOException, MalformedSpanException {
+
+		oulipoRequest.authenticate();
+		oulipoRequest.authorize();
+
+		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
+		Document document = thingRepo.findDocument(documentAddress, "Please create document before any links");
+
+		TumblerAddress linkAddress = oulipoRequest.getElementAddress();
+
+		Link link = oulipoRequest.getLink();
+		link.document = documentAddress;
+
+		link.sequence = link.sequence();
+		link.validateLink();
+		link.removeDuplicates();
+
+		InvariantLink invariantLink = removeLinkFromInvariantSpans(thingRepo.findInvariantLinkOpt(linkAddress));
+		invariantLink.resourceId = oulipoRequest.getElementAddress();
+		invariantLink.document = documentAddress;
+		invariantLink.sequence = link.sequence;
+		invariantLink.updatedDate = new Date();
+		invariantLink.linkTypes = link.linkTypes;
+
+		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+
+		invariantLink.fromInvariantSpans.clear();
+		invariantLink.toInvariantSpans.clear();
+		invariantLink.fromInvariantSpans.addAll(fromVariantToInvariant(link.fromVSpans, om));
+		invariantLink.toInvariantSpans.addAll(fromVariantToInvariant(link.toVSpans, om));
+
+		thingRepo.addInvariantSpans(invariantLink, invariantLink.fromInvariantSpans, SpanSource.FROM_LINK);
+		thingRepo.addInvariantSpans(invariantLink, invariantLink.toInvariantSpans, SpanSource.TO_LINK);
+
+		thingRepo.update(invariantLink);
+
+		document.addLink((TumblerAddress) invariantLink.resourceId);
+		document.removeDuplicateLinks();
+		thingRepo.add(document);
+
+		return link;
+
 	}
 
 	/**
@@ -43,17 +130,31 @@ public class ElementsService {
 	 * @throws AuthenticationException
 	 * @throws UnauthorizedException
 	 * @throws ResourceNotFoundException
-	 * @throws MalformedTumblerException
+	 * @throws MalformedSpanException
+	 * @throws IOException
 	 */
-	public Thing getElement(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
-			UnauthorizedException, AuthenticationException {
+	public Thing getElement(OulipoRequest oulipoRequest) throws ResourceNotFoundException, UnauthorizedException,
+			AuthenticationException, IOException, MalformedSpanException {
 		sessionManager.getDocumentForReadAccess(oulipoRequest);
 
 		TumblerAddress address = oulipoRequest.getElementAddress();
 
 		if (address.isLinkElement()) {
-			// TODO: all ispans in link need to be translated back to vspans
-			return thingRepo.findInvariantLink(address, "Link not found");
+			Link link = new Link();
+			link.resourceId = oulipoRequest.getElementAddress();
+			link.document = oulipoRequest.getDocumentAddress();
+
+			InvariantLink invariantLink = thingRepo.findInvariantLink(address, "Link not found");
+			link.sequence = invariantLink.sequence;
+			link.updatedDate = invariantLink.updatedDate;
+			link.linkTypes = invariantLink.linkTypes;
+
+			OulipoMachine om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
+
+			link.fromVSpans.addAll(fromInvariantToVariant(invariantLink.fromInvariantSpans, om));
+			link.toVSpans.addAll(fromInvariantToVariant(invariantLink.toInvariantSpans, om));
+
+			return link;
 		} else if (address.hasSpan()) {
 			// TODO: convert ispan to vspan
 			return thingRepo.findInvariantSpan(address);
@@ -69,10 +170,11 @@ public class ElementsService {
 	 * @param vSpanRepo
 	 * @return
 	 * @return
-	 * @throws MalformedTumblerException 
-	 * @throws NumberFormatException 
+	 * @throws MalformedTumblerException
+	 * @throws NumberFormatException
 	 */
-	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest) throws NumberFormatException, MalformedTumblerException {
+	public Collection<Thing> getSystemLinks(OulipoRequest oulipoRequest)
+			throws NumberFormatException, MalformedTumblerException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 		return thingRepo.getAllInvariantLinks(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
@@ -82,10 +184,10 @@ public class ElementsService {
 	 *
 	 * @param mapper
 	 * @param vSpanRepo
-	 * @return 
 	 * @return
-	 * @throws MalformedTumblerException 
-	 * @throws NumberFormatException 
+	 * @return
+	 * @throws MalformedTumblerException
+	 * @throws NumberFormatException
 	 */
 	public Collection<Thing> getSystemVSpans(OulipoRequest oulipoRequest)
 			throws NumberFormatException, MalformedTumblerException {
@@ -93,84 +195,63 @@ public class ElementsService {
 		return thingRepo.getAllThings(oulipoRequest.getNetworkIdAsInt(), "InvariantSpan", queryParams);
 	}
 
-	/**
-	 * Creates a link and all VSpans within that link
-	 *
-	 * @param objectMapper
-	 * @param thingMapper
-	 * @param sessionManager
-	 * @return 
-	 * @return
-	 * @throws AuthenticationException 
-	 * @throws ResourceNotFoundException 
-	 * @throws UnauthorizedException 
-	 * @throws IOException 
-	 * @throws MissingBodyException 
-	 */
-	public Link createOrUpdateLink(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, MissingBodyException, IOException {
-		
-			oulipoRequest.authenticate();
-			oulipoRequest.authorize();
+	public Link newLink(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			MalformedTumblerException, ResourceNotFoundException {
+		oulipoRequest.authenticate();
+		oulipoRequest.authorize();
 
-			TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-			Document document = thingRepo.findDocument(documentAddress, "Please create document before any links");
+		// TODO: replace with sequence
+		Random random = new Random();
+		int sequence = random.nextInt(10000) + 1;
+		TumblerField linkField = TumblerField.create("2." + sequence);
 
-			TumblerAddress linkAddress = oulipoRequest.getElementAddress();
+		Link link = new Link();
+		link.resourceId = TumblerAddress
+				.create(oulipoRequest.getDocumentAddress().toExternalForm() + ".0." + linkField.asString());
+		link.createdDate = new Date();
+		link.updatedDate = link.createdDate;
+		link.document = oulipoRequest.getDocumentAddress();
+		link.sequence = sequence;
 
-			Link link = oulipoRequest.getLink();
-			link.document = documentAddress;
-			link.sequence = link.sequence();
-			link.validateLink();
-			link.removeDuplicates();
+		thingRepo.update(link);
 
-			Optional<InvariantLink> currentLinkOpt = thingRepo.findInvariantLinkOpt(linkAddress);
-			if (currentLinkOpt.isPresent()) {
-				InvariantLink currentLink = currentLinkOpt.get();
-				if (currentLink.fromInvariantSpans != null) {
-					for (TumblerAddress ispan : currentLink.fromInvariantSpans) {
-						InvariantSpan is = thingRepo.findInvariantSpan(ispan);
-						if (is.removeFromLink(currentLink.resourceId)) {
-							thingRepo.update(is);
-						}
-					}
-				}
-
-				if (currentLink.toInvariantSpans != null) {
-					for (TumblerAddress ispan : currentLink.toInvariantSpans) {
-						// TODO: should save InvariantSpans
-						InvariantSpan is = thingRepo.findInvariantSpan(ispan);
-						if (is.removeToLink(currentLink.resourceId)) {
-							thingRepo.update(is);
-						}
-					}
-				}
-			}
-
-			// TODO: convert from link to invariant link
-			thingRepo.update(link);// TODO: update InvariantLink
-
-			// TODO: Convert VSpans to ISpans
-			InvariantLink invariantLink = null;
-			for (TumblerAddress vspan : link.fromVSpans) {
-				List<IRI> ispan = lookup(vspan);
-			}
-			thingRepo.addInvariantSpans(invariantLink, invariantLink.fromInvariantSpans, SpanSource.FROM_LINK);
-			thingRepo.addInvariantSpans(invariantLink, invariantLink.toInvariantSpans, SpanSource.TO_LINK);
-
-			document.addLink((TumblerAddress) invariantLink.resourceId);
-			document.removeDuplicateLinks();
-			thingRepo.add(document);
-
-			return link;
+		return link;
 
 	}
 
-	private static List<IRI> lookup(TumblerAddress vspan) {
-		// TODO: ispans aren't tumblers (IRI?)
-		// goto document of vspan. Document will have mapping of VSPan -> ISpan
-		// pull out ISpan(s) and add to IRI list - (these do not have to be in RDF
-		// store)
-		// Repeat for the document of each VSPan
-		return null;
+	/**
+	 * Detach this link from its current to/from invariant spans.
+	 * 
+	 * @param currentLinkOpt
+	 * @return
+	 * @throws MalformedTumblerException
+	 * @throws ResourceNotFoundException
+	 */
+	private InvariantLink removeLinkFromInvariantSpans(Optional<InvariantLink> currentLinkOpt)
+			throws MalformedTumblerException, ResourceNotFoundException {
+		if (currentLinkOpt.isPresent()) {
+			InvariantLink currentLink = currentLinkOpt.get();
+			if (currentLink.fromInvariantSpans != null) {
+				for (TumblerAddress ispanAddress : currentLink.fromInvariantSpans) {
+					InvariantSpan ispan = thingRepo.findInvariantSpan(ispanAddress);
+					if (ispan.removeFromLink(currentLink.resourceId)) {
+						thingRepo.update(ispan);
+					}
+				}
+			}
+
+			if (currentLink.toInvariantSpans != null) {
+				for (TumblerAddress ispanAddress : currentLink.toInvariantSpans) {
+					InvariantSpan ispan = thingRepo.findInvariantSpan(ispanAddress);
+					if (ispan.removeToLink(currentLink.resourceId)) {
+						thingRepo.update(ispan);
+					}
+				}
+			}
+			return currentLink;
+		} else {
+			return new InvariantLink();
+		}
+
 	}
 }

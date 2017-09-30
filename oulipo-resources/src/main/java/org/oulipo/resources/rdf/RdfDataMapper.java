@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.oulipo.resources.rdf;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -27,20 +26,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdfconnection.RDFConnection;
-import org.apache.jena.rdfconnection.RDFConnectionFactory;
-import org.apache.jena.sparql.ARQException;
-import org.apache.jena.sparql.resultset.ResultsFormat;
-import org.apache.jena.system.Txn;
 import org.oulipo.net.IRI;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.rdf.RdfFactory;
-import org.oulipo.rdf.RdfSubject;
 import org.oulipo.rdf.Statement;
 import org.oulipo.resources.DataMapper;
 import org.oulipo.resources.model.Thing;
@@ -60,32 +48,28 @@ public final class RdfDataMapper implements DataMapper {
 
 	public class QueryEngine {
 
-		public void delete(String query)
-				throws ARQException {
-			conn.delete(query);
-		}
-
 		public FusekiResponse fusekiResponse(String query)
 				throws JsonParseException, JsonMappingException, IOException {
-			return mapper.readValue(json(query), FusekiResponse.class);
+			return mapper.readValue(rawQuery(query), FusekiResponse.class);
 		}
 
-		public String json(String query) {
-			return raw(query, ResultsFormat.FMT_RS_JSON);
+		public String rawQuery(String query) throws IOException {
+			FusekiResponse response = fusekiService.query(query).execute().body();
+			return new ObjectMapper().writeValueAsString(response);
 		}
 
-		public String raw(String query, ResultsFormat format)
-				throws ARQException {
-			QueryExecution qExec = conn.query(query);
-			ResultSet rs = qExec.execSelect();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ResultSetFormatter.output(baos, rs, format);
-			return baos.toString();
+		public boolean rawUpdate(String update) {
+			try {
+				fusekiService.update(update).execute().body();
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return false;
 		}
 
 		public Collection<Thing> things(String query) throws Exception {
-			return StatementsToThing
-					.transformThings(fusekiResponse(query).results.bindings);
+			return StatementsToThing.transformThings(fusekiResponse(query).results.bindings);
 		}
 	}
 
@@ -109,8 +93,7 @@ public final class RdfDataMapper implements DataMapper {
 			return this;
 		}
 
-		public TemplateBuilder addParam(String name, TumblerAddress value)
-				throws MalformedTumblerException {
+		public TemplateBuilder addParam(String name, TumblerAddress value) throws MalformedTumblerException {
 			params.put(name, value.toTumblerAuthority());
 			return this;
 		}
@@ -125,95 +108,65 @@ public final class RdfDataMapper implements DataMapper {
 
 	private static final Logger LOG = Logger.getLogger("ThingMapper");
 
-	protected static Pattern standardEntities = Pattern
-			.compile("&|<|>|\t|\n|\r|\'|\"");
+	protected static Pattern standardEntities = Pattern.compile("&|<|>|\t|\n|\r|\'|\"");
 
 	private final Configuration cfg;
 
-	private final RDFConnection conn;
-
 	private QueryEngine engine = new QueryEngine();
+
+	private FusekiService fusekiService;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public RdfDataMapper(Configuration cfg) {
-		conn = RDFConnectionFactory.connect("http://localhost:3030/ds");
 		this.cfg = cfg;
+		this.fusekiService = new FusekiServiceBuilder().build();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.oulipo.machine.server.IThingMapper#add(java.util.Collection)
 	 */
 	@Override
 	public void add(Collection<Thing> things) {
-		Txn.executeWrite(conn, () -> {
-			try {
-				conn.update("PREFIX : <http://oulipo.org/>INSERT DATA {\r\n"
-						+ ThingToString.asStrings(things) + "}");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+		try {
+			getQueryEngine()
+					.rawUpdate("PREFIX : <http://oulipo.org/>INSERT DATA {" + ThingToString.asStrings(things) + "}");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	/**
-	 *
-	 * The language in which to write the model is specified by the lang
-	 * argument. Predefined values are "N-TRIPLE", "TURTLE", (and "TTL") and
-	 * "N3". The default value, represented by null, is TTL".
-	 *
-	 * @param query
-	 * @param lang
-	 * @return
-	 */
-	public String construct(String query, String lang) {
-		Model model = conn.queryConstruct(query);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		model.write(baos, lang);
-		return baos.toString();
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.oulipo.machine.server.IThingMapper#delete(java.util.Collection)
 	 */
 	@Override
 	public void delete(Collection<Thing> things) {
-		Txn.executeWrite(conn, () -> {
-			try {
-				conn.update("PREFIX : <http://oulipo.org/>DELETE DATA {\r\n"
-						+ ThingToString.asStrings(things) + "}");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
-	public boolean exists(IRI address) {
-		RdfSubject subject = RdfFactory.createRdfSubject(address);
-		StringBuilder sb = new StringBuilder();
-		ThingToString.addSubject(subject, sb);
-		QueryExecution qExec = conn.query("SELECT * { " + sb.toString()
-				+ " ?predicate ?object }");
-
-		ResultSet rs = qExec.execSelect();
-		return rs.hasNext();
+		try {
+			this.getQueryEngine()
+					.rawUpdate("PREFIX : <http://oulipo.org/>DELETE DATA {" + ThingToString.asStrings(things) + "}");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public Collection<Thing> findEndsetsOfDoc(TumblerAddress docAddress) throws Exception {
-		TemplateBuilder builder = template("endsets.sparql")
-				.addParam("documentId", docAddress);
+		TemplateBuilder builder = template("endsets.sparql").addParam("documentId", docAddress);
 		return getQueryEngine().things(builder.build());
-
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.oulipo.machine.server.IThingMapper#get(org.oulipo.net.IRI)
 	 */
 	@Override
 	public Thing get(IRI address) {
-		TemplateBuilder builder = template("thingByResourceId.sparql")
-				.addParam("resourceId", address.value);
+		TemplateBuilder builder = template("thingByResourceId.sparql").addParam("resourceId", address.value);
 		Collection<Thing> things;
 		try {
 			things = getQueryEngine().things(builder.build());
@@ -233,12 +186,9 @@ public final class RdfDataMapper implements DataMapper {
 		return getByTypeAndQueries(network, type, queryParams);
 	}
 
-	public Collection<Thing> getByTypeAndQueries(int network, String type,
-			Map<String, String> queryParams) {
-		TemplateBuilder builder = template("thingsByTypeAndQueryParams.sparql")
-				.addParam("type", type)
-				.addParam("networkId", String.valueOf(network))
-				.addParam("queryParams", queryParams);
+	public Collection<Thing> getByTypeAndQueries(int network, String type, Map<String, String> queryParams) {
+		TemplateBuilder builder = template("thingsByTypeAndQueryParams.sparql").addParam("type", type)
+				.addParam("networkId", String.valueOf(network)).addParam("queryParams", queryParams);
 		try {
 			return getQueryEngine().things(builder.build());
 		} catch (Exception e) {
@@ -248,27 +198,22 @@ public final class RdfDataMapper implements DataMapper {
 	}
 
 	/**
-	 * Gets all field values for the specified fieldName of the specified
-	 * resourceId
+	 * Gets all field values for the specified fieldName of the specified resourceId
 	 * 
 	 * @param resourceId
 	 *            resourceId of the entity or thing
 	 * @param fieldName
-	 *            field name to look for. This matches the RDF defined field
-	 *            name
+	 *            field name to look for. This matches the RDF defined field name
 	 * @return
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	private List<String> getFieldValuesOfResource(String resourceId,
-			String fieldName) throws IOException, TemplateException {
-		TemplateBuilder builder = 
-				template("thingsByResourceIdAndFieldName.sparql")
-				.addParam("resourceId", resourceId)
+	private List<String> getFieldValuesOfResource(String resourceId, String fieldName)
+			throws IOException, TemplateException {
+		TemplateBuilder builder = template("thingsByResourceIdAndFieldName.sparql").addParam("resourceId", resourceId)
 				.addParam("fieldName", fieldName);
 
-		FusekiResponse fr = getQueryEngine().fusekiResponse(
-				builder.build());
+		FusekiResponse fr = getQueryEngine().fusekiResponse(builder.build());
 
 		List<String> values = new ArrayList<>();
 		for (Statement statement : fr.results.bindings) {
@@ -285,7 +230,7 @@ public final class RdfDataMapper implements DataMapper {
 		}
 		return pks.get(0);
 	}
-	
+
 	public QueryEngine getQueryEngine() {
 		return engine;
 	}
@@ -294,21 +239,22 @@ public final class RdfDataMapper implements DataMapper {
 		return new TemplateBuilder(template);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.oulipo.machine.server.IThingMapper#update(org.oulipo.resources.model.Thing)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.oulipo.machine.server.IThingMapper#update(org.oulipo.resources.model.
+	 * Thing)
 	 */
 	@Override
 	public void update(Thing thing) {
 		thing.updatedDate = new Date();
-		Txn.executeWrite(conn, () -> {
-			try {
-				conn.update("DELETE WHERE {\r\n<" + thing.resourceId.value
-						+ "> ?p ?o }");
-				conn.update("PREFIX : <http://oulipo.org/>INSERT DATA {\r\n"
-						+ ThingToString.asString(thing) + "}");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+		getQueryEngine().rawUpdate("DELETE WHERE {<" + thing.resourceId.value + "> ?p ?o }");
+		try {
+			getQueryEngine()
+					.rawUpdate("PREFIX : <http://oulipo.org/>INSERT DATA {" + ThingToString.asString(thing) + "}");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

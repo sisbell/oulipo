@@ -29,14 +29,14 @@ public final class TempTokenResponse {
 	private static final long serialVersionUID = -7329489471066021397L;
 
 	/**
-	 * Authentication URL
-	 */
-	public String xanauth;
-
-	/**
 	 * Temporary authentication token
 	 */
 	public String token;
+
+	/**
+	 * Authentication URL
+	 */
+	public String xanauth;
 
 	public TempTokenResponse() {
 	}

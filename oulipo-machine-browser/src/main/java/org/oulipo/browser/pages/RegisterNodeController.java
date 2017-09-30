@@ -21,13 +21,9 @@ import java.util.ResourceBundle;
 
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
-import org.oulipo.browser.api.Page;
-import org.oulipo.client.services.DocuverseService;
-import org.oulipo.client.services.TumblerService;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.model.Node;
-import org.oulipo.storage.StorageException;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXSnackbar;
@@ -40,7 +36,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RegisterNodeController implements Page.Controller {
+public class RegisterNodeController extends BaseController {
 
 	@FXML
 	public JFXCheckBox createAccounts;
@@ -58,25 +54,13 @@ public class RegisterNodeController implements Page.Controller {
 
 	}
 
-	public void setContext(BrowserContext ctx) {
-		this.ctx = ctx;
-	}
-
 	@Override
-	public void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
-
+	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
+		super.show(controller);
 	}
 
 	@FXML
 	public void submit() {
-
-		DocuverseService service;
-		try {
-			service = ctx.getDocuverseService();
-		} catch (StorageException e2) {
-			e2.printStackTrace();
-			return;
-		}
 		Node node = new Node();
 		node.nodeName = nodeName.getText();
 		node.allowUserToCreateAccount = createAccounts.isSelected();
@@ -87,7 +71,6 @@ public class RegisterNodeController implements Page.Controller {
 			e1.printStackTrace();
 		}
 
-		TumblerService tumblerService = new TumblerService(service);
 		try {
 			tumblerService.createOrUpdateNode(node, new Callback<Node>() {
 

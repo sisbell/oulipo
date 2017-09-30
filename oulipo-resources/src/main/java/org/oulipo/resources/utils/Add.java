@@ -36,8 +36,7 @@ public class Add {
 		} else if (array == null && object == null) {
 			return null;
 		}
-		return ObjectArrays.concat(array, object.toArray(array),
-				(Class<T>) object.getClass());
+		return ObjectArrays.concat(array, object.toArray(array), (Class<T>) object.getClass());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -49,24 +48,24 @@ public class Add {
 		} else if (array == null && object == null) {
 			return null;
 		}
-		
+
 		T[] concat = ObjectArrays.concat(array, object, type);
 		return concat;
 	}
 
 	public static <T> T[] one(T[] array, T object) {
-		if (array == null && object != null) {			
+		if (array == null && object != null) {
 			T[] o = (T[]) Array.newInstance(object.getClass(), 1);
 			o[0] = object;
 			return o;
-		} else if(array!= null && object == null) {
+		} else if (array != null && object == null) {
 			return array;
 		}
 		return ObjectArrays.concat(array, object);
 	}
-	
+
 	public static <T> T[] toArray(Collection<T> object, Class<T> type) {
-		if(object == null) {
+		if (object == null) {
 			return null;
 		}
 		T[] o = (T[]) Array.newInstance(type, object.size());

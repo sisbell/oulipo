@@ -37,9 +37,9 @@ import com.google.common.base.Strings;
  * The field ordering is
  * {scheme}://{network}.{node}.0.{user}.0.{document}.0.{element}
  *
- * Network with a value of 1 is a private network. It can be used to designate
+ * Network with a value of 2 is a test network. It can be used to designate
  * local addresses in the docuverse or an internal private network. Network with
- * a value of 2 is the public, global network.
+ * a value of 1 is the public, global network.
  *
  * Having a private/public network field, means we don't have to have reserved
  * address spaces for local and private networks.
@@ -161,7 +161,7 @@ public final class TumblerAddress extends IRI {
 				throw new MalformedTumblerException("Missing tumbler segment: document");
 			}
 
-			TumblerAddress address = new TumblerAddress(scheme, network, node, user, document, element);
+			TumblerAddress address = new TumblerAddress(scheme, network, node, user, document, element, width);
 			address.queryParams = queryParams;
 			address.path = path;
 			address.width = width;
@@ -185,18 +185,6 @@ public final class TumblerAddress extends IRI {
 		}
 
 		/**
-		 * Element meta can't have any additional elements. This is always just a single
-		 * value of 1
-		 *
-		 * Overlays only have an additional sequence defined. So 3.1.2, would be an
-		 * overlay at position 2.
-		 *
-		 * Element bytes has three components. 2.1.50 would be element starting at
-		 * position 1, with a length of 50 bytes
-		 *
-		 * A link starts with the number 3. 3.2.3 is overlay. 3.1.2 is jump link
-		 * 3.3.4.1.100 is transclusion from 1 to 100.
-		 *
 		 * This method will throw a MalformedTumblerException if the element is an
 		 * unrecognized type
 		 *
@@ -217,6 +205,10 @@ public final class TumblerAddress extends IRI {
 			} else if (elementType == ELEMENT_LINK) {
 				if (element.size() < 2) {
 					throw new MalformedTumblerException("Links requires sequence index");
+				}
+			} else if (elementType == ELEMENT_INVARIANT_BYTES) {
+				if (element.size() != 2) {
+					throw new MalformedTumblerException("Bytes element must have only start defined");
 				}
 			} else {
 				throw new MalformedTumblerException("Unrecognized element type: " + elementType);
@@ -248,6 +240,13 @@ public final class TumblerAddress extends IRI {
 			return this;
 		}
 
+		@Override
+		public String toString() {
+			return "Builder [document=" + document + ", element=" + element + ", network=" + network + ", node=" + node
+					+ ", path=" + path + ", queryParams=" + queryParams + ", scheme=" + scheme + ", user=" + user
+					+ ", width=" + width + "]";
+		}
+
 		public Builder user(String user) throws MalformedTumblerException {
 			return user(TumblerField.create(user));
 		}
@@ -265,18 +264,51 @@ public final class TumblerAddress extends IRI {
 		}
 
 		public Builder width(String width) throws MalformedTumblerException {
-			return width(TumblerField.create(width));
+			try {
+				return width(TumblerField.create(width));
+			} catch (MalformedTumblerException e) {
+				throw new MalformedTumblerException(e.getMessage() + " : " + toString());
+			}
 		}
 
 		public Builder width(TumblerField width) {
 			this.width = width;
 			return this;
 		}
+
 	}
 
-	public static final int ELEMENT_BYTES = 1;
+	public static final String A_SYSTEM_BASE = "1.1.0.1.0.1.1.1.0.";
 
-	public static final int ELEMENT_LINK = 2;
+	public static final TumblerAddress BOLD = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.BOLD.asStringNoException());
+
+	private static final int ELEMENT_BYTES = 1;
+
+	private static final int ELEMENT_INVARIANT_BYTES = 3;
+
+	private static final int ELEMENT_LINK = 2;
+
+	public static final TumblerAddress FONT_FAMILY_SERIF = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.FONT_FAMILY_SERIF.asStringNoException());
+
+	public static final TumblerAddress FONT_SIZE_12 = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.FONT_SIZE_12.asStringNoException());
+
+	public static final TumblerAddress FONT_SIZE_14 = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.FONT_SIZE_14.asStringNoException());
+
+	public static final TumblerAddress FONT_SIZE_16 = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.FONT_SIZE_16.asStringNoException());
+
+	public static final TumblerAddress ITALIC = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.ITALIC.asStringNoException());
+
+	public static final TumblerAddress STRIKE_THROUGH = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.STRIKE_THROUGH.asStringNoException());
+
+	public static final TumblerAddress UNDERLINE = TumblerAddress
+			.createWithNoException(A_SYSTEM_BASE + TumblerField.UNDERLINE.asStringNoException());
 
 	private static String addressAuthority(String address) {
 		String[] query = address.split("[?]");
@@ -311,7 +343,11 @@ public final class TumblerAddress extends IRI {
 			String[] width = addressAuthority.split("[~]");
 			if (width.length > 1) {
 				addressAuthority = width[0];
-				widthSpan = TumblerField.create(width[1]);
+				try {
+					widthSpan = TumblerField.create(width[1]);
+				} catch (MalformedTumblerException e) {
+					throw new MalformedTumblerException(e.getMessage() + ":" + address);
+				}
 			}
 			String[] tokens = addressAuthority.split("://");
 			tumblerURI = tokens.length == 1 ? new URI("ted://" + addressAuthority) : new URI(addressAuthority);
@@ -345,12 +381,28 @@ public final class TumblerAddress extends IRI {
 		return builder.build();
 	}
 
+	public static TumblerAddress createBackgroundColor(int red, int green, int blue) {
+		return TumblerAddress.createWithNoException("1.1.0.1.0.1.1.1.0.2.104." + red + "." + green + "." + blue);
+	}
+
 	public static TumblerField createMainNet() {
 		try {
 			return TumblerField.create("1");
 		} catch (MalformedTumblerException e) {
 		}
 		return null;// never happen
+	}
+
+	public static TumblerAddress createTextColor(int red, int green, int blue) {
+		return TumblerAddress.createWithNoException("1.1.0.1.0.1.1.1.0.2.103." + red + "." + green + "." + blue);
+	}
+
+	public static TumblerAddress createWithNoException(String address) {
+		try {
+			return create(address);
+		} catch (MalformedTumblerException e) {
+			return null;
+		}
 	}
 
 	private static Map<String, String> queryMap(String address) {
@@ -391,14 +443,15 @@ public final class TumblerAddress extends IRI {
 	}
 
 	private TumblerAddress(String scheme, TumblerField network, TumblerField node, TumblerField user,
-			TumblerField document, TumblerField element) throws MalformedTumblerException {
+			TumblerField document, TumblerField element, TumblerField width) throws MalformedTumblerException {
 		this.scheme = scheme;
 		this.network = network;
 		this.user = user;
 		this.document = document;
 		this.node = node;
 		this.element = element;
-		this.value = toTumblerAuthority();
+		this.width = width;
+		this.value = toExternalForm();
 	}
 
 	public String documentVal() throws MalformedTumblerException {
@@ -442,7 +495,7 @@ public final class TumblerAddress extends IRI {
 	}
 
 	public Map<String, String> getQueryParams() {
-		if(queryParams == null) {
+		if (queryParams == null) {
 			queryParams = new HashMap<>();
 		}
 		return queryParams;
@@ -563,6 +616,10 @@ public final class TumblerAddress extends IRI {
 		this.resourcePath = resourcePath;
 	}
 
+	public void setScheme(String scheme) {
+		this.scheme = scheme;
+	}
+
 	public int spanStart() {
 		return hasSpan() ? element.get(1) : -1;
 	}
@@ -573,6 +630,9 @@ public final class TumblerAddress extends IRI {
 
 	public String toExternalForm() throws MalformedTumblerException {
 		String authority = toTumblerAuthority();
+		if (hasSpan()) {
+			authority += "~1." + spanWidth();
+		}
 		return !Strings.isNullOrEmpty(path) ? authority + path : authority;
 	}
 
@@ -606,7 +666,6 @@ public final class TumblerAddress extends IRI {
 		return sb.toString();
 	}
 
-	
 	public String toTumblerFields() throws MalformedTumblerException {
 		String delim = ".0.";
 		StringBuilder sb = new StringBuilder();
@@ -625,10 +684,6 @@ public final class TumblerAddress extends IRI {
 			}
 		}
 		return sb.toString();
-	}
-	
-	public void setScheme(String scheme) {
-		this.scheme = scheme;
 	}
 
 	public String userVal() throws MalformedTumblerException {

@@ -34,7 +34,13 @@ import retrofit2.Response;
 
 public class UpdateDocumentController extends BaseController {
 
-	private void attachAction(Button button, Document document, OulipoTable table) {
+	private void attachNewAction(Button button, Document document, OulipoTable table) {
+		button.setOnAction(e -> {
+			// TODO: implement newVersion client interface
+		});
+	}
+
+	private void attachSubmitAction(Button button, Document document, OulipoTable table) {
 		button.setOnAction(e -> {
 			document.title = table.getValue("Title");
 			document.description = table.getValue("Description");
@@ -85,6 +91,7 @@ public class UpdateDocumentController extends BaseController {
 			@Override
 			public void onResponse(Call<Document> arg0, Response<Document> response) {
 				JFXButton submit = new JFXButton("Update");
+				JFXButton newVersion = new JFXButton("New Version");
 
 				if (response.isSuccessful()) {
 					final Document document = response.body();
@@ -93,9 +100,9 @@ public class UpdateDocumentController extends BaseController {
 						try {
 							OulipoTable table = new OulipoTable(300, 350)
 									.addEditText("Tumbler Address", address.toTumblerFields(), false)
-									.addEditText("Title", document.title, false)
-									.addEditText("Description", document.description).addActions(submit);
-							attachAction(submit, document, table);
+									.addEditText("Title", document.title)
+									.addEditText("Description", document.description).addActions(newVersion, submit);
+							attachSubmitAction(submit, document, table);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
 							addressBarController.addContent(table, "Update Document");
@@ -118,7 +125,7 @@ public class UpdateDocumentController extends BaseController {
 						Document document = new Document();
 						document.resourceId = address;
 
-						attachAction(submit, document, table);
+						attachSubmitAction(submit, document, table);
 
 						addressBarController.addContent(table, "Create Document");
 

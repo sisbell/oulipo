@@ -21,23 +21,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.streams.VariantSpan;
 
 @RunWith(JUnitPlatform.class)
 public class VariantSpanTest {
-	
+
 	@Test
 	public void illegalStart() throws Exception {
-	    assertThrows(MalformedSpanException.class, () -> {
+		assertThrows(MalformedSpanException.class, () -> {
 			new VariantSpan(0, 100);
-	    });
+		});
 	}
-	
+
 	@Test
 	public void zeroWidth() throws Exception {
-	    assertThrows(MalformedSpanException.class, () -> {
+		assertThrows(MalformedSpanException.class, () -> {
 			new VariantSpan(100, 0);
-	    });
+		});
 	}
 
 }

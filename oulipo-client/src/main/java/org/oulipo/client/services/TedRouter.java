@@ -56,7 +56,7 @@ public final class TedRouter {
 	public TedRouter(TumblerService service) {
 		this.service = service;
 	}
-	
+
 	public TedRouter(DocuverseService docuverseService) {
 		this(new TumblerService(docuverseService));
 	}
@@ -105,7 +105,7 @@ public final class TedRouter {
 				}
 			} else if (path.equals("/links")) {
 				if (tumbler.isDocumentTumbler()) {
-					service.getLinks(tumbler.toTumblerAuthority(), queryParams, callback);
+					service.getDocumentLinks(tumbler.toTumblerAuthority(), queryParams, callback);
 				} else {
 					throw new IOException("Malformed request: " + path);
 				}
@@ -163,7 +163,7 @@ public final class TedRouter {
 						}
 						service.getVSpan(tumbler, callback);
 					} else {
-						service.getLink(tumbler, callback);
+						service.getDocumentLink(tumbler, callback);
 					}
 				}
 			}

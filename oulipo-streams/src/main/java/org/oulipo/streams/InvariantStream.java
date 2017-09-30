@@ -33,10 +33,13 @@ public interface InvariantStream {
 	/**
 	 * Appends text to the end of the IStream
 	 * 
-	 * @param text the text to append. Text must not be null.
+	 * @param text
+	 *            the text to append. Text must not be null.
 	 * @return the InvariantSpan that references the appended text
-	 * @throws IOException if there is an I/O problem in reading or writing to the stream 
-	 * @throws MalformedSpanException if the invariant span is malformed 
+	 * @throws IOException
+	 *             if there is an I/O problem in reading or writing to the stream
+	 * @throws MalformedSpanException
+	 *             if the invariant span is malformed
 	 */
 	InvariantSpan append(String text) throws IOException, MalformedSpanException;
 

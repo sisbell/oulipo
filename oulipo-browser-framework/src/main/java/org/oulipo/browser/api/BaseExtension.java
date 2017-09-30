@@ -15,17 +15,36 @@
  *******************************************************************************/
 package org.oulipo.browser.api;
 
-import org.oulipo.browser.framework.MenuContext;
-import org.oulipo.browser.framework.MenuContext.Type;
+import org.oulipo.browser.api.MenuContext.Type;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
 public abstract class BaseExtension implements Extension {
 
-	public void addMenuItem(BrowserContext ctx, String text, MenuContext.Type type, EventHandler<ActionEvent> e) {
+	public Menu addMenu(BrowserContext ctx, String text, MenuContext.Type type) {
+		Menu menu = new Menu();
+		menu.setText(text);
+		if (Type.BOOKMARK.equals(type)) {
+			ctx.getMenuContext().getBookmarkMenu().getItems().add(menu);
+		} else if (Type.FILE.equals(type)) {
+			ctx.getMenuContext().getFileMenu().getItems().add(menu);
+		} else if (Type.HISTORY.equals(type)) {
+			ctx.getMenuContext().getHistoryMenu().getItems().add(menu);
+		} else if (Type.MANAGER.equals(type)) {
+			ctx.getMenuContext().getManagerMenu().getItems().add(menu);
+		} else if (Type.PEOPLE.equals(type)) {
+			ctx.getMenuContext().getPeopleMenu().getItems().add(menu);
+		} else if (Type.TOOLS.equals(type)) {
+			ctx.getMenuContext().getToolsMenu().getItems().add(menu);
+		}
+		return menu;
+	}
+
+	public MenuItem addMenuItem(BrowserContext ctx, String text, MenuContext.Type type, EventHandler<ActionEvent> e) {
 		MenuItem item = new MenuItem();
 		item.setText(text);
 		item.setOnAction(e);
@@ -42,6 +61,7 @@ public abstract class BaseExtension implements Extension {
 		} else if (Type.TOOLS.equals(type)) {
 			ctx.getMenuContext().getToolsMenu().getItems().add(item);
 		}
+		return item;
 	}
 
 	public void addSeparator(BrowserContext ctx, MenuContext.Type type) {

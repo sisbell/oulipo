@@ -30,28 +30,20 @@ import com.google.common.collect.ObjectArrays;
 
 public class FileStorage implements Storage {
 
-	private StorageService service;
-
 	private static final byte[] key = "allAliases".getBytes();
+
+	private static byte[] toKey(String alias, String field) throws UnsupportedEncodingException {
+		return (alias + "!" + field).getBytes("UTF-8");
+	}
+
+	private StorageService service;
 
 	public FileStorage(StorageService service) {
 		this.service = service;
 	}
 
-	public ECKey getECKey(String alias) throws UnsupportedEncodingException {
-		if(Strings.isNullOrEmpty(alias)) {
-			throw new IllegalArgumentException("alias is null");
-		}
-		byte[] pk = service.get(toKey(alias, "pk"));
-		if(pk == null) {
-			return null;
-		}
-		return ECKey.fromPrivate(pk);
-	}
-	
 	@Override
-	public void add(String alias, String address, byte[] privateKey,
-			byte[] publicKey) throws IOException {
+	public void add(String alias, String address, byte[] privateKey, byte[] publicKey) throws IOException {
 
 		byte[] value = service.get(key);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -83,11 +75,6 @@ public class FileStorage implements Storage {
 		service.put(toKey(alias, "pub"), publicKey);
 	}
 
-	private static byte[] toKey(String alias, String field)
-			throws UnsupportedEncodingException {
-		return (alias + "!" + field).getBytes("UTF-8");
-	}
-
 	@Override
 	public void close() throws IOException {
 
@@ -99,11 +86,22 @@ public class FileStorage implements Storage {
 		if (value == null) {
 			return new String[0];
 		}
-		try (ObjectInputStream in = new ObjectInputStream(
-				new ByteArrayInputStream(value))) {
+		try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(value))) {
 			return (String[]) in.readObject();
 		} catch (ClassNotFoundException e) {
 			return new String[0];
 		}
+	}
+
+	@Override
+	public ECKey getECKey(String alias) throws UnsupportedEncodingException {
+		if (Strings.isNullOrEmpty(alias)) {
+			throw new IllegalArgumentException("alias is null");
+		}
+		byte[] pk = service.get(toKey(alias, "pk"));
+		if (pk == null) {
+			return null;
+		}
+		return ECKey.fromPrivate(pk);
 	}
 }

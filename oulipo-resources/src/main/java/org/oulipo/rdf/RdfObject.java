@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.oulipo.rdf;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -23,21 +22,22 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RdfObject {
-	
+
 	private String datatype;
-	
-	private String language ="en";
-	
+
+	private String language = "en";
+
 	private NodeType type = NodeType.IRI;
 
-	private String value;//literal or IRI
-	
-	public RdfObject() { }
-	
+	private String value;// literal or IRI
+
+	public RdfObject() {
+	}
+
 	public RdfObject(String value, NodeType type, String datatype) {
 		this(value, type, datatype, null);
 	}
-	
+
 	public RdfObject(String value, NodeType type, String datatype, String language) {
 		this.value = value;
 		this.type = type;
@@ -94,10 +94,8 @@ public class RdfObject {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((datatype == null) ? 0 : datatype.hashCode());
-		result = prime * result
-				+ ((language == null) ? 0 : language.hashCode());
+		result = prime * result + ((datatype == null) ? 0 : datatype.hashCode());
+		result = prime * result + ((language == null) ? 0 : language.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
@@ -121,9 +119,8 @@ public class RdfObject {
 
 	@Override
 	public String toString() {
-		return "RdfObject [type=" + type + ", language=" + language
-				+ ", value=" + value + ", datatype=" + datatype + "]";
+		return "RdfObject [type=" + type + ", language=" + language + ", value=" + value + ", datatype=" + datatype
+				+ "]";
 	}
-	
-	
+
 }

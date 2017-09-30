@@ -23,14 +23,6 @@ import org.oulipo.streams.VariantSpan;
 
 public final class CopyOp extends Op<CopyOp.Data> {
 
-	public CopyOp(Data data) {
-		super(Op.COPY, data);
-	}
-
-	public CopyOp(long to, VariantSpan variantSpan) {
-		this(new Data(to, variantSpan));
-	}
-
 	public static class Data {
 
 		public final long to;
@@ -41,6 +33,14 @@ public final class CopyOp extends Op<CopyOp.Data> {
 			this.to = to;
 			this.variantSpan = variantSpan;
 		}
+	}
+
+	public CopyOp(Data data) {
+		super(Op.COPY, data);
+	}
+
+	public CopyOp(long to, VariantSpan variantSpan) {
+		this(new Data(to, variantSpan));
 	}
 
 	@Override

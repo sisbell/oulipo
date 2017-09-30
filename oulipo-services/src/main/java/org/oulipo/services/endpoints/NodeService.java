@@ -40,7 +40,7 @@ public class NodeService {
 
 	public Node createNode(OulipoRequest oulipoRequest) throws Exception {
 		oulipoRequest.authenticate();
-		
+
 		Node node = oulipoRequest.hasBody() ? oulipoRequest.getNode() : new Node();
 		node.publicKey = oulipoRequest.getPublicKey();
 
@@ -65,26 +65,24 @@ public class NodeService {
 		return node;
 
 	}
-	
+
 	public Node getNode(OulipoRequest oulipoRequest) throws ResourceNotFoundException, MalformedTumblerException {
 		return thingRepo.findNode(oulipoRequest.getNodeAddress());
 	}
-	
+
 	public Collection<Thing> getNodeUsers(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
-		if(oulipoRequest.getNodeAddress() == null) {
+		if (oulipoRequest.getNodeAddress() == null) {
 			throw new MalformedTumblerException("Node address not specified: " + oulipoRequest);
 		}
 		queryParams.put("node", oulipoRequest.getNodeAddress().toTumblerAuthority());
 		return thingRepo.getAllUsers(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
-	
+
 	public Collection<Thing> getSystemNodes(OulipoRequest oulipoRequest) throws MalformedTumblerException {
 
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 		return thingRepo.getAllNodes(oulipoRequest.getNetworkIdAsInt(), queryParams);
 	}
-	
-
 
 }

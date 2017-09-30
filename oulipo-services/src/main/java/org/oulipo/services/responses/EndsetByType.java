@@ -28,37 +28,37 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class EndsetByType {
 
 	public Map<String, Endset> endsets = new HashMap<>();
-	
+
 	public void addFrom(TumblerAddress linkType, TumblerAddress[] from) {
 		Endset es = getEndsetByType(linkType);
-		if(from != null) {
-			if(es.fromVSpans == null) {
+		if (from != null) {
+			if (es.fromVSpans == null) {
 				es.fromVSpans = new HashSet<>();
 			}
-			for(TumblerAddress i : from) {
+			for (TumblerAddress i : from) {
 				es.fromVSpans.add(i);
 			}
-		} 
+		}
 	}
-	
+
 	public void addTo(TumblerAddress linkType, TumblerAddress[] to) {
 		Endset es = getEndsetByType(linkType);
-		if(to != null) {
-			if(es.toVSpans == null) {
+		if (to != null) {
+			if (es.toVSpans == null) {
 				es.toVSpans = new HashSet<>();
 			}
-			for(TumblerAddress i : to) {
+			for (TumblerAddress i : to) {
 				es.toVSpans.add(i);
 			}
-		}	
+		}
 	}
-	
+
 	private Endset getEndsetByType(TumblerAddress linkType) {
 		Endset es = endsets.get(linkType.value);
-		if(es == null) {
-			es = new Endset();	
+		if (es == null) {
+			es = new Endset();
 			endsets.put(linkType.value, es);
-		} 
+		}
 		return es;
 	}
 }

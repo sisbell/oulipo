@@ -23,11 +23,11 @@ public class AuthorizationException extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = -9133436215687059071L;
-	
+
 	private int code;
 
-	public AuthorizationException(int code, TumblerAddress address) {
-		super();
+	public AuthorizationException(int code, String message) {
+		super(message);
 		this.code = code;
 	}
 
@@ -36,13 +36,13 @@ public class AuthorizationException extends Exception {
 		this.code = code;
 	}
 
-	public AuthorizationException(int code, String message) {
-		super(message);
+	public AuthorizationException(int code, Throwable cause) {
+		super(cause);
 		this.code = code;
 	}
 
-	public AuthorizationException(int code, Throwable cause) {
-		super(cause);
+	public AuthorizationException(int code, TumblerAddress address) {
+		super();
 		this.code = code;
 	}
 

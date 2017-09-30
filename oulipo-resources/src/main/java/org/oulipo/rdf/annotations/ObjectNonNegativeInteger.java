@@ -26,6 +26,6 @@ import org.oulipo.rdf.NodeType;
 @Inherited
 public @interface ObjectNonNegativeInteger {
 	String datatype() default DataType.XSD_DECIMAL;
-	
+
 	NodeType type() default NodeType.literal;
 }

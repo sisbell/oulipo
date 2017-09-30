@@ -19,15 +19,16 @@ import java.util.Date;
 
 import org.oulipo.storage.Id;
 
-public class AccessToken  {
+public class AccessToken {
+
+	public Date created;
 
 	@Id
-	public String id; 
-	
-	public Date created;
-	
-	public AccessToken() { }
-	
+	public String id;
+
+	public AccessToken() {
+	}
+
 	public AccessToken(String id, Date created) {
 		this.id = id;
 		this.created = created;

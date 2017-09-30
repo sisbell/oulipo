@@ -23,18 +23,25 @@ import org.oulipo.streams.Span;
  */
 public class MalformedSpanException extends Exception {
 
-	private Span span;
-
 	/**
-	 * Construct a <code>MalformedSpanException</code> with the specified message
-	 * @param message the detail message
+	 * 
 	 */
-	public MalformedSpanException(String message) {
-		super(message);
-	}
+	private static final long serialVersionUID = -1820892557728771392L;
+
+	private Span span;
 
 	public MalformedSpanException(Span span) {
 		super();
+		this.span = span;
+	}
+
+	public MalformedSpanException(Span span, String message) {
+		super(message);
+		this.span = span;
+	}
+
+	public MalformedSpanException(Span span, String message, Throwable cause) {
+		super(message, cause);
 		this.span = span;
 	}
 
@@ -44,28 +51,23 @@ public class MalformedSpanException extends Exception {
 		this.span = span;
 	}
 
-	public MalformedSpanException(Span span, String message, Throwable cause) {
-		super(message, cause);
-		this.span = span;
-	}
-
-	public MalformedSpanException(Span span, String message) {
-		super(message);
-		this.span = span;
-	}
-
 	public MalformedSpanException(Span span, Throwable cause) {
 		super(cause);
 		this.span = span;
 	}
 
+	/**
+	 * Construct a <code>MalformedSpanException</code> with the specified message
+	 * 
+	 * @param message
+	 *            the detail message
+	 */
+	public MalformedSpanException(String message) {
+		super(message);
+	}
+
 	public Span getSpan() {
 		return span;
 	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1820892557728771392L;
 
 }

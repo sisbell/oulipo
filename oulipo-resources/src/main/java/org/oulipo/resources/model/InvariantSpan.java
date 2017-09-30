@@ -36,6 +36,9 @@ import com.google.common.collect.Sets;
 @Subject(value = Schema.INVARIANT_SPAN, key = "resourceId")
 public class InvariantSpan extends Thing {
 
+	/**
+	 * Home document of this invariant span
+	 */
 	@Predicate("document")
 	@ObjectTumbler
 	public TumblerAddress document;
@@ -82,16 +85,21 @@ public class InvariantSpan extends Thing {
 
 	public void removeDuplicateLinks() {
 		if (fromLinks != null) {
-			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(
-					new TumblerAddress[0]);
+			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(new TumblerAddress[0]);
 		}
 
 		if (toLinks != null) {
-			toLinks = ImmutableSet.copyOf(toLinks).toArray(
-					new TumblerAddress[0]);
+			toLinks = ImmutableSet.copyOf(toLinks).toArray(new TumblerAddress[0]);
 		}
 	}
 
+	/**
+	 * Removes the specified link from the fromLinks array
+	 * 
+	 * @param link
+	 * @return
+	 * @throws MalformedTumblerException
+	 */
 	public boolean removeFromLink(IRI link) throws MalformedTumblerException {
 		if (fromLinks != null) {
 			TumblerAddress lta = TumblerAddress.create(link.value);
@@ -104,6 +112,13 @@ public class InvariantSpan extends Thing {
 		return false;
 	}
 
+	/**
+	 * Removes the specified link from the toLinks array
+	 * 
+	 * @param link
+	 * @return
+	 * @throws MalformedTumblerException
+	 */
 	public boolean removeToLink(IRI link) throws MalformedTumblerException {
 		if (toLinks != null) {
 			TumblerAddress lta = TumblerAddress.create(link.value);

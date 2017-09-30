@@ -61,12 +61,7 @@ public class UserService {
 				"Node for this user does not exist. Try creating node first. Node = " + oulipoRequest.getNodeId()
 						+ ", User = " + oulipoRequest.getUserId());
 
-		if (!node.allowUserToCreateAccount) {
-			// throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed
-			// to create account");
-		}
-
-		if (!node.publicKeyMatches(oulipoRequest.getPublicKey())) {
+		if (!node.allowUserToCreateAccount && !node.publicKeyMatches(oulipoRequest.getPublicKey())) {
 			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 					"Incorrect public key for creating new user");
 		}
@@ -124,23 +119,18 @@ public class UserService {
 				"Node for this user does not exist. Try creating node first. Node = " + oulipoRequest.getNodeId()
 						+ ", User = " + oulipoRequest.getUserId());
 
-		if (!node.allowUserToCreateAccount) {
-			 //throw new UnauthorizedException(oulipoRequest.getNodeAddress(), "Not allowed
-			// to create account");
-		}
-
-		if (!node.publicKeyMatches(oulipoRequest.getPublicKey())) {
+		if (!node.allowUserToCreateAccount && !node.publicKeyMatches(oulipoRequest.getPublicKey())) {
 			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 					"Incorrect public key for creating new user");
 		}
 
-		Random random = new Random();//TODO: make sequential
+		Random random = new Random();// TODO: make sequential
 		User account = new User();
-		account.resourceId = TumblerAddress.create(oulipoRequest.getNodeAddress().toExternalForm() 
-				+ ".0." + random.nextInt(10000) + 1);
+		account.resourceId = TumblerAddress
+				.create(oulipoRequest.getNodeAddress().toExternalForm() + ".0." + random.nextInt(10000) + 1);
 		account.node = TumblerAddress.create(node.resourceId.value);
 		account.publicKey = oulipoRequest.getPublicKey();
-	
+
 		if (!AddressValidator.validateAddress(account.publicKey)) {
 			throw new AuthorizationException(AuthResponseCodes.INCORRECT_PUBLIC_KEY,
 					"Invalid public key: " + account.publicKey);

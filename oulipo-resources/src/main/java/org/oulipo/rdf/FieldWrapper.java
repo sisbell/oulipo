@@ -25,9 +25,8 @@ public class FieldWrapper {
 	public FieldWrapper(Field field) {
 		this.field = field;
 	}
-	
-	public Object get(Object object) throws IllegalArgumentException,
-			IllegalAccessException {
+
+	public Object get(Object object) throws IllegalArgumentException, IllegalAccessException {
 		return field.get(object);
 	}
 

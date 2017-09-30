@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.oulipo.net.IRI;
 import org.oulipo.net.TumblerAddress;
@@ -60,8 +61,7 @@ import com.google.common.collect.Lists;
  */
 final class ThingToStatements {
 
-	protected static Collection<Statement> createStatements(
-			RdfSubject rdfSubject, FieldWrapper field, Thing thing)
+	protected static Collection<Statement> createStatements(RdfSubject rdfSubject, FieldWrapper field, Thing thing)
 			throws Exception {
 		Collection<Statement> statements = Lists.newArrayList();
 
@@ -76,8 +76,7 @@ final class ThingToStatements {
 
 		String predicateIRI = ((Predicate) predicateAnnotation).value();
 
-		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(getIRI(field,
-				predicateIRI)));
+		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(getIRI(field, predicateIRI)));
 
 		for (Annotation annotation : field.getAnnotations()) {
 			if (annotation instanceof ObjectIRI) {
@@ -85,14 +84,12 @@ final class ThingToStatements {
 					IRI[] c = (IRI[]) fieldInstance;
 					for (IRI i : c) {
 						RdfObject rdfObject = createRdfObject(i, false);
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								rdfObject));
+						statements.add(new Statement(rdfSubject, rdfPredicate, rdfObject));
 					}
 				} else if (fieldInstance instanceof IRI) {
 					IRI value = (IRI) fieldInstance;
 					RdfObject rdfObject = createRdfObject(value, false);
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							rdfObject));
+					statements.add(new Statement(rdfSubject, rdfPredicate, rdfObject));
 				} else {
 					throwMismatchException(field, thing.getClass());
 				}
@@ -101,14 +98,18 @@ final class ThingToStatements {
 					TumblerAddress[] c = (TumblerAddress[]) fieldInstance;
 					for (TumblerAddress i : c) {
 						RdfObject rdfObject = createRdfObject(i, false);
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								rdfObject));
+						statements.add(new Statement(rdfSubject, rdfPredicate, rdfObject));
 					}
 				} else if (fieldInstance instanceof TumblerAddress) {
 					TumblerAddress value = (TumblerAddress) fieldInstance;
 					RdfObject rdfObject = createRdfObject(value, false);
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							rdfObject));
+					statements.add(new Statement(rdfSubject, rdfPredicate, rdfObject));
+				} else if (fieldInstance instanceof List) {
+					List<TumblerAddress> c = (List<TumblerAddress>) fieldInstance;
+					for (TumblerAddress i : c) {
+						RdfObject rdfObject = createRdfObject(i, false);
+						statements.add(new Statement(rdfSubject, rdfPredicate, rdfObject));
+					}
 				} else {
 					throwMismatchException(field, thing.getClass());
 				}
@@ -117,15 +118,13 @@ final class ThingToStatements {
 					String[] c = (String[]) fieldInstance;
 					for (String value : c) {
 						if (!Strings.isNullOrEmpty(value)) {
-							statements.add(new Statement(rdfSubject,
-									rdfPredicate, value));
+							statements.add(new Statement(rdfSubject, rdfPredicate, value));
 						}
 					}
 				} else if (fieldInstance instanceof String) {
 					String value = (String) fieldInstance;
 					if (!Strings.isNullOrEmpty(value)) {
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								value));
+						statements.add(new Statement(rdfSubject, rdfPredicate, value));
 					}
 				} else {
 					throwMismatchException(field, thing.getClass());
@@ -134,13 +133,11 @@ final class ThingToStatements {
 				if (fieldInstance instanceof Enum[]) {
 					Enum[] c = (Enum[]) fieldInstance;
 					for (Enum value : c) {
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								value.name()));
+						statements.add(new Statement(rdfSubject, rdfPredicate, value.name()));
 					}
 				} else if (fieldInstance instanceof Enum) {
 					String value = ((Enum<?>) fieldInstance).name();
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							value));
+					statements.add(new Statement(rdfSubject, rdfPredicate, value));
 				} else {
 					throwMismatchException(field, thing.getClass());
 				}
@@ -160,45 +157,38 @@ final class ThingToStatements {
 				if (fieldInstance instanceof Number[]) {
 					Number[] c = (Number[]) fieldInstance;
 					for (Number value : c) {
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								value));
+						statements.add(new Statement(rdfSubject, rdfPredicate, value));
 					}
 				} else if (!(fieldInstance instanceof Number)) {
 					throwMismatchException(field, thing.getClass());
 				} else {
 					Number value = (Number) fieldInstance;
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							value));
+					statements.add(new Statement(rdfSubject, rdfPredicate, value));
 				}
 			} else if (annotation instanceof ObjectURL) {
 				if (fieldInstance instanceof URL[]) {
 					URL[] c = (URL[]) fieldInstance;
 					for (URL value : c) {
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								value));
+						statements.add(new Statement(rdfSubject, rdfPredicate, value));
 					}
 				} else if (!(fieldInstance instanceof URL)) {
 					throwMismatchException(field, thing.getClass());
 				} else {
 					URL value = (URL) fieldInstance;
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							value));
+					statements.add(new Statement(rdfSubject, rdfPredicate, value));
 				}
 			} else if (annotation instanceof ObjectXSD) {
-				statements.add(new Statement(rdfSubject, rdfPredicate,
-						(ObjectXSD) annotation, fieldInstance));
+				statements.add(new Statement(rdfSubject, rdfPredicate, (ObjectXSD) annotation, fieldInstance));
 			} else if (annotation instanceof ObjectNonNegativeInteger) {
 				if (fieldInstance instanceof Integer[]) {
 					Integer[] c = (Integer[]) fieldInstance;
 					for (Number value : c) {
-						statements.add(new Statement(rdfSubject, rdfPredicate,
-								value));
+						statements.add(new Statement(rdfSubject, rdfPredicate, value));
 					}
 				} else if (!(fieldInstance instanceof Integer)) {
 					throwMismatchException(field, thing.getClass());
 				} else {
-					statements.add(new Statement(rdfSubject, rdfPredicate,
-							(ObjectNonNegativeInteger) annotation,
+					statements.add(new Statement(rdfSubject, rdfPredicate, (ObjectNonNegativeInteger) annotation,
 							(Integer) fieldInstance));
 				}
 			}
@@ -210,8 +200,7 @@ final class ThingToStatements {
 		if (iri.startsWith("http")) {
 			return iri;
 		}
-		return isOulipoUrl(field) ? RdfFactory.BASE_URI + iri
-				: RdfFactory.SCHEMA_ORG + iri;
+		return isOulipoUrl(field) ? RdfFactory.BASE_URI + iri : RdfFactory.SCHEMA_ORG + iri;
 	}
 
 	private static boolean isOulipoUrl(FieldWrapper field) {
@@ -220,8 +209,7 @@ final class ThingToStatements {
 
 	private static Statement subject(Subject subject, IRI resourceId) {
 		RdfSubject rdfSubject = createRdfSubject(resourceId);
-		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(
-				DataType.RDF_TYPE));
+		RdfPredicate rdfPredicate = createRdfPredicate(new IRI(DataType.RDF_TYPE));
 		RdfObject rdfObject = createRdfObject(new IRI(subject.value()), false);
 
 		return new Statement(rdfSubject, rdfPredicate, rdfObject);
@@ -229,17 +217,14 @@ final class ThingToStatements {
 
 	private static void throwMismatchException(FieldWrapper field, Class clazz) {
 		throw new IllegalArgumentException(
-				"Annotated type does not match Java field type: "
-						+ field.getName() + ", " + clazz.getName());
+				"Annotated type does not match Java field type: " + field.getName() + ", " + clazz.getName());
 	}
 
-	private static Collection<Statement> transform(RdfSubject rdfSubject,
-			Thing thing) throws Exception {
+	private static Collection<Statement> transform(RdfSubject rdfSubject, Thing thing) throws Exception {
 		Collection<Statement> statements = new ArrayList<>();
 		for (Field field : thing.getClass().getFields()) {
 			field.setAccessible(true);
-			statements.addAll(createStatements(rdfSubject, new FieldWrapper(
-					field), thing));
+			statements.addAll(createStatements(rdfSubject, new FieldWrapper(field), thing));
 		}
 		return statements;
 	}
@@ -265,13 +250,11 @@ final class ThingToStatements {
 		for (Field field : thing.getClass().getFields()) {
 			field.setAccessible(true);
 			if (field.getAnnotation(ParentClass.class) == null) {
-				statements.addAll(createStatements(rdfSubject,
-						new FieldWrapper(field), thing));
+				statements.addAll(createStatements(rdfSubject, new FieldWrapper(field), thing));
 			} else {
 				Object fieldInstance = field.get(thing);
 				if (fieldInstance != null) {
-					statements.addAll(transform(rdfSubject,
-							(Thing) fieldInstance));
+					statements.addAll(transform(rdfSubject, (Thing) fieldInstance));
 				}
 			}
 		}

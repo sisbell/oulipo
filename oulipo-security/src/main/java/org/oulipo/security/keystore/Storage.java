@@ -25,8 +25,7 @@ import org.bitcoinj.core.ECKey;
  */
 public interface Storage {
 
-	void add(String alias, String address, byte[] privateKey, byte[] publicKey)
-			throws IOException;
+	void add(String alias, String address, byte[] privateKey, byte[] publicKey) throws IOException;
 
 	void close() throws IOException;
 

@@ -15,7 +15,10 @@
  *******************************************************************************/
 package org.oulipo.services.endpoints;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.oulipo.net.MalformedSpanException;
@@ -27,10 +30,16 @@ import org.oulipo.services.EditResourceException;
 import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
+import org.oulipo.streams.OpCodeReader;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantSpan;
+import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.impl.StreamOulipoMachine;
+import org.oulipo.streams.opcodes.InsertTextOp;
+import org.oulipo.streams.opcodes.Op;
+
+import com.google.common.io.BaseEncoding;
 
 public class ContentService {
 
@@ -59,7 +68,7 @@ public class ContentService {
 
 		List<VariantSpan> vspans = oulipoRequest.getVariantSpans();
 		om.copy(elementAddress.getElement().get(1), vspans);
-
+		om.flush();
 		return "{}";
 
 	}
@@ -78,12 +87,12 @@ public class ContentService {
 			return "{}";// OK: Response
 		} else {
 			throw new EditResourceException(elementAddress, "Attempting to delete content without specifying a span");
-
 		}
 	}
 
-	public String insertContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
+	public VirtualContent insertContent(OulipoRequest oulipoRequest)
+			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
+			MalformedSpanException, EditResourceException {
 		oulipoRequest.authenticate();
 		oulipoRequest.authorize();
 
@@ -94,10 +103,33 @@ public class ContentService {
 		if (elementAddress.getElement().get(0) != 1) {
 			throw new EditResourceException(elementAddress, "Attempting to insert content outside of byte space");
 		}
-		// TODO:
-		// om..insert(elementAddress.getElement().get(1), request.body());
-		return "{}";
 
+		om.push(new InsertTextOp(new InsertTextOp.Data(elementAddress.getElement().get(1), oulipoRequest.getBody())));
+		om.flush();
+
+		VirtualContent vc = new VirtualContent();
+		vc.content = oulipoRequest.getBody();
+		return vc;
+	}
+
+	public void loadOperations(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, IOException, MalformedSpanException {
+		oulipoRequest.authenticate();
+		oulipoRequest.authorize();
+
+		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
+		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+
+		String body = oulipoRequest.getBody();
+		System.out.println("Load Data: " + body);
+		byte[] bodyBytes = BaseEncoding.base64Url().decode(body);
+		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
+		Iterator<Op<?>> codes = reader.iterator();
+		while (codes.hasNext()) {
+			om.push(codes.next());
+		}
+		om.flush();
+		reader.close();
 	}
 
 	public String swap(OulipoRequest oulipoRequest)

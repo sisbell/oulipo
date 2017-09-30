@@ -23,9 +23,14 @@ public final class VirtualContent {
 	 * Readable text that the invariant span is pointing to.
 	 */
 	public String content;
-	
+
 	/**
-	 * The invariant span. This maps to the immutable text region of the homeDocument.
+	 * Home document of the invariant spans and content
+	 */
+	public TumblerAddress homeDocument;
+
+	/**
+	 * The invariant span. This maps to the immutable text to of the homeDocument.
 	 */
 	public InvariantSpan invariantSpan;
 
@@ -33,10 +38,5 @@ public final class VirtualContent {
 	 * Positional order of this content within the document
 	 */
 	public int order;
-	
-	/**
-	 * Home document of the invariant spans and content
-	 */
-	public TumblerAddress homeDocument;
-	
+
 }

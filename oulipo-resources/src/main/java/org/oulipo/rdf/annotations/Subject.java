@@ -22,12 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Subject {
-	String[] compositeKey() default { };
-	
+	String[] compositeKey() default {};
+
 	boolean isBlankNode() default false;
-	
+
 	String key() default "";
-	
-	String value();//iri
-	
+
+	String value();// iri
+
 }

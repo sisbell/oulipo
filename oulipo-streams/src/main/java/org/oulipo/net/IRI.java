@@ -35,21 +35,12 @@ public class IRI {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (IRI.class != obj.getClass()
-				&& obj.getClass() != TumblerAddress.class)
+		if (IRI.class != obj.getClass() && obj.getClass() != TumblerAddress.class)
 			return false;
 		IRI other = (IRI) obj;
 		if (value == null) {
@@ -58,6 +49,14 @@ public class IRI {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
 	}
 
 	@Override

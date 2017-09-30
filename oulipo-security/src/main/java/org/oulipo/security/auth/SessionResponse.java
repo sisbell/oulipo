@@ -96,7 +96,6 @@ public final class SessionResponse {
 	 */
 	public String publicKey;
 
-	
 	public SessionResponse() {
 	}
 

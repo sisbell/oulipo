@@ -16,10 +16,15 @@
 package org.oulipo.services.endpoints;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ThingRepository;
 import org.oulipo.resources.model.InvariantLink;
@@ -27,45 +32,57 @@ import org.oulipo.resources.model.InvariantSpan;
 import org.oulipo.resources.model.Thing;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
+import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.StreamLoader;
+import org.oulipo.streams.VariantSpan;
+import org.oulipo.streams.impl.StreamOulipoMachine;
 
 /**
  * Groups from and to VSpans by link type
  */
 public class EndsetsService {
 
-	private static final TumblerAddress BLANK_LINK_TYPE =null;// TumblerAddress.create(
-	//	"ted://1.0.1.0.1.0.1.0.2.628");
+	private static final TumblerAddress BLANK_LINK_TYPE = TumblerAddress
+			.createWithNoException("ted://1.1.0.1.0.1.1.1.0.2.628");
 
-	private static TumblerAddress[] filter(TumblerAddress[] ispans, TumblerAddress address) {
+	private final ResourceSessionManager sessionManager;
+
+	private StreamLoader streamLoader;
+
+	private final ThingRepository thingRepo;
+
+	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader streamLoader) {
+		this.thingRepo = thingRepo;
+		this.sessionManager = sessionManager;
+		this.streamLoader = streamLoader;
+
+	}
+
+	private TumblerAddress[] filter(List<TumblerAddress> ispans, TumblerAddress address, OulipoMachine om)
+			throws MalformedSpanException, MalformedTumblerException {
 		Set<TumblerAddress> set = new HashSet<>();
-		for (TumblerAddress ispan : ispans) {
-			if (ispan.value.startsWith(address.value)) {
-				/*
-				VariantStream vs = null;
-				for(org.oulipo.machine.server.editor.VariantSpan vspan : 
-					vs.getVariantSpansOf(new org.oulipo.machine.server.editor.InvariantSpan(ispan.spanStart(), ispan.spanWidth())) {
-					set.add(vspan.toTumbler(address));
+		for (TumblerAddress ispanAddress : ispans) {
+			if (ispanAddress.value.startsWith(address.value)) {
+				org.oulipo.streams.InvariantSpan invariantSpan = new org.oulipo.streams.InvariantSpan(
+						ispanAddress.spanStart(), ispanAddress.spanWidth());
+				List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
+				for (VariantSpan vspan : vspans) {
+					TumblerAddress variantSpanAddress = TumblerAddress
+							.create(vspan.homeDocument + ".0.1." + vspan.start + "~1." + vspan.width);
+					set.add(variantSpanAddress);
 				}
-				*/
 			}
 		}
 		return set.toArray(new TumblerAddress[set.size()]);
 	}
 
-	private final ResourceSessionManager sessionManager;
-
-	private final ThingRepository thingRepo;
-
-	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager) {
-		this.thingRepo = thingRepo;
-		this.sessionManager = sessionManager;
-	}
-	
 	public EndsetByType getEndsets(OulipoRequest oulipoRequest) throws Exception {
 		sessionManager.getDocumentForReadAccess(oulipoRequest);
 
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
+		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
 
 		Collection<Thing> ispans = thingRepo.findEndsetsOfDoc(documentAddress);
 
@@ -79,13 +96,13 @@ public class EndsetsService {
 						continue;
 					}
 					InvariantLink link = optLink.get();
-					if (link.fromInvariantSpans != null) {
-						if (link.linkTypes != null) {
+					if (!link.fromInvariantSpans.isEmpty()) {
+						if (!link.linkTypes.isEmpty()) {
 							for (TumblerAddress linkType : link.linkTypes) {
-								endset.addFrom(linkType, filter(link.fromInvariantSpans, documentAddress));
+								endset.addFrom(linkType, filter(link.fromInvariantSpans, documentAddress, om));
 							}
 						} else {
-							endset.addFrom(BLANK_LINK_TYPE, filter(link.fromInvariantSpans, documentAddress));
+							endset.addFrom(BLANK_LINK_TYPE, filter(link.fromInvariantSpans, documentAddress, om));
 						}
 					}
 				}
@@ -97,21 +114,32 @@ public class EndsetsService {
 						continue;
 					}
 					InvariantLink link = optLink.get();
-					if (link.toInvariantSpans != null) {
-						if (link.linkTypes != null) {
+					if (!link.toInvariantSpans.isEmpty()) {
+						if (!link.linkTypes.isEmpty()) {
 							for (TumblerAddress linkType : link.linkTypes) {
-								endset.addTo(linkType, filter(link.toInvariantSpans, documentAddress));
+								endset.addTo(linkType, filter(link.toInvariantSpans, documentAddress, om));
 							}
 						} else {
-							endset.addTo(BLANK_LINK_TYPE, filter(link.toInvariantSpans, documentAddress));
+							endset.addTo(BLANK_LINK_TYPE, filter(link.toInvariantSpans, documentAddress, om));
 						}
 					}
 				}
 			}
 		}
-		// TODO: replace ispans with vspans
 		return endset;
-
 	}
 
+	public EndsetByType putEndsets(OulipoRequest oulipoRequest) throws Exception {
+		// EndsetByType endset = null;
+		HashMap<String, Endset> endsets = null;
+
+		// List<String> linkAddresses = new ArrayList<>();
+		for (Map.Entry<String, Endset> entry : endsets.entrySet()) {
+			Endset endset = entry.getValue();
+			for (TumblerAddress type : endset.types) {
+
+			}
+		}
+		return null;
+	}
 }

@@ -31,6 +31,5 @@ public class RdfType {
 	public String toString() {
 		return "RdfType [value=" + value + "]";
 	}
-	
-	
+
 }

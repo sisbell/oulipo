@@ -15,8 +15,10 @@
  *******************************************************************************/
 package org.oulipo.resources.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.rdf.annotations.ObjectIRI;
 import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
 import org.oulipo.rdf.annotations.ObjectTumbler;
 import org.oulipo.rdf.annotations.Predicate;
@@ -30,21 +32,21 @@ public class InvariantLink extends Thing {
 	public TumblerAddress document;
 
 	@Predicate("fromInvariantSpan")
-	@ObjectIRI
-	public TumblerAddress[] fromInvariantSpans;
+	@ObjectTumbler
+	public List<TumblerAddress> fromInvariantSpans = new ArrayList<>();
 
 	@Predicate("linkType")
-	@ObjectIRI
-	public TumblerAddress[] linkTypes;
+	@ObjectTumbler
+	public List<TumblerAddress> linkTypes = new ArrayList<>();
 
 	@Predicate("sequence")
 	@ObjectNonNegativeInteger
 	public int sequence;
 
 	@Predicate("toInvariantSpan")
-	@ObjectIRI
-	public TumblerAddress[] toInvariantSpans;
-	
+	@ObjectTumbler
+	public List<TumblerAddress> toInvariantSpans = new ArrayList<>();
+
 	public int sequence() {
 		return ((TumblerAddress) resourceId).getElement().get(1);
 	}

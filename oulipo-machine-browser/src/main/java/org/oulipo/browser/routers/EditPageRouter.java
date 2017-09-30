@@ -21,6 +21,7 @@ import org.oulipo.browser.api.Page;
 import org.oulipo.browser.api.Page.View;
 import org.oulipo.browser.api.PageRouter;
 import org.oulipo.browser.api.Scheme;
+import org.oulipo.browser.pages.NewDocumentController;
 import org.oulipo.browser.pages.NewUserController;
 import org.oulipo.browser.pages.RegisterNodeController;
 import org.oulipo.browser.pages.UpdateDocumentController;
@@ -81,13 +82,15 @@ public final class EditPageRouter implements PageRouter {
 		} else if (tumbler.isNodeTumbler()) {
 			if (path.equals("/users")) {
 				return new Page(new NewUserController());
-			} else if (path.equals("/newUser")) {
-			//	return new Page(new NewUserController());
 			} else {
 				return new Page(new UpdateNodeController());
 			}
 		} else if (tumbler.isUserTumbler()) {
-			return new Page(new UpdateUserController());
+			if (path.equals("/documents")) {
+				return new Page(new NewDocumentController());
+			} else {
+				return new Page(new UpdateUserController());
+			}
 		} else if (tumbler.isDocumentTumbler()) {
 			return new Page(new UpdateDocumentController());
 		} else if (tumbler.isElementTumbler() && tumbler.isLinkElement()) {

@@ -24,13 +24,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public final class ErrorResponse {
 
 	public TumblerAddress address;
-	
+
 	public int code;
 
 	public String message;
-	
-	public ErrorResponse() { }
-	
+
+	public ErrorResponse() {
+	}
+
 	public ErrorResponse(int code, String message, TumblerAddress address) {
 		this.code = code;
 		this.message = message;

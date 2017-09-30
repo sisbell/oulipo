@@ -21,26 +21,26 @@ import java.io.IOException;
 
 import org.oulipo.streams.VariantSpan;
 
-public final class SwapOp extends Op<SwapOp.Data>{
-
-	public SwapOp(Data data) {
-		super(Op.SWAP, data);
-	}
-	
-	public SwapOp(VariantSpan v1, VariantSpan v2) {
-		this(new Data(v1, v2));
-	}
+public final class SwapOp extends Op<SwapOp.Data> {
 
 	public static class Data {
 
 		public final VariantSpan v1;
-		
+
 		public final VariantSpan v2;
-		
+
 		public Data(VariantSpan v1, VariantSpan v2) {
 			this.v1 = v1;
 			this.v2 = v2;
 		}
+	}
+
+	public SwapOp(Data data) {
+		super(Op.SWAP, data);
+	}
+
+	public SwapOp(VariantSpan v1, VariantSpan v2) {
+		this(new Data(v1, v2));
 	}
 
 	@Override
@@ -56,6 +56,5 @@ public final class SwapOp extends Op<SwapOp.Data>{
 		os.flush();
 		return os.toByteArray();
 	}
-
 
 }

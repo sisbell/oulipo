@@ -26,6 +26,6 @@ import org.oulipo.rdf.NodeType;
 public @interface Predicate {
 
 	NodeType type() default NodeType.IRI;
-	
+
 	String value();
 }

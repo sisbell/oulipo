@@ -32,15 +32,13 @@ import org.oulipo.net.TumblerMatcher;
  */
 public final class AddressTumblerMatcher implements TumblerMatcher {
 
-	public static AddressTumblerMatcher createLinkTypeMatcher(String[] linkTypes)
-			throws MalformedTumblerException {
+	public static AddressTumblerMatcher createLinkTypeMatcher(String[] linkTypes) throws MalformedTumblerException {
 		Set<TumblerAddress> linkTypeAddresses = new HashSet<>();
 		if (linkTypes != null) {
 			for (String linkType : linkTypes) {
 				TumblerAddress linkAddress = TumblerAddress.create(linkType);
 				if (!linkAddress.isLinkElement()) {
-					throw new MalformedTumblerException(
-							"Must be a valid link address");
+					throw new MalformedTumblerException("Must be a valid link address");
 				}
 				linkTypeAddresses.add(linkAddress);
 			}
@@ -59,8 +57,7 @@ public final class AddressTumblerMatcher implements TumblerMatcher {
 	 * Returns true if the specified tumbler matches any of the tumblerAdd
 	 */
 	public boolean match(TumblerAddress tumbler) {
-		return tumblers == null || tumblers.isEmpty()
-				|| tumblers.contains((TumblerAddress) tumbler);
+		return tumblers == null || tumblers.isEmpty() || tumblers.contains(tumbler);
 
 	}
 

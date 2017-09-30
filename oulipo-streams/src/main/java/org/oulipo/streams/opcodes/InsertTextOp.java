@@ -15,35 +15,88 @@
  *******************************************************************************/
 package org.oulipo.streams.opcodes;
 
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public final class InsertTextOp extends Op<InsertTextOp.Data> {
+
+	public static class Data {
+
+		public final String text;
+
+		public final long to;
+
+		public Data(long to, String text) {
+			this.to = to;
+			this.text = text;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Data other = (Data) obj;
+			if (text == null) {
+				if (other.text != null)
+					return false;
+			} else if (!text.equals(other.text))
+				return false;
+			if (to != other.to)
+				return false;
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((text == null) ? 0 : text.hashCode());
+			result = prime * result + (int) (to ^ (to >>> 32));
+			return result;
+		}
+	}
+
+	public static InsertTextOp read(byte[] message) throws IOException {
+		return read(new DataInputStream(new ByteArrayInputStream(message)));
+	}
+
+	public static InsertTextOp read(DataInputStream dis) throws IOException {
+		// if (Op.INSERT_TEXT != dis.readByte()) {
+		// throw new IOException("Incorrect op type");
+		// }
+		long to = dis.readLong();
+		// int width = (int) dis.readLong();
+		// byte[] text = new byte[width];
+		return new InsertTextOp(new Data(to, dis.readUTF()));
+	}
 
 	public InsertTextOp(Data data) {
 		super(Op.INSERT_TEXT, data);
 	}
 
-	public InsertTextOp(long region, String text) {
-		this(new Data(region, text));
+	public InsertTextOp(long to, String text) {
+		this(new Data(to, text));
 	}
-
-	public static class Data {
-
-		public final long region;
-
-		public final String text;
-
-		public Data(long region, String text) {
-			this.region = region;
-			this.text = text;
-		}
-	}
-
 
 	@Override
-	public byte[] toBytes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public byte[] toBytes() throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		try (DataOutputStream dos = new DataOutputStream(os)) {
+			dos.writeByte(Op.INSERT_TEXT);
+			dos.writeLong(getData().to);
+			dos.writeUTF(getData().text);
+			// dos.writeLong(getData().text.length());
+			// dos.write(getData().text.getBytes());
+		}
+		os.flush();
+		return os.toByteArray();
 
+	}
 }

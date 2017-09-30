@@ -167,7 +167,7 @@ public final class XanAuthUri {
 			SessionResponse response = new SessionResponse(ResultCode.OK, "OK");
 			response.isAuthorized = true;
 			response.publicKey = jo.getString("publicKey");
-			response.masterToken = jo.getString("masterToken");	
+			response.masterToken = jo.getString("masterToken");
 			response.expiresIn = jo.getLong("expiresIn");
 			return response;
 		} else if (rc >= 400) {

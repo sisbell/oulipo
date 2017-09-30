@@ -21,29 +21,27 @@ import java.io.IOException;
 
 import org.oulipo.streams.VariantSpan;
 
-
 public final class MoveOp extends Op<MoveOp.Data> {
 
-	public MoveOp(Data data) {
-		super(Op.MOVE, data);
-	}
-	
-	public MoveOp(VariantSpan source, long to) {
-		this(new Data(source, to));
-	}
-
 	public static class Data {
-		
-		public final VariantSpan variantSpan;
-		
+
 		public final long to;
-		
+
+		public final VariantSpan variantSpan;
+
 		public Data(VariantSpan variantSpan, long to) {
 			this.variantSpan = variantSpan;
 			this.to = to;
 		}
 	}
 
+	public MoveOp(Data data) {
+		super(Op.MOVE, data);
+	}
+
+	public MoveOp(VariantSpan source, long to) {
+		this(new Data(source, to));
+	}
 
 	@Override
 	public byte[] toBytes() throws IOException {
@@ -58,4 +56,4 @@ public final class MoveOp extends Op<MoveOp.Data> {
 		return os.toByteArray();
 	}
 
-	}
+}

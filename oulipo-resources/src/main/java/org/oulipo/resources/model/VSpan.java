@@ -29,6 +29,7 @@ import org.oulipo.resources.utils.Add;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+
 /**
  * Virtual (or variant) Span
  */
@@ -81,13 +82,11 @@ public class VSpan extends Thing {
 
 	public void removeDuplicateLinks() {
 		if (fromLinks != null) {
-			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(
-					new TumblerAddress[0]);
+			fromLinks = ImmutableSet.copyOf(fromLinks).toArray(new TumblerAddress[0]);
 		}
 
 		if (toLinks != null) {
-			toLinks = ImmutableSet.copyOf(toLinks).toArray(
-					new TumblerAddress[0]);
+			toLinks = ImmutableSet.copyOf(toLinks).toArray(new TumblerAddress[0]);
 		}
 	}
 

@@ -23,12 +23,8 @@ import org.oulipo.net.TumblerAddress;
 public final class InvariantSpans {
 
 	private TumblerAddress homeDocument;
-	
-	private List<InvariantSpan> invariantSpans = new ArrayList<>();
 
-	public void setHomeDocument(TumblerAddress homeDocument) {
-		this.homeDocument = homeDocument;
-	}
+	private List<InvariantSpan> invariantSpans = new ArrayList<>();
 
 	public TumblerAddress getHomeDocument() {
 		return homeDocument;
@@ -36,5 +32,9 @@ public final class InvariantSpans {
 
 	public List<InvariantSpan> getInvariantSpans() {
 		return invariantSpans;
+	}
+
+	public void setHomeDocument(TumblerAddress homeDocument) {
+		this.homeDocument = homeDocument;
 	}
 }

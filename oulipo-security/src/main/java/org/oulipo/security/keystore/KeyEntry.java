@@ -21,44 +21,34 @@ import com.google.common.io.BaseEncoding;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public final class KeyEntry {
 
-	private String alias;
-
-	private String kty;
-
-	private String crv;
-
-	private String pk;
-
-	private String iv;
-	
-	private KeyEntry() { }
-	
-	private KeyEntry(String alias, String kty, String crv, String pk, String iv) {
-		this.alias = alias;
-		this.kty = kty;
-		this.crv = crv;
-		this.pk = pk;
-		this.iv = iv;
-	}
-
 	public static class Builder {
-		
-		private String alias;
 
-		private String kty;
+		private String alias;
 
 		private String crv;
 
+		private String iv;
+
+		private String kty;
+
 		private String pk;
 
-		private String iv;
-		
+		public Builder alias(String alias) {
+			this.alias = alias;
+			return this;
+		}
+
 		public KeyEntry build() {
 			return new KeyEntry(alias, kty, crv, pk, iv);
 		}
 
-		public Builder alias(String alias) {
-			this.alias = alias;
+		public Builder crv(String crv) {
+			this.crv = crv;
+			return this;
+		}
+
+		public Builder iv(byte[] iv) {
+			this.iv = BaseEncoding.base64Url().encode(iv);
 			return this;
 		}
 
@@ -67,40 +57,51 @@ public final class KeyEntry {
 			return this;
 		}
 
-		public Builder crv(String crv) {
-			this.crv = crv;
-			return this;
-		}
-
 		public Builder pk(byte[] pk) {
 			this.pk = BaseEncoding.base64Url().encode(pk);
 			return this;
 		}
+	}
 
-		public Builder iv(byte[] iv) {
-			this.iv = BaseEncoding.base64Url().encode(iv);
-			return this;
-		}
+	private String alias;
+
+	private String crv;
+
+	private String iv;
+
+	private String kty;
+
+	private String pk;
+
+	private KeyEntry() {
+	}
+
+	private KeyEntry(String alias, String kty, String crv, String pk, String iv) {
+		this.alias = alias;
+		this.kty = kty;
+		this.crv = crv;
+		this.pk = pk;
+		this.iv = iv;
 	}
 
 	public String getAlias() {
 		return alias;
 	}
 
-	public String getKty() {
-		return kty;
-	}
-
 	public String getCrv() {
 		return crv;
 	}
 
-	public String getPk() {
-		return pk;
-	}
-
 	public String getIv() {
 		return iv;
+	}
+
+	public String getKty() {
+		return kty;
+	}
+
+	public String getPk() {
+		return pk;
 	}
 
 }

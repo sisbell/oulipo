@@ -18,7 +18,8 @@ package org.oulipo.net;
 public interface TumblerMatcher {
 
 	/**
-	 * Returns true if the specified tumbler matches this rule, otherwise returns false
+	 * Returns true if the specified tumbler matches this rule, otherwise returns
+	 * false
 	 * 
 	 * @param tumbler
 	 * @return

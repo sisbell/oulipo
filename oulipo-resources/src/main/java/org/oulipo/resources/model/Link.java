@@ -15,16 +15,15 @@
  *******************************************************************************/
 package org.oulipo.resources.model;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.rdf.annotations.ObjectIRI;
 import org.oulipo.rdf.annotations.ObjectNonNegativeInteger;
 import org.oulipo.rdf.annotations.ObjectTumbler;
 import org.oulipo.rdf.annotations.Predicate;
 import org.oulipo.rdf.annotations.Subject;
-import org.oulipo.resources.utils.Add;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -36,81 +35,35 @@ public class Link extends Thing {
 	public TumblerAddress document;// this tumbler does not include version, the
 									// resourceId will include doc version
 
-	@Predicate("fromSpan")
-	@ObjectIRI
-	public TumblerAddress fromSpan;
-
 	@Predicate("fromVSpan")
-	@ObjectIRI
-	public TumblerAddress[] fromVSpans;
-	
+	@ObjectTumbler
+	public List<TumblerAddress> fromVSpans = new ArrayList<>();
+
 	@Predicate("linkType")
-	@ObjectIRI
-	public TumblerAddress[] linkTypes;
+	@ObjectTumbler
+	public List<TumblerAddress> linkTypes = new ArrayList<>();
 
 	@Predicate("sequence")
 	@ObjectNonNegativeInteger
 	public int sequence;
 
-	@Predicate("toSpan")
-	@ObjectIRI
-	public TumblerAddress toSpan;
-
 	@Predicate("toVSpan")
-	@ObjectIRI
-	public TumblerAddress[] toVSpans;
-	
-
-	public void addFromVSpan(Collection<TumblerAddress> vspan) {
-		fromVSpans = Add.both(fromVSpans, vspan, TumblerAddress.class);
-	}
-
-	public void addFromVSpan(TumblerAddress vspan) {
-		fromVSpans = Add.one(fromVSpans, vspan);
-	}
-
-	public void addFromVSpan(TumblerAddress[] vspan) {
-		fromVSpans = Add.both(fromVSpans, vspan, TumblerAddress.class);
-	}
-
-	public void addLinkType(Collection<TumblerAddress> type) {
-		linkTypes = Add.both(linkTypes, type, TumblerAddress.class);
-	}
-	
-	public void addLinkType(TumblerAddress type) {
-		linkTypes = Add.one(linkTypes, type);
-	}
-	
-	public void addLinkType(TumblerAddress[] type) {
-		linkTypes = Add.both(linkTypes, type, TumblerAddress.class);
-	}
-	
-	public void addToVSpan(Collection<TumblerAddress> vspan) {
-		toVSpans = Add.both(toVSpans, vspan, TumblerAddress.class);
-	}
-	
-	public void addToVSpan(TumblerAddress vspan) {
-		toVSpans = Add.one(toVSpans, vspan);
-	}
-	
-	public void addToVSpan(TumblerAddress[] vspan) {
-		toVSpans = Add.both(toVSpans, vspan, TumblerAddress.class);
-	}
-	
+	@ObjectTumbler
+	public List<TumblerAddress> toVSpans = new ArrayList<>();
 
 	public int elementType() {
 		return ((TumblerAddress) resourceId).getElement().get(0);
 	}
 
 	public void removeDuplicateFromVSpans() {
-		if(fromVSpans != null) {
-			fromVSpans = ImmutableSet.copyOf(fromVSpans).toArray(new TumblerAddress[0]);
-		}	
+		if (fromVSpans != null) {
+			fromVSpans = ImmutableSet.copyOf(fromVSpans).asList();
+		}
 	}
 
 	public void removeDuplicateLinkTypes() {
-		if(linkTypes != null) {
-			linkTypes = ImmutableSet.copyOf(linkTypes).toArray(new TumblerAddress[0]);
+		if (linkTypes != null) {
+			linkTypes = ImmutableSet.copyOf(linkTypes).asList();
 		}
 	}
 
@@ -121,34 +74,35 @@ public class Link extends Thing {
 	}
 
 	public void removeDuplicateToVSpans() {
-		if(toVSpans != null) {
-			toVSpans = ImmutableSet.copyOf(toVSpans).toArray(new TumblerAddress[0]);
-		}		
+		if (toVSpans != null) {
+			toVSpans = ImmutableSet.copyOf(toVSpans).asList();
+		}
 	}
-	
+
 	public int sequence() {
 		return ((TumblerAddress) resourceId).getElement().get(1);
+	}
+
+	@Override
+	public String toString() {
+		return "Link [document=" + document + ", fromVSpans=" + fromVSpans + ", linkTypes=" + linkTypes + ", sequence="
+				+ sequence + ", toVSpans=" + toVSpans + "]";
 	}
 
 	public void validateLink() throws MalformedTumblerException {
 		int elementType = elementType();
 		if (elementType != 2) {
 			throw new MalformedTumblerException(
-					"Incorrect element type. Links must start with '2'. Requested link starts with "
-							+ elementType);
+					"Incorrect element type. Links must start with '2'. Requested link starts with " + elementType);
 		}
-/*
-		if (fromSpan != null && fromVSpans != null) {
-			throw new InvalidJsonException(document,
-					"Include Span OR VSpan(s) (not both) for the 'from' set : "
-							+ elementType);
-		}
-
-		if (toSpan != null && toVSpans != null) {
-			throw new InvalidJsonException(document,
-					"Include Span OR VSpan(s) (not both) for the 'to' set : "
-							+ elementType);
-		}
-		*/
+		/*
+		 * if (fromSpan != null && fromVSpans != null) { throw new
+		 * InvalidJsonException(document,
+		 * "Include Span OR VSpan(s) (not both) for the 'from' set : " + elementType); }
+		 * 
+		 * if (toSpan != null && toVSpans != null) { throw new
+		 * InvalidJsonException(document,
+		 * "Include Span OR VSpan(s) (not both) for the 'to' set : " + elementType); }
+		 */
 	}
 }

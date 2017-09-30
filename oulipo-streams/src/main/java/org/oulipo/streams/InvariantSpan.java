@@ -47,8 +47,8 @@ public final class InvariantSpan extends Span {
 	}
 
 	/**
-	 * Splits this invariant span into two parts at the specified position. The
-	 * cut point is relative, or to the right of, this spans start value.
+	 * Splits this invariant span into two parts at the specified position. The cut
+	 * point is relative, or to the right of, this spans start value.
 	 * 
 	 * @param cutPoint
 	 *            cut point to split this invariant span

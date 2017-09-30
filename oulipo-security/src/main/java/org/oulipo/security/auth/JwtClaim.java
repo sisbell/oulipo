@@ -28,19 +28,14 @@ package org.oulipo.security.auth;
 public final class JwtClaim {
 
 	/**
-	 * Issuer. Identifies the principal that issued the JWT
+	 * Application of claim
 	 */
-	public String iss;
+	public String app;
 
 	/**
-	 * Issued At. Identifies the time at which the JWT was issued
+	 * Audience. Identifies the recipients that the JWT is intended for
 	 */
-	public long iat;
-
-	/**
-	 * JWT ID. Provides a unique identifier for the JWT
-	 */
-	public String jti;
+	public String aud;
 
 	/**
 	 * Expiration Time. Identifies the expiration time on or after which the JWT
@@ -49,17 +44,22 @@ public final class JwtClaim {
 	public long exp;
 
 	/**
-	 * Audience. Identifies the recipients that the JWT is intended for
+	 * Issued At. Identifies the time at which the JWT was issued
 	 */
-	public String aud;
+	public long iat;
+
+	/**
+	 * Issuer. Identifies the principal that issued the JWT
+	 */
+	public String iss;
+
+	/**
+	 * JWT ID. Provides a unique identifier for the JWT
+	 */
+	public String jti;
 
 	/**
 	 * Scope
 	 */
 	public String scope;
-
-	/**
-	 * Application of claim
-	 */
-	public String app;
 }

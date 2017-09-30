@@ -16,6 +16,7 @@
 package org.oulipo.resources;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,7 +84,7 @@ public class DefaultThingRepository implements ThingRepository {
 	}
 
 	@Override
-	public void addInvariantSpans(InvariantLink link, IRI[] ispans, SpanSource source)
+	public void addInvariantSpans(InvariantLink link, List<TumblerAddress> ispans, SpanSource source)
 			throws MalformedTumblerException {
 		if (ispans == null) {
 			return;
@@ -139,7 +140,6 @@ public class DefaultThingRepository implements ThingRepository {
 	public Optional<InvariantLink> findInvariantLinkOpt(TumblerAddress address) throws ResourceNotFoundException {
 		return findInvariantLink(address);
 	}
-
 
 	@Override
 	public InvariantSpan findInvariantSpan(TumblerAddress tumbler) throws ResourceNotFoundException {
@@ -208,8 +208,7 @@ public class DefaultThingRepository implements ThingRepository {
 	}
 
 	@Override
-		public Collection<Thing> getAllThings(int network, String type,
-			Map<String, String> queryParams) {
+	public Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams) {
 		return dataMapper.getAllThings(network, type, queryParams);
 	}
 

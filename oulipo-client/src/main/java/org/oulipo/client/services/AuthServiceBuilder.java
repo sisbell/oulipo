@@ -16,12 +16,12 @@ public class AuthServiceBuilder {
 	private final String baseUrl;
 
 	public AuthServiceBuilder(String baseUrl) {
-		if(Strings.isNullOrEmpty(baseUrl)) {
+		if (Strings.isNullOrEmpty(baseUrl)) {
 			throw new IllegalArgumentException("baseURL must not be empty");
 		}
 		this.baseUrl = baseUrl;
 	}
-	
+
 	/**
 	 * Builds the Retrofit service
 	 * 

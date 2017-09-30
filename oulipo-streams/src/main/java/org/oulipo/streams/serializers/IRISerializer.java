@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class IRISerializer extends StdSerializer<IRI> {
 
+	private static final long serialVersionUID = 3336682630396444045L;
+
 	protected IRISerializer() {
 		this(null);
 	}
@@ -32,8 +34,6 @@ public class IRISerializer extends StdSerializer<IRI> {
 	protected IRISerializer(Class<?> t) {
 		super(t, true);
 	}
-
-	private static final long serialVersionUID = 3336682630396444045L;
 
 	@Override
 	public void serialize(IRI iri, JsonGenerator jgen, SerializerProvider sp) throws IOException {

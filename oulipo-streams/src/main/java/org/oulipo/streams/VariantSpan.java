@@ -34,8 +34,11 @@ public final class VariantSpan extends Span {
 	 * Constructs a <code>VariantSpan</code> starting at the specified start
 	 * position with the specified width
 	 * 
-	 * @param start the character position this span starts at. Must be greater than 0.
-	 * @param width the number of characters in this span. Must be greater than 0
+	 * @param start
+	 *            the character position this span starts at. Must be greater than
+	 *            0.
+	 * @param width
+	 *            the number of characters in this span. Must be greater than 0
 	 * 
 	 * @throws MalformedSpanException
 	 *             if the start or width is an illegal value

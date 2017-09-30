@@ -9,8 +9,6 @@ import org.oulipo.security.session.SessionManager;
 import org.oulipo.security.session.UserSession;
 import org.oulipo.storage.StorageException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
@@ -69,8 +67,8 @@ public final class AuthResource {
 	 * @throws IOException
 	 * @throws AuthorizationException
 	 */
-	public SessionResponse getSessionToken(String header64, String claim64, String sig64) throws StorageException,
-			AuthenticationException, IOException, AuthorizationException {
+	public SessionResponse getSessionToken(String header64, String claim64, String sig64)
+			throws StorageException, AuthenticationException, IOException, AuthorizationException {
 
 		JwtClaim jwtClaim = mapper.readValue(BaseEncoding.base64Url().decode(claim64), JwtClaim.class);
 

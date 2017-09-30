@@ -45,7 +45,7 @@ public final class AuthApi {
 				String header64 = tokens[0];
 				String claim64 = tokens[1];
 				String sig64 = tokens[2];
-				
+
 				return resource.getSessionToken(header64, claim64, sig64);
 			}
 		};

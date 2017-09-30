@@ -24,11 +24,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class RdfSubject {
-	
+
 	private String value;
-	
-	public RdfSubject() { }
-	
+
+	public RdfSubject() {
+	}
+
 	public RdfSubject(IRI iri) {
 		this.value = iri.value;
 	}

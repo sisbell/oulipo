@@ -64,8 +64,8 @@
 		<okhttp.version>3.8.1</okhttp.version>
 		<jfoenix.version>1.4.0</jfoenix.version>
 		<fxmisc.richtext.version>0.7-M5</fxmisc.richtext.version>
-		<fuseki.version>2.6.0</fuseki.version>
-		<sparkjava.version>2.5.5</sparkjava.version>
+		<fuseki.version>3.4.0</fuseki.version>
+		<sparkjava.version>2.6.0</sparkjava.version>
 		<freemarker.version>2.3.26-incubating</freemarker.version>
 		<commons.cli.version>1.4</commons.cli.version>
 		<sl4j.version>1.7.20</sl4j.version>

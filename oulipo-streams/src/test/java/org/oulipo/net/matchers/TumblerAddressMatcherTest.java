@@ -1,6 +1,7 @@
 package org.oulipo.net.matchers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class TumblerAddressMatcherTest {
 		AddressTumblerMatcher matcher = new AddressTumblerMatcher(addresses);
 		assertTrue(matcher.match(TumblerAddress.create("1.1")));
 	}
-	
+
 	@Test
 	public void notContains() throws Exception {
 		Set<TumblerAddress> addresses = Sets.newHashSet(TumblerAddress.create("1.1"), TumblerAddress.create("1.2"));
@@ -25,7 +26,6 @@ public class TumblerAddressMatcherTest {
 		assertFalse(matcher.match(TumblerAddress.create("1.4")));
 	}
 
-	
 	@Test
 	public void nullConstructor() throws Exception {
 		AddressTumblerMatcher matcher = new AddressTumblerMatcher(null);

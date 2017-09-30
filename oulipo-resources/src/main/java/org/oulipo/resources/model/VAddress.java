@@ -24,7 +24,7 @@ import org.oulipo.net.MalformedTumblerException;
  * digit determines the location within that space.
  * 
  * As an example, if the VAddress is 1.230, it denotes the byte at position 230
- * within the content region.
+ * within the content to.
  */
 public final class VAddress extends CompactTumblerAddress {
 
@@ -47,7 +47,7 @@ public final class VAddress extends CompactTumblerAddress {
 	 *            number of preceding zeros
 	 * @param type
 	 *            tumbler type
-	 * @throws MalformedTumblerException 
+	 * @throws MalformedTumblerException
 	 */
 	public VAddress(int exponent, int type) throws MalformedTumblerException {
 		this(exponent, type, -1);
@@ -64,16 +64,15 @@ public final class VAddress extends CompactTumblerAddress {
 	 *            location
 	 * @throws MalformedTumblerException
 	 */
-	public VAddress(int exponent, int type, int sequence)
-			throws MalformedTumblerException {
+	public VAddress(int exponent, int type, int sequence) throws MalformedTumblerException {
 		this.exponent = exponent;
 		this.type = type;
 		this.sequence = sequence;
-		
+
 		append(exponent).append(type);
-		if(sequence != -1) {
+		if (sequence != -1) {
 			append(sequence);
-		}	
+		}
 	}
 
 	@Override
@@ -118,7 +117,6 @@ public final class VAddress extends CompactTumblerAddress {
 
 	@Override
 	public String toString() {
-		return "VAddress [exponent=" + exponent + ", sequence=" + sequence
-				+ ", type=" + type + "]";
+		return "VAddress [exponent=" + exponent + ", sequence=" + sequence + ", type=" + type + "]";
 	}
 }

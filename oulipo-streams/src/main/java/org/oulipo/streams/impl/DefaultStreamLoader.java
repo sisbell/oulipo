@@ -17,7 +17,6 @@ package org.oulipo.streams.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
@@ -40,11 +39,6 @@ import com.google.common.cache.RemovalNotification;
 public final class DefaultStreamLoader implements StreamLoader {
 
 	/**
-	 * Maps invariant spans to/from JSON format
-	 */
-	private ObjectMapper mapper = new ObjectMapper();
-
-	/**
 	 * Base directory where the streams are stored
 	 */
 	private File baseDir;
@@ -53,6 +47,11 @@ public final class DefaultStreamLoader implements StreamLoader {
 	 * Variant stream in-memory cache
 	 */
 	private final LoadingCache<TumblerAddress, VariantStream> cache;
+
+	/**
+	 * Maps invariant spans to/from JSON format
+	 */
+	private ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * Constructs a <code>StreamLoader</code> instance backed by the file system and
@@ -66,6 +65,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 	 */
 	public DefaultStreamLoader(File baseDir, String spec) {
 		this.baseDir = baseDir;
+		baseDir.mkdirs();
 		cache = CacheBuilder.from(spec).removalListener(new RemovalListener<TumblerAddress, VariantStream>() {
 
 			@Override
@@ -77,10 +77,17 @@ public final class DefaultStreamLoader implements StreamLoader {
 				}
 			}
 		}).build(new CacheLoader<TumblerAddress, VariantStream>() {
+			@Override
 			public VariantStream load(TumblerAddress key) throws IOException, MalformedSpanException {
 				return openVariantStream(key);
 			}
 		});
+	}
+
+	@Override
+	public void flushVariantCache() {
+		// cache.
+		cache.invalidateAll();
 	}
 
 	@Override
@@ -91,20 +98,20 @@ public final class DefaultStreamLoader implements StreamLoader {
 
 	@Override
 	public VariantStream openVariantStream(TumblerAddress tumbler) throws IOException, MalformedSpanException {
-		try {
-			VariantStream stream = cache.get(tumbler);
-			if (stream != null) {
-				return stream;
-			}
-		} catch (ExecutionException e) {
-			e.printStackTrace();
+		tumbler = tumbler.getDocumentAddress();
+		VariantStream stream = cache.getIfPresent(tumbler);
+		if (stream != null) {
+			return stream;
 		}
 
 		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-variant.json");
-		VariantStream stream = new RopeVariantStream(tumbler);
-		InvariantSpans spans = mapper.readValue(file, InvariantSpans.class);
-		stream.load(spans);
+		stream = new RopeVariantStream(tumbler);
+		if (file.exists()) {
+			InvariantSpans spans = mapper.readValue(file, InvariantSpans.class);
+			stream.load(spans);
+		}
 		cache.put(tumbler, stream);
+
 		return stream;
 	}
 
@@ -112,11 +119,6 @@ public final class DefaultStreamLoader implements StreamLoader {
 			throws IOException, MalformedSpanException {
 		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-variant.json");
 		mapper.writeValue(file, stream.getInvariantSpans());
-	}
-
-	@Override
-	public void flushVariantCache() {
-		cache.invalidateAll();
 	}
 
 	@Override

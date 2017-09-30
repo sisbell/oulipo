@@ -28,8 +28,8 @@ import org.oulipo.streams.opcodes.SwapOp;
 import com.google.common.base.Strings;
 
 /**
- * Implements the <code>VariantStream</code> methods as wrappers for the push and write operations of 
- * the <code>OulipoMachine</code>
+ * Implements the <code>VariantStream</code> methods as wrappers for the push
+ * and write operations of the <code>OulipoMachine</code>
  */
 public abstract class AbstractOulipoMachine implements OulipoMachine {
 
@@ -44,7 +44,6 @@ public abstract class AbstractOulipoMachine implements OulipoMachine {
 			throw new IllegalArgumentException("span is null");
 		}
 	}
-
 
 	/**
 	 * Constructs an OulipoMachine

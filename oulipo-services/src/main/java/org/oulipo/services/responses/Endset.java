@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.oulipo.services.responses;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -52,4 +53,11 @@ public class Endset {
 	public void addType(TumblerAddress[] type) {
 		types = Add.both(types, type, TumblerAddress.class);
 	}
+
+	@Override
+	public String toString() {
+		return "Endset [fromVSpans=" + fromVSpans + ", toVSpans=" + toVSpans + ", types=" + Arrays.toString(types)
+				+ "]";
+	}
+
 }

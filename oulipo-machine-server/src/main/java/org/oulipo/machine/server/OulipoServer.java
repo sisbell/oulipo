@@ -24,10 +24,6 @@ import static spark.Spark.put;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.jena.fuseki.FusekiLogging;
-import org.apache.jena.fuseki.embedded.FusekiEmbeddedServer;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.tdb.TDBFactory;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerResourceException;
 import org.oulipo.resources.DefaultThingRepository;
@@ -80,11 +76,12 @@ public class OulipoServer {
 	public static void run(String databaseDir, String host) throws IOException {
 
 		(new File(databaseDir)).mkdirs();
-		Dataset ds = TDBFactory.createDataset(databaseDir);
-		FusekiEmbeddedServer server = FusekiEmbeddedServer.create().add("/ds", ds, true).setPort(3030).build();
+		// Dataset ds = TDBFactory.createDataset(databaseDir);
+		// FusekiServer server = FusekiServer.create().add("/ds", ds,
+		// true).setPort(3030).build();
 
-		FusekiLogging.setLogging();
-		server.start();
+		// FusekiLogging.setLogging();
+		// server.start();
 
 		// Templates
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_26);
@@ -104,13 +101,11 @@ public class OulipoServer {
 		JsonTransformer transformer = new JsonTransformer();
 
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
-		StreamLoader streamLoader = new DefaultStreamLoader(new File("."), spec);
+		StreamLoader streamLoader = new DefaultStreamLoader(new File("streams"), spec);
 
 		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
 		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader);
 		RequestsMapper req = new RequestsMapper(serviceRequest, sessionManager, thingRepo);
-
-		post("/sparql", SparqlApi.query(objectMapper, thingMapper));
 
 		get("/auth", JSON, AuthApi.temporyAuthToken(authResource), transformer);
 		post("/auth", AuthApi.getSessionToken(authResource), transformer);
@@ -123,7 +118,7 @@ public class OulipoServer {
 		get("/docuverse/:networkId/:nodeId", JSON, req.getNode(), transformer);
 		get("/docuverse/:networkId/:nodeId/users", JSON, req.getNodeUsers(), transformer);
 		put("/docuverse/:networkId/:nodeId", JSON, req.createNode(), transformer);
-		
+
 		get("/docuverse/:networkId/1/1", JSON, req.getSystemUser(), transformer);
 		get("/docuverse/:networkId/:nodeId/newUser", JSON, req.newUser(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId", JSON, req.getUser(), transformer);
@@ -141,14 +136,15 @@ public class OulipoServer {
 		post("/docuverse/:networkId/:nodeId/:userId/:docId/newVersion", req.newVersion(), transformer);
 
 		get("/docuverse/:networkId/:nodeId/:userId/:docId/endsets", req.getEndsets(), transformer);
+		post("/docuverse/:networkId/:nodeId/:userId/:docId/newLink", req.newLink(), transformer);
+		post("/docuverse/:networkId/:nodeId/:userId/:docId/load", req.loadOperation(), transformer);
 
 		get("/docuverse/:networkId/1/1/1.1.1/2.1", req.getSystemLinks(), transformer);
 		get("/docuverse/:networkId/1/1/1.1.1/1.1~1.1", req.getSystemVSpans(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", req.getElement(), transformer);
 
 		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", JSON, req.createOrUpdateLink(), transformer);
-
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/insert", JSON, req.insertContent(), transformer);
+		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/insert", req.insertContent(), transformer);
 
 		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/copy", JSON, req.copyContent(), transformer);
 
@@ -169,7 +165,7 @@ public class OulipoServer {
 		});
 
 		exception(EditResourceException.class, (exception, request, response) -> {
-			TumblerResourceException e = (TumblerResourceException) exception;
+			TumblerResourceException e = exception;
 			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.BAD_EDIT, exception.getMessage(),
 					e.getTumblerAddress());
 			try {
@@ -194,7 +190,7 @@ public class OulipoServer {
 		});
 
 		exception(UnauthorizedException.class, (exception, request, response) -> {
-			TumblerResourceException e = (TumblerResourceException) exception;
+			TumblerResourceException e = exception;
 			ErrorResponse resp = new ErrorResponse(AuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(),
 					e.getTumblerAddress());
 			try {
@@ -207,7 +203,7 @@ public class OulipoServer {
 		});
 
 		exception(AuthenticationException.class, (exception, request, response) -> {
-			AuthenticationException e = (AuthenticationException) exception;
+			AuthenticationException e = exception;
 			ErrorResponse resp = new ErrorResponse(999, exception.getMessage(), null);
 			try {
 				response.status(401);
@@ -228,7 +224,7 @@ public class OulipoServer {
 
 		});
 		exception(ResourceNotFoundException.class, (exception, request, response) -> {
-			ResourceNotFoundException e = (ResourceNotFoundException) exception;
+			ResourceNotFoundException e = exception;
 			ErrorResponse resp = new ErrorResponse(e.getCode(), exception.getMessage(), e.getTumblerAddress());
 			try {
 				response.status(404);
@@ -240,7 +236,7 @@ public class OulipoServer {
 		});
 
 		exception(MissingBodyException.class, (exception, request, response) -> {
-			TumblerResourceException e = (TumblerResourceException) exception;
+			TumblerResourceException e = exception;
 			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.MISSING_JSON_BODY, exception.getMessage(),
 					e.getTumblerAddress());
 			try {

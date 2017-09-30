@@ -24,6 +24,6 @@ import org.oulipo.rdf.NodeType;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface ObjectLanguageString {
-	
+
 	NodeType type() default NodeType.literal;
 }

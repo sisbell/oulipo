@@ -68,7 +68,7 @@ public class ApplicationContext {
 			configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
 			recognizer = new LiveSpeechRecognizer(configuration);
-		
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -89,7 +89,7 @@ public class ApplicationContext {
 	public Map<String, Stage> getStages() {
 		return stages;
 	}
-	
+
 	public void putStage(String id, Stage stage) {
 		stages.put(id, stage);
 	}

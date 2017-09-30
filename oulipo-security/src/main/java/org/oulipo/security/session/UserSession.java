@@ -21,24 +21,23 @@ import org.oulipo.storage.Id;
 
 public class UserSession {
 
-	@Id
-	public String id;
-
-	public String userId;
-
-	public String token;
-
-	public Date dateCreated;
-
 	public String accountScopes;
 
 	public String app;
 
+	public Date dateCreated;
+
+	@Id
+	public String id;
+
+	public String token;
+
+	public String userId;
+
 	public UserSession() {
 	}
 
-	public UserSession(String userId, String token, String accountScopes,
-			String app) {
+	public UserSession(String userId, String token, String accountScopes, String app) {
 		this.id = token;
 		this.userId = userId;
 		this.token = token;

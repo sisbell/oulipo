@@ -21,7 +21,7 @@ public class TumblerResourceException extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = 628874465598916086L;
-	
+
 	private TumblerAddress tumblerAddress;
 
 	public TumblerResourceException(TumblerAddress tumblerAddress) {
@@ -29,13 +29,13 @@ public class TumblerResourceException extends Exception {
 		this.tumblerAddress = tumblerAddress;
 	}
 
-	public TumblerResourceException(TumblerAddress tumblerAddress, String message, Throwable cause) {
-		super(message, cause);
+	public TumblerResourceException(TumblerAddress tumblerAddress, String message) {
+		super(message);
 		this.tumblerAddress = tumblerAddress;
 	}
 
-	public TumblerResourceException(TumblerAddress tumblerAddress, String message) {
-		super(message);
+	public TumblerResourceException(TumblerAddress tumblerAddress, String message, Throwable cause) {
+		super(message, cause);
 		this.tumblerAddress = tumblerAddress;
 	}
 

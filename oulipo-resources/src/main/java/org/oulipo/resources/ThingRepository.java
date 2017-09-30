@@ -16,10 +16,10 @@
 package org.oulipo.resources;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.oulipo.net.IRI;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.model.Document;
@@ -33,14 +33,14 @@ import org.oulipo.resources.model.User;
  * Service for finding and updating Things.
  */
 public interface ThingRepository {
-	
+
 	public enum SpanSource {
 		DOCUMENT, FROM_LINK, TO_LINK
 	}
-	
+
 	void add(Thing... thing);
 
-	void addInvariantSpans(InvariantLink link, IRI[] ispans, SpanSource source)
+	void addInvariantSpans(InvariantLink link, List<TumblerAddress> ispans, SpanSource source)
 			throws MalformedTumblerException;
 
 	Document findDocument(TumblerAddress address) throws ResourceNotFoundException;
@@ -76,14 +76,13 @@ public interface ThingRepository {
 	Collection<Thing> getAllNodes(int network, Map<String, String> params);
 
 	Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams);
-	
-	Collection<Thing> getAllUsers(int network, Map<String, String> queryParams);
-	
-	String getPublicKeyOfNode(TumblerAddress node) throws Exception;
-	
-	void removeInvariantSpansOfLink(InvariantLink link);
-	
-	void update(Thing thing);
 
+	Collection<Thing> getAllUsers(int network, Map<String, String> queryParams);
+
+	String getPublicKeyOfNode(TumblerAddress node) throws Exception;
+
+	void removeInvariantSpansOfLink(InvariantLink link);
+
+	void update(Thing thing);
 
 }

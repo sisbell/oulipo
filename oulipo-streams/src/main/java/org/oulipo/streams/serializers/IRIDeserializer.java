@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 public class IRIDeserializer extends StdDeserializer<IRI> {
 
+	private static final long serialVersionUID = -5217900309025517841L;
+
 	protected IRIDeserializer() {
 		this(null);
 	}
@@ -33,8 +35,6 @@ public class IRIDeserializer extends StdDeserializer<IRI> {
 	protected IRIDeserializer(Class<?> vc) {
 		super(vc);
 	}
-
-	private static final long serialVersionUID = -5217900309025517841L;
 
 	@Override
 	public IRI deserialize(JsonParser jp, DeserializationContext ctx) throws IOException, JsonProcessingException {

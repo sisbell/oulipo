@@ -18,20 +18,20 @@ package org.oulipo.resources.model;
 public class Schema {
 
 	public static final String DOCUMENT = "schema://oulipo/Document";
-	
+
 	public static final String INVARIANT_LINK = "schema://oulipo/InvariantLink";
 
 	public static final String INVARIANT_SPAN = "schema://oulipo/InvariantSpan";
-	
+
 	public static final String LINK = "schema://oulipo/Link";
 
 	public static final String NODE = "schema://oulipo/Node";
-	
+
 	public static final String SPAN = "schema://oulipo/Vpan";
-	
+
 	public static final String THING = "schema://oulipo/Thing";
-	
+
 	public static final String USER = "schema://oulipo/User";
-	
+
 	public static final String VSPAN = "schema://oulipo/VSpan";
 }

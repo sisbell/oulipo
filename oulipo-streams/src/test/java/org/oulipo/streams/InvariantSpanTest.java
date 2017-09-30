@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.streams.InvariantSpan;
-import org.oulipo.streams.InvariantSpanPartition;
 
 @RunWith(JUnitPlatform.class)
 public class InvariantSpanTest {
@@ -36,31 +34,8 @@ public class InvariantSpanTest {
 	}
 
 	@Test
-	public void zeroWidth() throws Exception {
-		assertThrows(MalformedSpanException.class, () -> {
-			new InvariantSpan(100, 0);
-		});
-	}
-
-	@Test
 	public void nullTumblerOk() throws Exception {
 		new InvariantSpan(100, 10, null);
-	}
-
-	@Test
-	public void splitOverUpperBound() throws Exception {
-		assertThrows(IndexOutOfBoundsException.class, () -> {
-			InvariantSpan span = new InvariantSpan(100, 10);
-			span.split(120);
-		});
-	}
-
-	@Test
-	public void splitUpperBound() throws Exception {
-		assertThrows(IndexOutOfBoundsException.class, () -> {
-			InvariantSpan span = new InvariantSpan(100, 10);
-			span.split(110);
-		});
 	}
 
 	@Test
@@ -73,6 +48,24 @@ public class InvariantSpanTest {
 	}
 
 	@Test
+	public void splitOk() throws Exception {
+		InvariantSpan span = new InvariantSpan(100, 10);
+		InvariantSpanPartition partition = span.split(105);
+		assertEquals(100L, partition.getLeft().start);
+		assertEquals(5L, partition.getLeft().width);
+		assertEquals(105L, partition.getRight().start);
+		assertEquals(5L, partition.getRight().width);
+	}
+
+	@Test
+	public void splitOverUpperBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			InvariantSpan span = new InvariantSpan(100, 10);
+			span.split(120);
+		});
+	}
+
+	@Test
 	public void splitUnderLowerBound() throws Exception {
 		assertThrows(IndexOutOfBoundsException.class, () -> {
 			InvariantSpan span = new InvariantSpan(100, 10);
@@ -81,12 +74,17 @@ public class InvariantSpanTest {
 	}
 
 	@Test
-	public void splitOk() throws Exception {
-		InvariantSpan span = new InvariantSpan(100, 10);
-		InvariantSpanPartition partition = span.split(105);
-		assertEquals(100L, partition.getLeft().start);
-		assertEquals(5L, partition.getLeft().width);
-		assertEquals(105L, partition.getRight().start);
-		assertEquals(5L, partition.getRight().width);
+	public void splitUpperBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			InvariantSpan span = new InvariantSpan(100, 10);
+			span.split(110);
+		});
+	}
+
+	@Test
+	public void zeroWidth() throws Exception {
+		assertThrows(MalformedSpanException.class, () -> {
+			new InvariantSpan(100, 0);
+		});
 	}
 }

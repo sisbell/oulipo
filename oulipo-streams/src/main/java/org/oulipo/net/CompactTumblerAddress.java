@@ -25,8 +25,7 @@ import com.google.common.base.Strings;
 
 public class CompactTumblerAddress {
 
-	private static List<Integer> createList(String field)
-			throws MalformedTumblerException {
+	private static List<Integer> createList(String field) throws MalformedTumblerException {
 
 		if (Strings.isNullOrEmpty(field)) {
 			throw new MalformedTumblerException("Field is empty");
@@ -37,11 +36,9 @@ public class CompactTumblerAddress {
 		}
 
 		try {
-			return Stream.of(field.split("[.]")).map(Integer::parseInt)
-					.collect(Collectors.toList());
+			return Stream.of(field.split("[.]")).map(Integer::parseInt).collect(Collectors.toList());
 		} catch (NumberFormatException e) {
-			throw new MalformedTumblerException(
-					"Field contains non-numeric input: " + field);
+			throw new MalformedTumblerException("Field contains non-numeric input: " + field);
 		}
 	}
 
@@ -50,30 +47,8 @@ public class CompactTumblerAddress {
 	public CompactTumblerAddress() {
 		this.numbers = new LinkedList<>();
 	}
-	
-	public void compactExponent() {
-		if(numbers.size() <= 1) {
-			return;
-		}
-		int expCount = -1;
-			
-		Iterator<Integer> it  = numbers.listIterator();
-		while(it.hasNext()) {
-			Integer i = it.next();
-			if(i == 0) {
-				numbers.remove();
-				expCount++;
-			} else {
-				break;
-			}
-		}
 
-		numbers.push(expCount);
-		
-	}
-
-	public CompactTumblerAddress(List<Integer> numbers)
-			throws MalformedTumblerException {
+	public CompactTumblerAddress(List<Integer> numbers) throws MalformedTumblerException {
 		if (numbers.isEmpty()) {
 			throw new MalformedTumblerException("Field is empty");
 		}
@@ -87,8 +62,7 @@ public class CompactTumblerAddress {
 		numbers = new LinkedList<>(createList(field));
 	}
 
-	public CompactTumblerAddress append(int digit)
-			throws MalformedTumblerException {
+	public CompactTumblerAddress append(int digit) throws MalformedTumblerException {
 		if (digit <= 0) {
 			throw new MalformedTumblerException("Illegal value: " + digit);
 		}
@@ -100,8 +74,28 @@ public class CompactTumblerAddress {
 		if (numbers.isEmpty()) {
 			throw new MalformedTumblerException("Tumbler is empty");
 		}
-		return numbers.stream().map(i -> i.toString())
-				.collect(Collectors.joining("."));
+		return numbers.stream().map(i -> i.toString()).collect(Collectors.joining("."));
+	}
+
+	public void compactExponent() {
+		if (numbers.size() <= 1) {
+			return;
+		}
+		int expCount = -1;
+
+		Iterator<Integer> it = numbers.listIterator();
+		while (it.hasNext()) {
+			Integer i = it.next();
+			if (i == 0) {
+				numbers.remove();
+				expCount++;
+			} else {
+				break;
+			}
+		}
+
+		numbers.push(expCount);
+
 	}
 
 	public int get(int index) {
@@ -121,8 +115,7 @@ public class CompactTumblerAddress {
 		return this;
 	}
 
-	public CompactTumblerAddress set(int index, int fieldValue)
-			throws MalformedTumblerException {
+	public CompactTumblerAddress set(int index, int fieldValue) throws MalformedTumblerException {
 		if (fieldValue <= 0) {
 			throw new MalformedTumblerException("Illegal value: " + fieldValue);
 		}

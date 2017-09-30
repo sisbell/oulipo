@@ -47,18 +47,15 @@ public final class Statement {
 		this(subject, predicate, createRdfObject(value));
 	}
 
-	public Statement(RdfSubject subject, RdfPredicate predicate,
-			ObjectNonNegativeInteger nonNegInt, Integer value) {
+	public Statement(RdfSubject subject, RdfPredicate predicate, ObjectNonNegativeInteger nonNegInt, Integer value) {
 		this(subject, predicate, createRdfObject(nonNegInt, value));
 	}
 
-	public Statement(RdfSubject subject, RdfPredicate predicate, ObjectXSD xsd,
-			Object value) {
+	public Statement(RdfSubject subject, RdfPredicate predicate, ObjectXSD xsd, Object value) {
 		this(subject, predicate, createRdfObject(xsd, value));
 	}
 
-	public Statement(RdfSubject subject, RdfPredicate predicate,
-			RdfObject rdfObject) {
+	public Statement(RdfSubject subject, RdfPredicate predicate, RdfObject rdfObject) {
 		this.subject = subject;
 		this.predicate = predicate;
 		this.object = rdfObject;
@@ -116,16 +113,14 @@ public final class Statement {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((object == null) ? 0 : object.hashCode());
-		result = prime * result
-				+ ((predicate == null) ? 0 : predicate.hashCode());
+		result = prime * result + ((predicate == null) ? 0 : predicate.hashCode());
 		result = prime * result + ((subject == null) ? 0 : subject.hashCode());
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "Statement [subject=" + subject + ", predicate=" + predicate
-				+ ", object=" + object + "]";
+		return "Statement [subject=" + subject + ", predicate=" + predicate + ", object=" + object + "]";
 	}
 
 }

@@ -74,6 +74,32 @@ public final class StorageService {
 		db = factory.open(new File(name), options);
 	}
 
+	public void close() {
+		try {
+			db.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public <T> void delete(String id, Class<T> clazz) throws StorageException {
+
+		if (Strings.isNullOrEmpty(id)) {
+			throw new IllegalArgumentException("Id is null");
+		}
+
+		if (clazz == null) {
+			throw new IllegalArgumentException("Class is null");
+		}
+
+		String key = id + "!" + clazz.getName();
+		Field[] fields = clazz.getDeclaredFields();
+		for (Field field : fields) {
+			field.setAccessible(true);
+			db.delete(bytes(key + "!" + field.getName()));
+		}
+	}
+
 	public byte[] get(byte[] key) {
 		return db.get(key);
 	}
@@ -113,14 +139,6 @@ public final class StorageService {
 			}
 		}
 		return c;
-	}
-	
-	public void close() {
-		try {
-			db.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public <T> T load(String id, Class<T> clazz) throws StorageException {
@@ -177,24 +195,6 @@ public final class StorageService {
 
 	public void put(byte[] key, byte[] value) {
 		db.put(key, value);
-	}
-
-	public <T> void delete(String id, Class<T> clazz) throws StorageException {
-
-		if (Strings.isNullOrEmpty(id)) {
-			throw new IllegalArgumentException("Id is null");
-		}
-
-		if (clazz == null) {
-			throw new IllegalArgumentException("Class is null");
-		}
-
-		String key = id + "!" + clazz.getName();
-		Field[] fields = clazz.getDeclaredFields();
-		for (Field field : fields) {
-			field.setAccessible(true);
-			db.delete(bytes(key + "!" + field.getName()));
-		}
 	}
 
 	private void put(String id, Object object, Field field) throws StorageException {

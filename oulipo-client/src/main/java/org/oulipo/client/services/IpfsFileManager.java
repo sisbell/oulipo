@@ -16,7 +16,7 @@ public class IpfsFileManager implements RemoteFileManager {
 	public IpfsFileManager() {
 		ipfs = new IPFS(new MultiAddress("/ip4/127.0.0.1/tcp/5001"));
 	}
-	
+
 	@Override
 	public String add(File file) throws IOException {
 		NamedStreamable f = new NamedStreamable.FileWrapper(file);
@@ -24,7 +24,7 @@ public class IpfsFileManager implements RemoteFileManager {
 		Multihash pointer = addResult.hash;
 		return pointer.toBase58();
 	}
-	
+
 	@Override
 	public byte[] get(String hash) throws IOException {
 		Multihash filePointer = Multihash.fromBase58(hash);

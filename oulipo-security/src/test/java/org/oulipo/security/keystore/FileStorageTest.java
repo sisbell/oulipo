@@ -18,7 +18,6 @@ package org.oulipo.security.keystore;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.params.MainNetParams;
 import org.junit.Test;
-import org.oulipo.security.keystore.FileStorage;
 import org.oulipo.storage.StorageService;
 
 public class FileStorageTest {
@@ -27,10 +26,8 @@ public class FileStorageTest {
 	public void a() throws Exception {
 		FileStorage storage = new FileStorage(new StorageService("keys"));
 		ECKey key = new ECKey();
-		storage.add("Mine", key.toAddress(MainNetParams.get()).toString(),
-				key.getPrivKeyBytes(), key.getPubKey());
+		storage.add("Mine", key.toAddress(MainNetParams.get()).toString(), key.getPrivKeyBytes(), key.getPubKey());
 		System.out.println(storage.getAliases()[0]);
-		System.out.println(storage.getECKey("Mine")
-				.toAddress(MainNetParams.get()).toString());
+		System.out.println(storage.getECKey("Mine").toAddress(MainNetParams.get()).toString());
 	}
 }

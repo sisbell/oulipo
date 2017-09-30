@@ -22,8 +22,8 @@ import java.util.ResourceBundle;
 
 import org.oulipo.browser.api.ApplicationContext;
 import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.api.MenuContext;
 import org.oulipo.browser.framework.ExtensionLoader;
-import org.oulipo.browser.framework.MenuContext;
 import org.oulipo.browser.framework.StorageContext;
 import org.oulipo.security.session.CodeGenerator;
 import org.oulipo.storage.StorageException;

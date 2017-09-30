@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.InvariantSpan;
 import org.oulipo.streams.InvariantSpanPartition;
@@ -617,6 +618,11 @@ public final class RopeVariantStream implements VariantStream {
 		Displacement disp = new Displacement();
 		Node indexNode = index(cutPoint, x, disp);
 		Node indexParent = indexNode.parent;
+		if (indexParent == null) {
+			// throw new IllegalStateException("Nodes parent is null: " + x.toString() + ",
+			// Index Node = " + indexNode
+			// + ", cutPoint = " + cutPoint + ", disp = " + disp);
+		}
 
 		if (disp.getValue() > cutPoint) {
 			throw new MalformedSpanException("CutPoint can't be less than displacement: cutPoint = " + cutPoint
@@ -626,12 +632,13 @@ public final class RopeVariantStream implements VariantStream {
 		if (disp.getValue() != cutPoint - 1) {
 			Node splitNode = indexNode.split(cutPoint - disp.getValue() - 1);
 			splitNode.parent = indexNode.parent;
-
-			if (indexNode.isRightNode()) {
-				indexParent.right = splitNode;
-			} else {
-				indexParent.left = splitNode;
-				wid.isBlack = false;
+			if (indexParent != null) {// TODO: investigate this condition
+				if (indexNode.isRightNode()) {
+					indexParent.right = splitNode;
+				} else {
+					indexParent.left = splitNode;
+					wid.isBlack = false;
+				}
 			}
 
 			indexNode = splitNode.right;
@@ -689,6 +696,20 @@ public final class RopeVariantStream implements VariantStream {
 	public RopeVariantStream(TumblerAddress homeDocument, Node root) {
 		this.homeDocument = homeDocument;
 		this.root = root;
+	}
+
+	/**
+	 * Get the number of characters in this rope.
+	 * 
+	 * @return the number of characters in this rope
+	 */
+	public long characterCount() {
+		if (root == null) {
+			return 1;
+		}
+		Displacement w = new Displacement();
+		addWeightsOfRightLeaningChildNodes(root, w);
+		return root.weight + w.getValue();
 	}
 
 	@Override
@@ -811,9 +832,44 @@ public final class RopeVariantStream implements VariantStream {
 
 		Iterator<InvariantSpan> it = collector.queue.iterator();
 		while (it.hasNext()) {
-			spans.getInvariantSpans().add(it.next());
+			InvariantSpan is = it.next();
+			try {
+				is.homeDocument = homeDocument.toExternalForm();
+			} catch (MalformedTumblerException e) {
+				e.printStackTrace();// TODO: throw
+			}
+			spans.getInvariantSpans().add(is);
 		}
 		return spans;
+	}
+
+	@Override
+	public List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException {
+		// TODO: scans very inefficient
+		long index = 1;
+		List<VariantSpan> vspans = new ArrayList<>();
+		List<InvariantSpan> ispans = getInvariantSpans().getInvariantSpans();
+		for (int i = 0; i < ispans.size(); i++) {
+			InvariantSpan ispan = ispans.get(i);
+			long start = ispan.start;
+			long end = start + ispan.width;
+			long start2 = invariantSpan.start;
+			long end2 = start2 + invariantSpan.width;
+			if (intersects(start, end, start2, end2)) {
+				System.out.println("Intersect: " + ispan);
+				long a = Math.max(0, start2 - start);
+				long b = Math.max(0, end - end2);
+
+				System.out.println("[" + a + "," + b + "]");
+				System.out.println("Index = " + index + ", span width = " + ispan.width);
+				VariantSpan vs = new VariantSpan(index + a, ispan.width - b - a);
+				vs.homeDocument = homeDocument.value;// TODO: transcluded
+				vspans.add(vs);
+			}
+
+			index += ispan.width;
+		}
+		return vspans;
 	}
 
 	@Override
@@ -847,18 +903,8 @@ public final class RopeVariantStream implements VariantStream {
 		}
 	}
 
-	/**
-	 * Get the number of characters in this rope.
-	 * 
-	 * @return the number of characters in this rope
-	 */
-	public long characterCount() {
-		if (root == null) {
-			return 1;
-		}
-		Displacement w = new Displacement();
-		addWeightsOfRightLeaningChildNodes(root, w);
-		return root.weight + w.getValue();
+	private boolean intersects(long start, long end, long start2, long end2) {
+		return end > start2 && end2 > start;
 	}
 
 	@Override

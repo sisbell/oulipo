@@ -27,13 +27,13 @@ import org.oulipo.storage.Id;
  */
 public class TempToken {
 
-	@Id
-	public String id;
-
 	/**
 	 * Date token created
 	 */
 	public Date created;
+
+	@Id
+	public String id;
 
 	/**
 	 * True if token has been used to generate a user session, otherwise false
@@ -46,9 +46,12 @@ public class TempToken {
 	/**
 	 * Create a temporary token
 	 * 
-	 * @param id unique id of token
-	 * @param created the date token created
-	 * @param isUsed if token has been used to generate a session
+	 * @param id
+	 *            unique id of token
+	 * @param created
+	 *            the date token created
+	 * @param isUsed
+	 *            if token has been used to generate a session
 	 */
 	public TempToken(String id, Date created, Boolean isUsed) {
 		this.id = id;

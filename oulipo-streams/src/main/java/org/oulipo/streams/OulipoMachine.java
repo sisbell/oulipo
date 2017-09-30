@@ -41,6 +41,8 @@ import com.google.common.base.Strings;
  */
 public interface OulipoMachine extends VariantStream, InvariantStream {
 
+	void flush();
+
 	/**
 	 * Returns the home address of invariant spans within the invariant stream. The
 	 * invariant stream may have a home document different from the one specified
@@ -137,11 +139,12 @@ public interface OulipoMachine extends VariantStream, InvariantStream {
 	 * @throws IOException
 	 */
 	void push(Op<?> op) throws MalformedSpanException, IOException;
-	
+
 	/**
 	 * Writes OP code to an underlying datasource
 	 * 
-	 * @param op the op code to write
+	 * @param op
+	 *            the op code to write
 	 * @return the same op code specified in the params
 	 */
 	Op<?> writeOp(Op<?> op);

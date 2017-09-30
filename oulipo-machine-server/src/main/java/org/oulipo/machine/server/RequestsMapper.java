@@ -74,16 +74,15 @@ public class RequestsMapper {
 			return service.createOrUpdateUser(createOulipoRequest(request));
 		};
 	};
-	
+
 	private OulipoRequest createOulipoRequest(Request request) {
 		Map<String, String> headers = new HashMap<>();
-		for(String key : request.headers()) {
+		for (String key : request.headers()) {
 			String value = request.headers(key);
 			headers.put(key, value);
 		}
-		return new OulipoRequest(sessionManager, headers, request.params(), request.body());
+		return new OulipoRequest(sessionManager, headers, request.params(), request.bodyAsBytes());
 	};
-
 
 	public Route deleteContent() {
 		return (request, response) -> {
@@ -103,7 +102,7 @@ public class RequestsMapper {
 			response.header("content-type", "application/json");
 			return service.getDocumentLinks(createOulipoRequest(request));
 		};
-	}
+	};
 
 	public Route getElement() {
 		return (request, response) -> {
@@ -155,82 +154,96 @@ public class RequestsMapper {
 			return service.getSystemDocuments(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getSystemLinks() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getSystemLinks(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getSystemNodes() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getSystemNodes(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getSystemUser() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getSystemUsers(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getSystemVSpans() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getSystemVSpans(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getUser() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getUser(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getUserDocuments() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getUserDocuments(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route getVirtual() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.getVirtual(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route insertContent() {
 		return (request, response) -> {
 			return service.insertContent(createOulipoRequest(request));
 		};
 	}
-	
+
+	public Route loadOperation() {
+		return (request, response) -> {
+			return service.loadOperations(createOulipoRequest(request));
+		};
+	}
+
 	public Route newDocument() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.newDocument(createOulipoRequest(request));
 		};
 	}
-	
+
+	public Route newLink() {
+		return (request, response) -> {
+			response.header("content-type", "application/json");
+			return service.newLink(createOulipoRequest(request));
+		};
+	}
+
 	public Route newUser() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.newUser(createOulipoRequest(request));
 		};
 	}
+
 	public Route newVersion() {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.newVersion(createOulipoRequest(request));
 		};
 	}
-	
+
 	public Route swapContent() {
 		return (request, response) -> {
 			return service.swap(createOulipoRequest(request));

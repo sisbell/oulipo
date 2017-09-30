@@ -41,5 +41,4 @@ public class ResourceFoundException extends TumblerResourceException {
 		super(tumblerAddress, cause);
 	}
 
-	
 }

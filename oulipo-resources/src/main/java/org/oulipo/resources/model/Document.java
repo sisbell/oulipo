@@ -84,7 +84,7 @@ public class Document extends Thing {
 	public IRI user;
 
 	@Predicate("containsVSpan")
-	@ObjectIRI
+	@ObjectTumbler
 	public TumblerAddress[] vspans;
 
 	public void addLink(Collection<TumblerAddress> link) {
@@ -116,12 +116,10 @@ public class Document extends Thing {
 		TumblerField docField = address.getDocument();
 		int v = docField.get(2) + 1;
 
-		TumblerField newDocField = TumblerField.create(docField.get(0) + "."
-				+ docField.get(1) + "." + v);
+		TumblerField newDocField = TumblerField.create(docField.get(0) + "." + docField.get(1) + "." + v);
 
-		address = new TumblerAddress.Builder(address.getScheme(),
-				address.getNetwork(), address.getNode(), address.getUser(),
-				newDocField).build();
+		address = new TumblerAddress.Builder(address.getScheme(), address.getNetwork(), address.getNode(),
+				address.getUser(), newDocField).build();
 		Document document = new Document();
 		document.resourceId = address;
 		document.isPublic = isPublic;

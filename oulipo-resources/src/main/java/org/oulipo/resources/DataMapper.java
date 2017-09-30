@@ -46,8 +46,7 @@ public interface DataMapper {
 		delete(Arrays.asList(things));
 	}
 
-	Collection<Thing> findEndsetsOfDoc(TumblerAddress docAddress)
-			throws Exception;
+	Collection<Thing> findEndsetsOfDoc(TumblerAddress docAddress) throws Exception;
 
 	Thing get(IRI address);
 

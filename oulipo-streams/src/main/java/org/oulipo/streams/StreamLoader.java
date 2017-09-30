@@ -26,6 +26,11 @@ import org.oulipo.net.TumblerAddress;
 public interface StreamLoader {
 
 	/**
+	 * Flushes the cache
+	 */
+	void flushVariantCache();
+
+	/**
 	 * Opens the <code>InvariantStream<code> for the specified document. If the
 	 * invariant stream does not exist, then one is created.
 	 * 
@@ -48,11 +53,6 @@ public interface StreamLoader {
 	 * @throws MalformedSpanException
 	 */
 	VariantStream openVariantStream(TumblerAddress homeDocument) throws IOException, MalformedSpanException;
-
-	/**
-	 * Flushes the cache
-	 */
-	void flushVariantCache();
 
 	/**
 	 * Writes an op code to an underlying stream. Op codes handle basic editing
