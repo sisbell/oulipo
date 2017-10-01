@@ -90,8 +90,8 @@ public class NewUserController extends BaseController {
 
 					Platform.runLater(() -> {
 						OulipoTable table = new OulipoTable(300, 350)
-								.addEditText("Tumbler Address", user.resourceId.value, false)
-								.addEditText("Public Key", user.publicKey, false).addEditText("Xandle", user.xandle)
+								.addMaterialEditText("Tumbler Address", user.resourceId.value, false)
+								.addMaterialEditText("Public Key", user.publicKey, false).addMaterialEditText("Xandle", user.xandle)
 								.addActions(submit);
 						attachAction(submit, user, table);
 

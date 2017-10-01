@@ -76,8 +76,8 @@ public class NewDocumentController extends BaseController {
 
 					Platform.runLater(() -> {
 						OulipoTable table = new OulipoTable(300, 350)
-								.addEditText("Tumbler Address", document.resourceId.value, false)
-								.addEditText("Title", document.title).addEditText("Description", document.description)
+								.addMaterialEditText("Tumbler Address", document.resourceId.value, false)
+								.addMaterialEditText("Title", document.title).addMaterialEditText("Description", document.description)
 								.addActions(submit);
 						attachAction(submit, document, table);
 

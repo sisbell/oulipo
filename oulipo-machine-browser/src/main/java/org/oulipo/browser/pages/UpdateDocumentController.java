@@ -99,9 +99,9 @@ public class UpdateDocumentController extends BaseController {
 					Platform.runLater(() -> {
 						try {
 							OulipoTable table = new OulipoTable(300, 350)
-									.addEditText("Tumbler Address", address.toTumblerFields(), false)
-									.addEditText("Title", document.title)
-									.addEditText("Description", document.description).addActions(newVersion, submit);
+									.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false)
+									.addMaterialEditText("Title", document.title)
+									.addMaterialEditText("Description", document.description).addActions(newVersion, submit);
 							attachSubmitAction(submit, document, table);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
@@ -116,11 +116,11 @@ public class UpdateDocumentController extends BaseController {
 					Platform.runLater(() -> {
 						OulipoTable table = new OulipoTable(300, 350);
 						try {
-							table.addEditText("Tumbler Address", address.toTumblerFields(), false);
+							table.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false);
 						} catch (MalformedTumblerException e) {
 							e.printStackTrace();
 						}
-						table.addEditText("Title", "").addEditText("Description", "").addActions(submit);
+						table.addMaterialEditText("Title", "").addMaterialEditText("Description", "").addActions(submit);
 
 						Document document = new Document();
 						document.resourceId = address;

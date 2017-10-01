@@ -63,11 +63,11 @@ public class UpdateNodeController extends BaseController {
 							JFXButton submit = new JFXButton("Update");
 
 							OulipoTable table = new OulipoTable(300, 350)
-									.addEditText("Tumbler Address", address.toTumblerFields(), false)
-									.addEditText("Public Key", node.publicKey, false)
-									.addEditText("Node Name", node.nodeName)
-									.addEditText("Organization Name", node.organizationName)
-									.addEditText("Email", node.email)
+									.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false)
+									.addMaterialEditText("Public Key", node.publicKey, false)
+									.addMaterialEditText("Node Name", node.nodeName)
+									.addMaterialEditText("Organization Name", node.organizationName)
+									.addMaterialEditText("Email", node.email)
 									.addCheckBox("Allow User Creation", node.allowUserToCreateAccount)
 									.addActions(submit);
 
@@ -120,13 +120,13 @@ public class UpdateNodeController extends BaseController {
 					Platform.runLater(() -> {
 						OulipoTable table = new OulipoTable(300, 350);
 						try {
-							table.addEditText("Tumbler Address", address.toTumblerFields(), false);
+							table.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false);
 						} catch (MalformedTumblerException e) {
 							e.printStackTrace();
 						}
-						table.addEditText("Public Key", ctx.getAccountManager().getActiveAccount().publicKey, false)
-								.addEditText("Node Name", "").addEditText("Organization Name", "")
-								.addEditText("Email", "").addCheckBox("Allow User Creation", false);
+						table.addMaterialEditText("Public Key", ctx.getAccountManager().getActiveAccount().publicKey, false)
+								.addMaterialEditText("Node Name", "").addMaterialEditText("Organization Name", "")
+								.addMaterialEditText("Email", "").addCheckBox("Allow User Creation", false);
 
 						addressBarController.addContent(table, "Create Node");
 

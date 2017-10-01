@@ -91,8 +91,8 @@ public class UpdateUserController extends BaseController {
 					Platform.runLater(() -> {
 						try {
 							OulipoTable table = new OulipoTable(300, 350)
-									.addEditText("Tumbler Address", address.toTumblerFields(), false)
-									.addEditText("Public Key", user.publicKey, false).addEditText("Xandle", user.xandle)
+									.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false)
+									.addMaterialEditText("Public Key", user.publicKey, false).addMaterialEditText("Xandle", user.xandle)
 									.addActions(submit);
 							attachAction(submit, user, table);
 
@@ -108,12 +108,12 @@ public class UpdateUserController extends BaseController {
 					Platform.runLater(() -> {
 						OulipoTable table = new OulipoTable(300, 350);
 						try {
-							table.addEditText("Tumbler Address", address.toTumblerFields(), false);
+							table.addMaterialEditText("Tumbler Address", address.toTumblerFields(), false);
 						} catch (MalformedTumblerException e) {
 							e.printStackTrace();
 						}
-						table.addEditText("Public Key", ctx.getAccountManager().getActiveAccount().publicKey, false)
-								.addEditText("Xandle", "").addActions(submit);
+						table.addMaterialEditText("Public Key", ctx.getAccountManager().getActiveAccount().publicKey, false)
+								.addMaterialEditText("Xandle", "").addActions(submit);
 
 						User user = new User();
 						user.publicKey = ctx.getAccountManager().getActiveAccount().publicKey;

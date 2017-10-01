@@ -96,9 +96,9 @@ public final class NewAccountWizard {
 							User user = arg1.body();
 							// OulipoTable table = new OulipoTable(300, 350)
 							Platform.runLater(() -> {
-								table.addEditText("Tumbler Address", user.resourceId.value, false)
-										.addEditText("Public Key", user.publicKey, false)
-										.addEditText("Xandle", user.xandle);
+								table.addMaterialEditText("Tumbler Address", user.resourceId.value, false)
+										.addMaterialEditText("Public Key", user.publicKey, false)
+										.addMaterialEditText("Xandle", user.xandle);
 
 								// setContent(table);
 							});
