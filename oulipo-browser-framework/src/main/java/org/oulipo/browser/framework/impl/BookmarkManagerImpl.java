@@ -22,18 +22,32 @@ import java.util.Iterator;
 import org.oulipo.browser.api.bookmark.Bookmark;
 import org.oulipo.browser.api.bookmark.BookmarkCategory;
 import org.oulipo.browser.api.bookmark.BookmarkManager;
+import org.oulipo.browser.api.tabs.TabManager;
 import org.oulipo.storage.StorageException;
 import org.oulipo.storage.StorageService;
+
+import com.google.common.base.Strings;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
 public final class BookmarkManagerImpl implements BookmarkManager {
 
-	private static MenuItem createMenuItemFrom(Bookmark bookmark) {
+	private MenuItem createMenuItemFrom(Bookmark bookmark) {
 		MenuItem item = new MenuItem();
-		item.setText(bookmark.title);
+		if(Strings.isNullOrEmpty(bookmark.title)) {
+			item.setText(bookmark.url);
+		} else {
+			item.setText(bookmark.title);
+		}
 		item.setUserData(bookmark);
+		item.setOnAction(e-> {
+			try {
+				tabManager.addTabWithAddressBar(bookmark.url, bookmark.title);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
 		return item;
 	}
 
@@ -41,9 +55,12 @@ public final class BookmarkManagerImpl implements BookmarkManager {
 
 	private final StorageService storageService;
 
-	public BookmarkManagerImpl(Menu menu, StorageService storageService) throws StorageException, IOException {
+	private final TabManager tabManager;
+
+	public BookmarkManagerImpl(Menu menu, StorageService storageService, TabManager tabManager) throws StorageException, IOException {
 		this.menu = menu;
 		this.storageService = storageService;
+		this.tabManager = tabManager;
 		try {
 			load();
 		} catch (ClassNotFoundException e) {

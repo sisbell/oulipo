@@ -37,6 +37,7 @@ public class BookmarkExtensions implements Extension {
 			Bookmark bookmark = new Bookmark();
 			bookmark.title = tab.getTitle();
 			bookmark.id = tab.getTumblerAddress();
+			bookmark.url = bookmark.id;
 			try {
 				ctx.getBookmarkManager().add(bookmark);
 			} catch (StorageException e1) {

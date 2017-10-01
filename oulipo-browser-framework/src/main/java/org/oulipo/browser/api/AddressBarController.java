@@ -155,7 +155,8 @@ public class AddressBarController implements Initializable {
 				iri = "search://";
 			}
 			addressPane.getChildren().add(addressBox);
-
+			tab.setTumblerAddress(iri);
+			
 			int index = iri.indexOf(":");
 
 			String scheme = index != -1 ? iri.substring(0, index) : "ted";
@@ -183,6 +184,7 @@ public class AddressBarController implements Initializable {
 
 	public void setTumbler(TumblerAddress tumbler) {
 		addressBox.setText(tumbler.value);
+		tab.setTumblerAddress(tumbler.value);
 		refresh();
 	}
 
@@ -191,6 +193,7 @@ public class AddressBarController implements Initializable {
 		this.headerNode = null;
 		addressBox.setText(address);
 		addressBox.requestFocus();
+		tab.setTumblerAddress(address);
 		refresh();
 	}
 
@@ -198,6 +201,7 @@ public class AddressBarController implements Initializable {
 		historyController.visit(address);
 		this.ctx = ctx;
 		this.tab = tab;
+		tab.setTumblerAddress(address);
 		this.headerNode = null;
 		addressBox.setText(address);
 		addressBox.requestFocus();

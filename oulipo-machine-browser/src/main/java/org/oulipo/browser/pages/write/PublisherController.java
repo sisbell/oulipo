@@ -351,18 +351,13 @@ public final class PublisherController extends BaseController {
 			System.out.println(span);
 
 			if (linkType.bold.isPresent() && linkType.bold.get()) {
-				span.getLength();
-				TumblerAddress s;
 				try {
-					s = TumblerAddress
+					TumblerAddress s = TumblerAddress
 							.create(address.toExternalForm() + ".0.1." + (position + 1) + "~1." + span.getLength());
 					boldLink.fromVSpans.add(s);
-
 				} catch (MalformedTumblerException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 			}
 
 			if (linkType.italic.isPresent() && linkType.italic.get()) {

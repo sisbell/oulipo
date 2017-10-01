@@ -86,7 +86,7 @@ public class DocumentArea
 
 		public Optional<HyperOperation> createOperation(TumblerAddress tumblerAddress, int insertionEnd) {
 			if (hasText()) {
-				System.out.println("insertionEnd: " + insertionEnd);
+				System.out.println("insertionEnd: " + insertionEnd +", length = " + insertionText.length());
 				HyperOperation op = new HyperOperation(tumblerAddress,
 						new HyperRegion(insertionEnd - insertionText.length(), insertionText.length()), OpCode.INSERT,
 						insertionText.toString());
@@ -151,8 +151,6 @@ public class DocumentArea
 		 */
 		public void reset(PlainTextChange change) {
 			previousPosition = change.getInsertionEnd();
-			// insertionStart = previousPosition;
-
 			insertionText = new StringBuilder();
 			insertionText.append(change.getInserted());
 		}
@@ -219,7 +217,6 @@ public class DocumentArea
 		setStyleCodecs(ParStyle.CODEC,
 				Codec.eitherCodec(StyledText.codec(LinkType2.CODEC), LinkedImage.codec(LinkType2.CODEC)));
 		requestFocus();
-
 		EventStream<PlainTextChange> textChanges = plainTextChanges();
 		textChanges.subscribe(change -> {
 			try {

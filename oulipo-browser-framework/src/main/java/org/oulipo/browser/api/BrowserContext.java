@@ -109,11 +109,11 @@ public final class BrowserContext {
 		this.remoteStorage = new IpfsRemoteStorage();
 		this.sessionStorage = new SessionStorage(storageContext.getSessionStorage());
 		this.keyStorage = new FileStorage(storageContext.getKeystoreStorage());
-		this.bookmarkManager = new BookmarkManagerImpl(menuContext.getBookmarkMenu(),
-				storageContext.getBookmarkStorage());
 		this.historyRepository = new HistoryRepositoryImpl(menuContext.getHistoryMenu(),
 				storageContext.getHistoryStorage());
 		this.tabManager = new TabManagerImpl(this, storageContext.getTabStorage(), menuContext.getTabs());
+		this.bookmarkManager = new BookmarkManagerImpl(menuContext.getBookmarkMenu(),
+				storageContext.getBookmarkStorage(), tabManager);
 		this.accountManager = new AccountManagerImpl(menuContext.getPeopleMenu(), this, sessionStorage,
 				storageContext.getAccountsStorage(), keyStorage, remoteStorage);
 		this.userName = userName;

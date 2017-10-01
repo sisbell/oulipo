@@ -60,6 +60,8 @@ public class TabManagerImpl implements TabManager {
 			title = address;
 		}
 		OulipoTab tab = new OulipoTab(title);
+		tab.setTumblerAddress(address);
+		
 		AddressBarController addressBarController = new AddressBarController(ctx.getApplicationContext());
 
 		FXMLLoader loader = ctx.getLoader();
@@ -122,6 +124,7 @@ public class TabManagerImpl implements TabManager {
 	@Override
 	public void showInTab(OulipoTab tab, String address, String title) throws IOException {
 		AddressBarController controller = controllers.get(tab);
+		tab.setTumblerAddress(address);
 		if (controller != null) {
 			controller.show(address, tab, ctx);
 		}
