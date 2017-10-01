@@ -32,6 +32,13 @@ public class HyperRegion {
 	 * @param width
 	 */
 	public HyperRegion(int start, int width) {
+		if (start < 0) {
+			throw new IllegalArgumentException("Start must be greater than or equal to 0: " + start);
+		}
+
+		if (width < 0) {
+			throw new IllegalArgumentException("Width must be greater than or equal to 0: " + width);
+		}
 		this.start = start;
 		this.width = width;
 	}
