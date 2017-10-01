@@ -41,7 +41,10 @@ import org.oulipo.security.keystore.FileStorage;
 import org.oulipo.storage.StorageException;
 
 import com.google.common.base.Strings;
+import com.jfoenix.controls.JFXSnackbar;
+import com.jfoenix.controls.JFXSnackbar.SnackbarEvent;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -147,7 +150,7 @@ public final class BrowserContext {
 	public CurrentUser getCurrentUser() {
 		return currentUser;
 	}
-
+	
 	public DocuverseService getDocuverseService() throws StorageException {
 		Account account = accountManager.getActiveAccount();
 		if (account == null) {
@@ -242,6 +245,13 @@ public final class BrowserContext {
 		} catch (StorageException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void showMessage(String message) {
+		Platform.runLater(() -> {
+			JFXSnackbar bar = new JFXSnackbar(contentArea);
+			bar.enqueue(new SnackbarEvent(message));
+		});
 	}
 
 	public void showToolbar(String id) {
