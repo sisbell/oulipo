@@ -15,13 +15,27 @@
  *******************************************************************************/
 package org.oulipo.extensions;
 
+import java.util.Optional;
+
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Extension;
 import org.oulipo.browser.api.bookmark.Bookmark;
 import org.oulipo.browser.api.tabs.OulipoTab;
+import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.storage.StorageException;
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 /**
  * Provides extension for creating bookmarks
@@ -38,10 +52,26 @@ public class BookmarkExtensions implements Extension {
 			bookmark.title = tab.getTitle();
 			bookmark.id = tab.getTumblerAddress();
 			bookmark.url = bookmark.id;
-			try {
-				ctx.getBookmarkManager().add(bookmark);
-			} catch (StorageException e1) {
-				e1.printStackTrace();
+
+			OulipoTable table = new OulipoTable(50, 350);
+			table.title("Add bookmark");
+			table.addEditText("Name", bookmark.id);
+
+			Dialog<ButtonType> dialog = new Dialog<>();
+			dialog.getDialogPane().setContent(table);
+
+			ButtonType doneButton = new ButtonType("OK", ButtonData.OK_DONE);
+			dialog.getDialogPane().getButtonTypes().addAll(doneButton, ButtonType.CANCEL);
+
+			Optional<ButtonType> result = dialog.showAndWait();
+
+			if (result.isPresent() && result.get().getButtonData().equals(ButtonType.OK.getButtonData())) {
+				bookmark.title = table.getValue("Name");
+				try {
+					ctx.getBookmarkManager().add(bookmark);
+				} catch (StorageException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		ctx.getMenuContext().getBookmarkMenu().getItems().add(0, item);
