@@ -23,25 +23,30 @@ import com.jfoenix.controls.JFXTextField;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-public final class OulipoTable extends GridPane {
+public final class OulipoTable extends VBox {
 
-	private HashMap<String, JFXTextField> map = new HashMap<>();
+	private HashMap<String, TextField> map = new HashMap<>();
+	
+	private GridPane pane = new GridPane();
 
 	private int row;
 
 	public OulipoTable(int columnWidth, int column2Width) {
-		getColumnConstraints().add(new ColumnConstraints(columnWidth));
-		getColumnConstraints().add(new ColumnConstraints(column2Width));
+		pane.getColumnConstraints().add(new ColumnConstraints(columnWidth));
+		pane.getColumnConstraints().add(new ColumnConstraints(column2Width));
+		this.getChildren().add(pane);
 	}
 
 	public OulipoTable addActions(Button... button) {
 		HBox box = new HBox();
 		box.getChildren().addAll(button);
-		add(box, 1, row++);
+		pane.add(box, 1, row++);
 		return this;
 	}
 
@@ -53,28 +58,41 @@ public final class OulipoTable extends GridPane {
 		Label field = new Label(name);
 		field.setId("oulipo-table-row");
 
-		add(field, 0, row);
-		add(check, 1, row++);
+		pane.add(field, 0, row);
+		pane.add(check, 1, row++);
 		return this;
 
 	}
-
+	
 	public OulipoTable addEditText(String name, String value) {
-		addEditText(name, value, true);
-		return this;
-	}
-
-	public OulipoTable addEditText(String name, String value, boolean isEnabled) {
 		Label left = new Label(name);
 		left.setId("oulipo-table-row");
 
-		add(left, 0, row);
+		pane.add(left, 0, row);
+		TextField field = new TextField(value);
+		
+		pane.add(field, 1, row++);
+		map.put(name, field);
+		return this;
+	}
+
+
+	public OulipoTable addMaterialEditText(String name, String value) {
+		addMaterialEditText(name, value, true);
+		return this;
+	}
+
+	public OulipoTable addMaterialEditText(String name, String value, boolean isEnabled) {
+		Label left = new Label(name);
+		left.setId("oulipo-table-row");
+
+		pane.add(left, 0, row);
 		JFXTextField field = new JFXTextField(value);
 		field.setId("oulipo-table-row");
 		if (!isEnabled) {
 			field.setDisable(true);
 		}
-		add(field, 1, row++);
+		pane.add(field, 1, row++);
 		map.put(name, field);
 		return this;
 	}
@@ -87,8 +105,8 @@ public final class OulipoTable extends GridPane {
 			left.setId("oulipo-table-row");
 			right.setId("oulipo-table-row");
 
-			add(left, 0, row);
-			add(right, 1, row++);
+			pane.add(left, 0, row);
+			pane.add(right, 1, row++);
 		}
 		return this;
 	}
@@ -100,7 +118,7 @@ public final class OulipoTable extends GridPane {
 	public OulipoTable title(String title) {
 		Label label = new Label(title);
 		label.setId("table-title");
-		add(label, 0, row++);
+		this.getChildren().add(0, label);
 		return this;
 	}
 }
