@@ -188,6 +188,7 @@ public final class PublisherController extends BaseController {
 			@Override
 			public void onFailure(Call<EndsetByType> arg0, Throwable arg1) {
 				arg1.printStackTrace();
+				ctx.showMessage("Failed to retreive endsets: " + arg1.getMessage());
 			}
 
 			@Override
@@ -305,6 +306,7 @@ public final class PublisherController extends BaseController {
 				try {
 					operations.write(op.toBytes());
 				} catch (IOException e) {
+					ctx.showMessage("Failed to write operation: " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -319,16 +321,18 @@ public final class PublisherController extends BaseController {
 				@Override
 				public void onFailure(Call<String> arg0, Throwable arg1) {
 					arg1.printStackTrace();
+					ctx.showMessage("Failed to sync document changes with Oulipo Server: " + arg1.getMessage());
 				}
 
 				@Override
 				public void onResponse(Call<String> arg0, Response<String> arg1) {
 					System.out.println("FINISH:" + arg1.body());
+					ctx.showMessage("Synched document changes with Oulipo Server");
 				}
-
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
+			ctx.showMessage("Failed to sync document changes with Oulipo Server: " + e.getMessage());
 		}
 
 		// TODO: bulk upload
@@ -391,20 +395,21 @@ public final class PublisherController extends BaseController {
 					@Override
 					public void onFailure(Call<Link> arg0, Throwable arg1) {
 						arg1.printStackTrace();
+						ctx.showMessage("Failed to sync link changes with Oulipo Server: " + arg1.getMessage());
 					}
 
 					@Override
 					public void onResponse(Call<Link> arg0, Response<Link> arg1) {
 						Link link = arg1.body();
-
+						ctx.showMessage("Synced link changes with Oulipo Server: " + link.resourceId);
 						System.out.println(link);
 					}
 
 				});
 			} catch (IOException e) {
+				ctx.showMessage("Failed to sync link changes with Oulipo Server: " + e.getMessage());
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -414,7 +419,7 @@ public final class PublisherController extends BaseController {
 
 		// controller.getContext().getAccountManager().getActiveAccount().publicKey
 		// controller.getContext().getApplicationContext().getStage(id)
-		this.area = DocumentArea.newInstance(address);
+		this.area = DocumentArea.newInstance(address, ctx);
 		this.renderPane = new VirtualizedScrollPane<>(area);
 		area.setMaxWidth(500);
 
@@ -437,16 +442,15 @@ public final class PublisherController extends BaseController {
 			@Override
 			public void onFailure(Call<Document> arg0, Throwable arg1) {
 				arg1.printStackTrace();
+				ctx.showMessage("Problem getting document meta-data: " + arg1.getMessage());
 			}
 
 			@Override
 			public void onResponse(Call<Document> arg0, Response<Document> response) {
 				if (response.isSuccessful()) {
 					final Document document = response.body();
-
 					Platform.runLater(() -> {
 						addressBarController.addContent(vbox, document.title);
-
 					});
 				} else {
 					Platform.runLater(() -> {
@@ -461,6 +465,7 @@ public final class PublisherController extends BaseController {
 			@Override
 			public void onFailure(Call<Virtual> arg0, Throwable arg1) {
 				arg1.printStackTrace();
+				ctx.showMessage("Unable to fetch text from server: " + arg1.getMessage());
 			}
 
 			@Override
@@ -478,10 +483,9 @@ public final class PublisherController extends BaseController {
 						area.writeOpsOn();
 						try {
 							getEndsets();
-						} catch (MalformedTumblerException e) {
-							e.printStackTrace();
 						} catch (IOException e) {
 							e.printStackTrace();
+							ctx.showMessage("Problem retrieving document endsets: " + e.getMessage());
 						}
 					});
 				}

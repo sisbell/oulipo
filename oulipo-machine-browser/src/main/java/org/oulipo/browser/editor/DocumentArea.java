@@ -30,6 +30,7 @@ import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
 import org.fxmisc.richtext.model.TextOps;
+import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.editor.images.LinkedImage;
 import org.oulipo.browser.editor.images.LinkedImageOps;
 import org.oulipo.net.TumblerAddress;
@@ -175,13 +176,15 @@ public class DocumentArea
 	 * @return
 	 * @throws IllegalTumblerException
 	 */
-	public static DocumentArea newInstance(TumblerAddress tumblerAddress) {
+	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx) {
 		TextOps<StyledText<LinkType2>, LinkType2> styledTextOps = StyledText.textOps();
 		LinkedImageOps<LinkType2> linkedImageOps = new LinkedImageOps<>();
 
-		return new DocumentArea(tumblerAddress, styledTextOps._or(linkedImageOps),
+		return new DocumentArea(tumblerAddress, ctx, styledTextOps._or(linkedImageOps),
 				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss())));
 	}
+
+	private final BrowserContext ctx;
 
 	private final Deleter deleter = new Deleter();
 
@@ -200,13 +203,13 @@ public class DocumentArea
 
 	private boolean writeOps;
 
-	private DocumentArea(TumblerAddress homeDocument,
+	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
 			TextOps<Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, LinkType2> segmentOps,
 			Function<Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, Node> nodeFactory) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType2.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
-
+		this.ctx = ctx;
 		this.homeDocument = homeDocument;
 		homeDocument.setScheme("ted");
 
@@ -219,11 +222,16 @@ public class DocumentArea
 
 		EventStream<PlainTextChange> textChanges = plainTextChanges();
 		textChanges.subscribe(change -> {
-			if (!Strings.isNullOrEmpty(change.getInserted())) {
-				notifyTextInsertionChange(change);
-			} else {// deleted
-				notifyTextInsertionChange(change);
-				deleteText(change);
+			try {
+				if (!Strings.isNullOrEmpty(change.getInserted())) {
+					notifyTextInsertionChange(change);
+				} else {// deleted
+					notifyTextInsertionChange(change);
+					deleteText(change);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				ctx.showMessage("Text Change Exception: " + e.getMessage());
 			}
 		});
 	}

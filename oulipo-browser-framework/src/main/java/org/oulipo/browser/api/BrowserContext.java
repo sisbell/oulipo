@@ -150,7 +150,7 @@ public final class BrowserContext {
 	public CurrentUser getCurrentUser() {
 		return currentUser;
 	}
-	
+
 	public DocuverseService getDocuverseService() throws StorageException {
 		Account account = accountManager.getActiveAccount();
 		if (account == null) {
@@ -247,6 +247,12 @@ public final class BrowserContext {
 		}
 	}
 
+	/**
+	 * Shows the specified message as a snackbar (or toast)
+	 * 
+	 * @param message
+	 *            the message to show
+	 */
 	public void showMessage(String message) {
 		Platform.runLater(() -> {
 			JFXSnackbar bar = new JFXSnackbar(contentArea);
