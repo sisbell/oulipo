@@ -445,6 +445,7 @@ public final class PublisherController extends BaseController {
 				if (response.isSuccessful()) {
 					final Document document = response.body();
 					Platform.runLater(() -> {
+						ctx.getTabManager().getSelectedTab().setTitle(document.title);
 						addressBarController.addContent(vbox, document.title);
 					});
 				} else {

@@ -41,11 +41,6 @@ public class OulipoTab extends DraggableTab {
 	 */
 	private ImageView image;
 
-	/**
-	 * The title of the tab
-	 */
-	private String title;
-
 	private String tumblerAddress;
 
 	public OulipoTab(String title) {
@@ -74,11 +69,6 @@ public class OulipoTab extends DraggableTab {
 		return description;
 	}
 
-	@Override
-	public String getTitle() {
-		return title;
-	}
-
 	public String getTumblerAddress() {
 		return tumblerAddress;
 	}
@@ -103,12 +93,7 @@ public class OulipoTab extends DraggableTab {
 		this.image = new ImageView(url);
 		setGraphic(image);
 	}
-
-	@Override
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
+	
 	public void setTumblerAddress(String tumblerAddress) {
 		this.tumblerAddress = tumblerAddress;
 	}

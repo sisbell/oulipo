@@ -24,18 +24,10 @@ import org.oulipo.browser.api.tabs.OulipoTab;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.storage.StorageException;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 /**
  * Provides extension for creating bookmarks
@@ -55,7 +47,7 @@ public class BookmarkExtensions implements Extension {
 
 			OulipoTable table = new OulipoTable(50, 350);
 			table.title("Add bookmark");
-			table.addEditText("Name", bookmark.id);
+			table.addEditText("Name", bookmark.title);
 
 			Dialog<ButtonType> dialog = new Dialog<>();
 			dialog.getDialogPane().setContent(table);

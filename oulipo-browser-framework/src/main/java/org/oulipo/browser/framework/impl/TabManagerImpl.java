@@ -59,6 +59,8 @@ public class TabManagerImpl implements TabManager {
 		if (Strings.isNullOrEmpty(title)) {
 			title = address;
 		}
+		System.out.println("TITLE: " + title);
+		
 		OulipoTab tab = new OulipoTab(title);
 		tab.setTumblerAddress(address);
 		
@@ -74,6 +76,7 @@ public class TabManagerImpl implements TabManager {
 		selectTab(tab);
 
 		addressBarController.show(address, tab, ctx);
+		tab.setTitle(title);
 		return tab;
 	}
 
@@ -127,6 +130,9 @@ public class TabManagerImpl implements TabManager {
 		tab.setTumblerAddress(address);
 		if (controller != null) {
 			controller.show(address, tab, ctx);
+			if(Strings.isNullOrEmpty(title)) {
+				tab.setTitle(title);
+			}
 		}
 	}
 

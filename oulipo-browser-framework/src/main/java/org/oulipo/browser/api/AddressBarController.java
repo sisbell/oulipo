@@ -179,7 +179,7 @@ public class AddressBarController implements Initializable {
 	}
 
 	public void setTabTitle(String title) {
-		this.tab.setText(title);
+		this.tab.setTitle(title);
 	}
 
 	public void setTumbler(TumblerAddress tumbler) {
