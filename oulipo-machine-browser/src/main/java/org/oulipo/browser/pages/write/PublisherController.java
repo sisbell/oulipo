@@ -42,6 +42,7 @@ import org.oulipo.browser.editor.ParStyle;
 import org.oulipo.browser.editor.images.LinkedImage;
 import org.oulipo.browser.editor.images.RealLinkedImage;
 import org.oulipo.browser.pages.BaseController;
+import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.model.Document;
@@ -442,17 +443,25 @@ public final class PublisherController extends BaseController {
 
 			@Override
 			public void onResponse(Call<Document> arg0, Response<Document> response) {
-				if (response.isSuccessful()) {
-					final Document document = response.body();
-					Platform.runLater(() -> {
+				Platform.runLater(() -> {
+
+					if (response.isSuccessful()) {
+						final Document document = response.body();
 						ctx.getTabManager().getSelectedTab().setTitle(document.title);
 						addressBarController.addContent(vbox, document.title);
-					});
-				} else {
-					Platform.runLater(() -> {
+
+					} else {
 						addressBarController.addContent(vbox, "New Title");
-					});
-				}
+					}
+					
+					// TODO: Does user own this document?
+					HBox box = new HBox();
+					box.getChildren().add(ButtonsCreator.writeDocument(addressBarController, address));
+					addressBarController.addRightAddressBar(null);
+
+				});
+
+			
 			}
 		});
 

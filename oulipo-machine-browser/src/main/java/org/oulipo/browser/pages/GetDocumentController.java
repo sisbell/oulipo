@@ -22,10 +22,12 @@ import java.util.ResourceBundle;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.resources.model.Document;
 
 import javafx.application.Platform;
+import javafx.scene.layout.HBox;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -56,6 +58,11 @@ public class GetDocumentController extends BaseController {
 							OulipoTable table = new OulipoTable(300, 350)
 									.addText("Tumbler Address", address.toTumblerFields())
 									.addText("Title", document.title).addText("Description", document.description);
+						
+							// TODO: Does user own this document?
+							HBox box = new HBox();
+							box.getChildren().add(ButtonsCreator.writeDocument(addressBarController, address));
+							addressBarController.addRightAddressBar(box);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
 							addressBarController.addContent(table, "View Document");

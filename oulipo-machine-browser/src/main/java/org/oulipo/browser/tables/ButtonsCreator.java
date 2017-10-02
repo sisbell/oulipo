@@ -70,6 +70,22 @@ public final class ButtonsCreator {
 		});
 		return btn;
 	}
+	
+	public static Button writeDocument(AddressBarController addressBarController, TumblerAddress address) {
+		JFXButton btn = new JFXButton();
+		btn.setGraphic(new ImageView(new Image("/images/fa_file_text.png")));
+		btn.setTooltip(new Tooltip("Write this document"));
+		btn.setOnAction(e -> {
+			try {
+				address.setScheme("write");
+				addressBarController.show(address.toExternalForm());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+		return btn;
+	}
+
 
 	public static Button search(BrowserContext ctx, TextField textField) {
 		final Glow glow = new Glow();

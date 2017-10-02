@@ -22,6 +22,7 @@ import java.util.ResourceBundle;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.controls.OulipoTable;
 import org.oulipo.browser.routers.ViewSourcePageRouter;
+import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.resources.model.Document;
 
@@ -29,6 +30,7 @@ import com.jfoenix.controls.JFXButton;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -103,6 +105,11 @@ public class UpdateDocumentController extends BaseController {
 									.addMaterialEditText("Title", document.title)
 									.addMaterialEditText("Description", document.description).addActions(newVersion, submit);
 							attachSubmitAction(submit, document, table);
+
+							// TODO: Does user own this document?
+							HBox box = new HBox();
+							box.getChildren().add(ButtonsCreator.writeDocument(addressBarController, address));
+							addressBarController.addRightAddressBar(box);
 
 							ViewSourcePageRouter.showPageSource(ctx.getTabManager(), address, table);
 							addressBarController.addContent(table, "Update Document");
