@@ -61,6 +61,11 @@ public final class InsertTextOp extends Op<InsertTextOp.Data> {
 			result = prime * result + (int) (to ^ (to >>> 32));
 			return result;
 		}
+
+		@Override
+		public String toString() {
+			return "Data [text=" + text + ", to=" + to + "]";
+		}
 	}
 
 	public static InsertTextOp read(byte[] message) throws IOException {
@@ -68,12 +73,7 @@ public final class InsertTextOp extends Op<InsertTextOp.Data> {
 	}
 
 	public static InsertTextOp read(DataInputStream dis) throws IOException {
-		// if (Op.INSERT_TEXT != dis.readByte()) {
-		// throw new IOException("Incorrect op type");
-		// }
 		long to = dis.readLong();
-		// int width = (int) dis.readLong();
-		// byte[] text = new byte[width];
 		return new InsertTextOp(new Data(to, dis.readUTF()));
 	}
 
@@ -92,8 +92,6 @@ public final class InsertTextOp extends Op<InsertTextOp.Data> {
 			dos.writeByte(Op.INSERT_TEXT);
 			dos.writeLong(getData().to);
 			dos.writeUTF(getData().text);
-			// dos.writeLong(getData().text.length());
-			// dos.write(getData().text.getBytes());
 		}
 		os.flush();
 		return os.toByteArray();
