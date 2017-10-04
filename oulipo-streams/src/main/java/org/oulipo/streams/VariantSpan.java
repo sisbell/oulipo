@@ -46,6 +46,10 @@ public final class VariantSpan extends Span {
 	public VariantSpan(long start, long width) throws MalformedSpanException {
 		super(start, width);
 	}
+	
+	public VariantSpan(long start, long width, String homeDocument) throws MalformedSpanException {
+		super(start, width, homeDocument);
+	}
 
 	public VariantSpan(TumblerAddress tumbler) throws MalformedSpanException {
 		super(tumbler.spanStart(), tumbler.spanWidth());

@@ -47,7 +47,7 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 			throws IOException, MalformedSpanException {
 		return new StreamOulipoMachine(loader, tumbler, writeOpCodes);
 	}
-
+	
 	private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
 	private final InvariantStream iStream;
@@ -59,7 +59,7 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 	private final VariantStream vStream;
 
 	private final boolean writeOpCodes;
-
+	
 	private StreamOulipoMachine(StreamLoader stream, TumblerAddress tumbler, boolean writeOpCodes)
 			throws IOException, MalformedSpanException {
 		super();

@@ -42,7 +42,7 @@ public final class InvariantSpan extends Span {
 	}
 
 	public InvariantSpan(long start, long width, String tumbler) throws MalformedSpanException {
-		super(start, width);
+		super(start, width, tumbler);
 		this.homeDocument = tumbler;
 	}
 
@@ -73,5 +73,7 @@ public final class InvariantSpan extends Span {
 		return new InvariantSpanPartition(new InvariantSpan(start, cutPoint - start, homeDocument),
 				new InvariantSpan(cutPoint, start + width - cutPoint, homeDocument));
 	}
+	
+	
 
 }

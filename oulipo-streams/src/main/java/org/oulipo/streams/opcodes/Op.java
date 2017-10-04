@@ -78,4 +78,9 @@ public abstract class Op<Data> {
 
 	public abstract byte[] toBytes() throws IOException;
 
+	@Override
+	public String toString() {
+		return "Op [code=" + code + ", data=" + data + "]";
+	}
+
 }
