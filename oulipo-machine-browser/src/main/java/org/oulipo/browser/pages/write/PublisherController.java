@@ -37,7 +37,7 @@ import org.fxmisc.richtext.model.StyledText;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.editor.DocumentArea;
 import org.oulipo.browser.editor.LinkFactory;
-import org.oulipo.browser.editor.LinkType2;
+import org.oulipo.browser.editor.LinkType;
 import org.oulipo.browser.editor.ParStyle;
 import org.oulipo.browser.editor.images.LinkedImage;
 import org.oulipo.browser.editor.images.RealLinkedImage;
@@ -55,8 +55,8 @@ import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VirtualContent;
-import org.oulipo.streams.opcodes.InsertTextOp;
 import org.oulipo.streams.opcodes.DeleteOp;
+import org.oulipo.streams.opcodes.InsertTextOp;
 import org.reactfx.SuspendableNo;
 import org.reactfx.util.Either;
 
@@ -90,7 +90,7 @@ public final class PublisherController extends BaseController {
 
 	private Map<String, Endset> endsets = new HashMap<>();
 
-	private VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, LinkType2>> renderPane;
+	private VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType>> renderPane;
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
@@ -129,7 +129,7 @@ public final class PublisherController extends BaseController {
 
 				IndexRange selection = area.getSelection();
 				if (selection.getLength() != 0) {
-					StyleSpans<LinkType2> styles = area.getStyleSpans(selection);
+					StyleSpans<LinkType> styles = area.getStyleSpans(selection);
 
 					bold = styles.styleStream().anyMatch(s -> s.bold.orElse(false));
 					italic = styles.styleStream().anyMatch(s -> s.italic.orElse(false));
@@ -139,7 +139,7 @@ public final class PublisherController extends BaseController {
 				} else {
 					int p = area.getCurrentParagraph();
 					int col = area.getCaretColumn();
-					LinkType2 style = area.getStyleAtPosition(p, col);
+					LinkType style = area.getStyleAtPosition(p, col);
 					bold = style.bold.orElse(false);
 					italic = style.italic.orElse(false);
 					underline = style.underline.orElse(false);
@@ -260,9 +260,9 @@ public final class PublisherController extends BaseController {
 		if (selectedFile != null) {
 			String imagePath = selectedFile.getAbsolutePath();
 			imagePath = imagePath.replace('\\', '/');
-			ReadOnlyStyledDocument<ParStyle, Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, LinkType2> ros = ReadOnlyStyledDocument
-					.fromSegment(Either.right(new RealLinkedImage<>(imagePath, LinkType2.EMPTY)), ParStyle.EMPTY,
-							LinkType2.EMPTY, area.getSegOps());
+			ReadOnlyStyledDocument<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> ros = ReadOnlyStyledDocument
+					.fromSegment(Either.right(new RealLinkedImage<>(imagePath, LinkType.EMPTY)), ParStyle.EMPTY,
+							LinkType.EMPTY, area.getSegOps());
 			area.replaceSelection(ros);
 		}
 	}
@@ -280,10 +280,10 @@ public final class PublisherController extends BaseController {
 	}
 
 	public void printSpans() {
-		StyleSpans<LinkType2> spans = area.getStyleSpans(0, 50);
-		Iterator<StyleSpan<LinkType2>> it = spans.iterator();
+		StyleSpans<LinkType> spans = area.getStyleSpans(0, 50);
+		Iterator<StyleSpan<LinkType>> it = spans.iterator();
 		while (it.hasNext()) {
-			StyleSpan<LinkType2> span = it.next();
+			StyleSpan<LinkType> span = it.next();
 
 			System.out.println("LEN: " + span.getLength() + ", " + span.getStyle().toCss());
 		}
@@ -351,8 +351,8 @@ public final class PublisherController extends BaseController {
 		}
 
 		// TODO: bulk upload
-		StyleSpans<LinkType2> spans = area.getStyleSpans(0, area.getLength());
-		Iterator<StyleSpan<LinkType2>> it = spans.iterator();
+		StyleSpans<LinkType> spans = area.getStyleSpans(0, area.getLength());
+		Iterator<StyleSpan<LinkType>> it = spans.iterator();
 
 		Link boldLink = LinkFactory.bold(address);
 		Link underlineLink = LinkFactory.underline(address);
@@ -361,8 +361,8 @@ public final class PublisherController extends BaseController {
 
 		int position = 1;
 		while (it.hasNext()) {
-			StyleSpan<LinkType2> span = it.next();
-			LinkType2 linkType = span.getStyle();
+			StyleSpan<LinkType> span = it.next();
+			LinkType linkType = span.getStyle();
 			System.out.println(span);
 			System.out.println(linkType);
 

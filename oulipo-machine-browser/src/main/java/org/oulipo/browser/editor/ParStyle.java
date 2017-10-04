@@ -120,7 +120,7 @@ public class ParStyle {
 		});
 
 		backgroundColor.ifPresent(color -> {
-			sb.append("-fx-background-color: " + LinkType2.cssColor(color) + ";");
+			sb.append("-fx-background-color: " + LinkType.cssColor(color) + ";");
 		});
 
 		return sb.toString();

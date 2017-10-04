@@ -52,7 +52,7 @@ import javafx.scene.paint.Color;
  * 
  */
 public class DocumentArea
-		extends GenericStyledArea<ParStyle, Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, LinkType2> {
+		extends GenericStyledArea<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> {
 
 	/**
 	 * Manages deletion of text
@@ -102,9 +102,9 @@ public class DocumentArea
 		}
 	}
 
-	private static Node createNode(TextOps<StyledText<LinkType2>, LinkType2> styledTextOps,
-			Either<StyledText<LinkType2>, LinkedImage<LinkType2>> seg,
-			BiConsumer<? super TextExt, LinkType2> applyStyle) {
+	private static Node createNode(TextOps<StyledText<LinkType>, LinkType> styledTextOps,
+			Either<StyledText<LinkType>, LinkedImage<LinkType>> seg,
+			BiConsumer<? super TextExt, LinkType> applyStyle) {
 		if (seg.isLeft()) {
 			return StyledTextArea.createStyledTextNode(seg.getLeft(), styledTextOps, applyStyle);
 		} else {
@@ -121,8 +121,8 @@ public class DocumentArea
 	 * @throws IllegalTumblerException
 	 */
 	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx) {
-		TextOps<StyledText<LinkType2>, LinkType2> styledTextOps = StyledText.textOps();
-		LinkedImageOps<LinkType2> linkedImageOps = new LinkedImageOps<>();
+		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
+		LinkedImageOps<LinkType> linkedImageOps = new LinkedImageOps<>();
 
 		return new DocumentArea(tumblerAddress, ctx, styledTextOps._or(linkedImageOps),
 				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss())));
@@ -148,10 +148,10 @@ public class DocumentArea
 	private boolean writeOps;
 
 	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
-			TextOps<Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, LinkType2> segmentOps,
-			Function<Either<StyledText<LinkType2>, LinkedImage<LinkType2>>, Node> nodeFactory) {
+			TextOps<Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> segmentOps,
+			Function<Either<StyledText<LinkType>, LinkedImage<LinkType>>, Node> nodeFactory) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
-				LinkType2.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
+				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
 		this.ctx = ctx;
 		this.homeDocument = homeDocument;
@@ -161,7 +161,7 @@ public class DocumentArea
 
 		setWrapText(true);
 		setStyleCodecs(ParStyle.CODEC,
-				Codec.eitherCodec(StyledText.codec(LinkType2.CODEC), LinkedImage.codec(LinkType2.CODEC)));
+				Codec.eitherCodec(StyledText.codec(LinkType.CODEC), LinkedImage.codec(LinkType.CODEC)));
 		requestFocus();
 		richChanges().subscribe(change -> {
 			// change.getType()
@@ -201,9 +201,9 @@ public class DocumentArea
 	 */
 	public void applyStyle(TumblerAddress span, TumblerAddress linkType) {
 		int styleStart = span.spanStart() - 1;
-		StyleSpans<LinkType2> styles = getStyleSpans(styleStart, styleStart + span.spanWidth());
-		LinkType2 mixin = LinkType2.bold(true);// TODO -need to know style type
-		StyleSpans<LinkType2> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
+		StyleSpans<LinkType> styles = getStyleSpans(styleStart, styleStart + span.spanWidth());
+		LinkType mixin = LinkType.bold(true);// TODO -need to know style type
+		StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
 		setStyleSpans(styleStart, newStyles);
 	}
 
@@ -302,10 +302,10 @@ public class DocumentArea
 	}
 
 	public void printSpans() {
-		StyleSpans<LinkType2> spans = getStyleSpans(0, 50);
-		Iterator<StyleSpan<LinkType2>> it = spans.iterator();
+		StyleSpans<LinkType> spans = getStyleSpans(0, 50);
+		Iterator<StyleSpan<LinkType>> it = spans.iterator();
 		while (it.hasNext()) {
-			StyleSpan<LinkType2> span = it.next();
+			StyleSpan<LinkType> span = it.next();
 			System.out.println("LEN: " + span.getLength() + ", " + span.getStyle().toCss());
 			// span.getStyle().
 			// Rewrite style to give start, and width, otherwise iterate and add position
@@ -320,34 +320,34 @@ public class DocumentArea
 
 	public void toggleBold() {
 		updateStyleInSelection(
-				spans -> LinkType2.bold(!spans.styleStream().allMatch(style -> style.bold.orElse(false))));
+				spans -> LinkType.bold(!spans.styleStream().allMatch(style -> style.bold.orElse(false))));
 	}
 
 	public void toggleItalic() {
 		updateStyleInSelection(
-				spans -> LinkType2.italic(!spans.styleStream().allMatch(style -> style.italic.orElse(false))));
+				spans -> LinkType.italic(!spans.styleStream().allMatch(style -> style.italic.orElse(false))));
 	}
 
 	public void toggleStrikethrough() {
-		updateStyleInSelection(spans -> LinkType2
+		updateStyleInSelection(spans -> LinkType
 				.strikethrough(!spans.styleStream().allMatch(style -> style.strikethrough.orElse(false))));
 	}
 
 	public void toggleUnderline() {
 		updateStyleInSelection(
-				spans -> LinkType2.underline(!spans.styleStream().allMatch(style -> style.underline.orElse(false))));
+				spans -> LinkType.underline(!spans.styleStream().allMatch(style -> style.underline.orElse(false))));
 	}
 
-	private void updateStyleInSelection(Function<StyleSpans<LinkType2>, LinkType2> mixinGetter) {
+	private void updateStyleInSelection(Function<StyleSpans<LinkType>, LinkType> mixinGetter) {
 		IndexRange selection = getSelection();
 		if (selection.getLength() != 0) {
-			StyleSpans<LinkType2> styles = getStyleSpans(selection);
-			LinkType2 mixin = mixinGetter.apply(styles);
+			StyleSpans<LinkType> styles = getStyleSpans(selection);
+			LinkType mixin = mixinGetter.apply(styles);
 			// TODO: Transclusions with different home address
 			// TumblerAddress span =
 			// TumblerAddress.create(this.homeDocument.toExternalForm() + ".0.1."
 			// + (selection.getStart() + 1) + "~1." + selection.getLength());
-			StyleSpans<LinkType2> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
+			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
 			setStyleSpans(selection.getStart(), newStyles);
 		}
 	}

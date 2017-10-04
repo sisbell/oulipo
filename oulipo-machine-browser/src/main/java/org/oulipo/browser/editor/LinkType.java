@@ -16,9 +16,9 @@ import javafx.scene.paint.Color;
 /**
  * Holds information about the style of a text fragment.
  */
-public class LinkType2 {
+public class LinkType {
 
-	public static final Codec<LinkType2> CODEC = new Codec<LinkType2>() {
+	public static final Codec<LinkType> CODEC = new Codec<LinkType>() {
 
 		private final Codec<Optional<Color>> OPT_COLOR_CODEC = Codec.optionalCodec(Codec.COLOR_CODEC);
 		private final Codec<Optional<String>> OPT_STRING_CODEC = Codec.optionalCodec(Codec.STRING_CODEC);
@@ -28,14 +28,14 @@ public class LinkType2 {
 		}
 
 		@Override
-		public LinkType2 decode(DataInputStream is) throws IOException {
+		public LinkType decode(DataInputStream is) throws IOException {
 			// TumblerAddress linkAddress = TumblerAddress.create(is.readUTF());
 			byte bius = is.readByte();
 			Optional<Integer> fontSize = decodeOptionalUint(is.readInt());
 			Optional<String> fontFamily = OPT_STRING_CODEC.decode(is);
 			Optional<Color> textColor = OPT_COLOR_CODEC.decode(is);
 			Optional<Color> bgrColor = OPT_COLOR_CODEC.decode(is);
-			return new LinkType2(bold(bius), italic(bius), underline(bius), strikethrough(bius), fontSize, fontFamily,
+			return new LinkType(bold(bius), italic(bius), underline(bius), strikethrough(bius), fontSize, fontFamily,
 					textColor, bgrColor);
 		}
 
@@ -56,7 +56,7 @@ public class LinkType2 {
 		}
 
 		@Override
-		public void encode(DataOutputStream os, LinkType2 s) throws IOException {
+		public void encode(DataOutputStream os, LinkType s) throws IOException {
 			// os.writeUTF(s.spanAddress.toExternalForm());
 			os.writeByte(encodeBoldItalicUnderlineStrikethrough(s));
 			os.writeInt(encodeOptionalUint(s.fontSize));
@@ -65,7 +65,7 @@ public class LinkType2 {
 			OPT_COLOR_CODEC.encode(os, s.backgroundColor);
 		}
 
-		private int encodeBoldItalicUnderlineStrikethrough(LinkType2 s) {
+		private int encodeBoldItalicUnderlineStrikethrough(LinkType s) {
 			return encodeOptionalBoolean(s.bold) << 6 | encodeOptionalBoolean(s.italic) << 4
 					| encodeOptionalBoolean(s.underline) << 2 | encodeOptionalBoolean(s.strikethrough);
 		}
@@ -96,13 +96,13 @@ public class LinkType2 {
 		}
 	};
 
-	public static final LinkType2 EMPTY = new LinkType2();
+	public static final LinkType EMPTY = new LinkType();
 
-	public static LinkType2 backgroundColor(Color color) {
+	public static LinkType backgroundColor(Color color) {
 		return EMPTY.updateBackgroundColor(color);
 	}
 
-	public static LinkType2 bold(boolean bold) {
+	public static LinkType bold(boolean bold) {
 		return EMPTY.updateBold(bold);
 	}
 
@@ -113,27 +113,27 @@ public class LinkType2 {
 		return "rgb(" + red + ", " + green + ", " + blue + ")";
 	}
 
-	public static LinkType2 fontFamily(String family) {
+	public static LinkType fontFamily(String family) {
 		return EMPTY.updateFontFamily(family);
 	}
 
-	public static LinkType2 fontSize(int fontSize) {
+	public static LinkType fontSize(int fontSize) {
 		return EMPTY.updateFontSize(fontSize);
 	}
 
-	public static LinkType2 italic(boolean italic) {
+	public static LinkType italic(boolean italic) {
 		return EMPTY.updateItalic(italic);
 	}
 
-	public static LinkType2 strikethrough(boolean strikethrough) {
+	public static LinkType strikethrough(boolean strikethrough) {
 		return EMPTY.updateStrikethrough(strikethrough);
 	}
 
-	public static LinkType2 textColor(Color color) {
+	public static LinkType textColor(Color color) {
 		return EMPTY.updateTextColor(color);
 	}
 
-	public static LinkType2 underline(boolean underline) {
+	public static LinkType underline(boolean underline) {
 		return EMPTY.updateUnderline(underline);
 	}
 
@@ -146,12 +146,12 @@ public class LinkType2 {
 	public final Optional<Color> textColor;
 	public final Optional<Boolean> underline;
 
-	public LinkType2() {
+	public LinkType() {
 		this(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
 				Optional.empty(), Optional.empty());
 	}
 
-	public LinkType2(Optional<Boolean> bold, Optional<Boolean> italic, Optional<Boolean> underline,
+	public LinkType(Optional<Boolean> bold, Optional<Boolean> italic, Optional<Boolean> underline,
 			Optional<Boolean> strikethrough, Optional<Integer> fontSize, Optional<String> fontFamily,
 			Optional<Color> textColor, Optional<Color> backgroundColor) {
 		this.bold = bold;
@@ -166,8 +166,8 @@ public class LinkType2 {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof LinkType2) {
-			LinkType2 that = (LinkType2) other;
+		if (other instanceof LinkType) {
+			LinkType that = (LinkType) other;
 			return Objects.equals(this.bold, that.bold) && Objects.equals(this.italic, that.italic)
 					&& Objects.equals(this.underline, that.underline)
 					&& Objects.equals(this.strikethrough, that.strikethrough)
@@ -256,48 +256,48 @@ public class LinkType2 {
 		return String.join(",", styles);
 	}
 
-	public LinkType2 updateBackgroundColor(Color backgroundColor) {
-		return new LinkType2(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
+	public LinkType updateBackgroundColor(Color backgroundColor) {
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
 				Optional.of(backgroundColor));
 	}
 
-	public LinkType2 updateBold(boolean bold) {
-		return new LinkType2(Optional.of(bold), italic, underline, strikethrough, fontSize, fontFamily, textColor,
+	public LinkType updateBold(boolean bold) {
+		return new LinkType(Optional.of(bold), italic, underline, strikethrough, fontSize, fontFamily, textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateFontFamily(String fontFamily) {
-		return new LinkType2(bold, italic, underline, strikethrough, fontSize, Optional.of(fontFamily), textColor,
+	public LinkType updateFontFamily(String fontFamily) {
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, Optional.of(fontFamily), textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateFontSize(int fontSize) {
-		return new LinkType2(bold, italic, underline, strikethrough, Optional.of(fontSize), fontFamily, textColor,
+	public LinkType updateFontSize(int fontSize) {
+		return new LinkType(bold, italic, underline, strikethrough, Optional.of(fontSize), fontFamily, textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateItalic(boolean italic) {
-		return new LinkType2(bold, Optional.of(italic), underline, strikethrough, fontSize, fontFamily, textColor,
+	public LinkType updateItalic(boolean italic) {
+		return new LinkType(bold, Optional.of(italic), underline, strikethrough, fontSize, fontFamily, textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateStrikethrough(boolean strikethrough) {
-		return new LinkType2(bold, italic, underline, Optional.of(strikethrough), fontSize, fontFamily, textColor,
+	public LinkType updateStrikethrough(boolean strikethrough) {
+		return new LinkType(bold, italic, underline, Optional.of(strikethrough), fontSize, fontFamily, textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateTextColor(Color textColor) {
-		return new LinkType2(bold, italic, underline, strikethrough, fontSize, fontFamily, Optional.of(textColor),
+	public LinkType updateTextColor(Color textColor) {
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, Optional.of(textColor),
 				backgroundColor);
 	}
 
-	public LinkType2 updateUnderline(boolean underline) {
-		return new LinkType2(bold, italic, Optional.of(underline), strikethrough, fontSize, fontFamily, textColor,
+	public LinkType updateUnderline(boolean underline) {
+		return new LinkType(bold, italic, Optional.of(underline), strikethrough, fontSize, fontFamily, textColor,
 				backgroundColor);
 	}
 
-	public LinkType2 updateWith(LinkType2 mixin) {
-		return new LinkType2(mixin.bold.isPresent() ? mixin.bold : bold,
+	public LinkType updateWith(LinkType mixin) {
+		return new LinkType(mixin.bold.isPresent() ? mixin.bold : bold,
 				mixin.italic.isPresent() ? mixin.italic : italic,
 				mixin.underline.isPresent() ? mixin.underline : underline,
 				mixin.strikethrough.isPresent() ? mixin.strikethrough : strikethrough,
