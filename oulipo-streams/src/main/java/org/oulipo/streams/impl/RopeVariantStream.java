@@ -209,6 +209,9 @@ public final class RopeVariantStream implements VariantStream {
 		 * @return
 		 */
 		long characterCount() {
+			/*
+			 * if(isLeaf()) { return weight + value.width;//TODO }
+			 */
 			Displacement w = new Displacement();
 			addWeightsOfRightLeaningChildNodes(this, w);
 			return weight + w.getValue();
@@ -272,7 +275,7 @@ public final class RopeVariantStream implements VariantStream {
 			}
 
 			long cutPoint = value.start + variantPosition;
-			Node parent = new Node(variantPosition);
+			Node parent = new Node(variantPosition);// TODO
 
 			InvariantSpanPartition spans = value.split(cutPoint);
 			parent.left = new Node(spans.getLeft().width, spans.getLeft());
@@ -362,33 +365,23 @@ public final class RopeVariantStream implements VariantStream {
 				throw new IllegalStateException("Wid value can't be negative: " + wid.value + ", " + x);
 			}
 
-			System.out.println(x + ", " + disp + ", cutPoint = " + cutPoint + "," + wid);
-
 			if (wid.isBlack) {
-				System.out.println(
-						"Is Black: adjusting disp: old = " + disp.getValue() + ",new =" + (disp.getValue() - x.weight));
 				disp.add(-x.weight);
 			}
 
 			long adjValue = x.weight + disp.getValue();
 
 			if (!wid.isBlack) {
-				System.out.println("IsRed: adjusting weight: old =" + x.weight + ", new = " + (x.weight - wid.value));
 				x.weight -= wid.value;
 			}
 
-			System.out.println("Adjusted values: " + x + ", " + disp + ", cutPoint = " + cutPoint + ",adjValue="
-					+ adjValue + "," + wid);
 			if (x.right != null && adjValue >= cutPoint) {
 				wid.value += x.right.characterCount();
 				x.right.parent = null;
 				orphans.add(x.right);
-				System.out.println("cut off: " + x.right);
 				x.right = null;
 			}
 
-			System.out.println("Finish Node: " + x + ", " + wid);
-			System.out.println();
 			wid.isBlack = x.isRightNode();
 			prune(x.parent);
 		}
@@ -527,6 +520,9 @@ public final class RopeVariantStream implements VariantStream {
 	 *             if the cut partition is malformed
 	 */
 	static NodePartition createPartition(long cutPoint, Node x) throws MalformedSpanException {
+		if (x == null) {
+			throw new IllegalStateException("Attempting to partition a null node");
+		}
 		if (cutPoint >= x.characterCount()) {
 			return new NodePartition(x, null);
 		} else if (cutPoint == 1) {
@@ -617,12 +613,8 @@ public final class RopeVariantStream implements VariantStream {
 		Wid wid = new Wid();
 		Displacement disp = new Displacement();
 		Node indexNode = index(cutPoint, x, disp);
+
 		Node indexParent = indexNode.parent;
-		if (indexParent == null) {
-			// throw new IllegalStateException("Nodes parent is null: " + x.toString() + ",
-			// Index Node = " + indexNode
-			// + ", cutPoint = " + cutPoint + ", disp = " + disp);
-		}
 
 		if (disp.getValue() > cutPoint) {
 			throw new MalformedSpanException("CutPoint can't be less than displacement: cutPoint = " + cutPoint
@@ -648,15 +640,17 @@ public final class RopeVariantStream implements VariantStream {
 				cutRightNode(indexParent, orphans);
 			} else {
 				orphans.add(indexParent.left);
+				indexParent.left = null;
 				wid.isBlack = false;
 			}
 		}
 
 		wid.value = indexNode.weight;
 
-		Pruner pruner = new Pruner(cutPoint, wid, disp, orphans);
-		pruner.prune(indexParent);
-
+		if (indexParent != null) {
+			Pruner pruner = new Pruner(cutPoint, wid, disp, orphans);
+			pruner.prune(indexParent);
+		}
 		// TODO: re-balance tree
 	}
 
@@ -705,7 +699,10 @@ public final class RopeVariantStream implements VariantStream {
 	 */
 	public long characterCount() {
 		if (root == null) {
-			return 1;
+			return 0;
+		}
+		if (root.right == null && root.left == null) {
+			return root.value.width;
 		}
 		Displacement w = new Displacement();
 		addWeightsOfRightLeaningChildNodes(root, w);
@@ -737,15 +734,24 @@ public final class RopeVariantStream implements VariantStream {
 			throw new IllegalArgumentException("Split position must be greater than 0");
 		}
 
-		if (cutPoint > characterCount()) {
-			throw new IndexOutOfBoundsException("Attempting to split in illegal position");
+		if (cutPoint > characterCount() + 1) {
+			throw new IndexOutOfBoundsException("Attempting to split in illegal position: cutpoint = " + cutPoint
+					+ ", count = " + characterCount());
 		}
 
-		return createPartition(cutPoint, root);
+		if (root.left == null && root.right == null) {
+			root = root.split(cutPoint);
+			return new NodePartition(root.left, root.right);
+		} else {
+			return createPartition(cutPoint, root);
+		}
 	}
 
 	@Override
 	public void delete(VariantSpan variantSpan) throws MalformedSpanException {
+		if (variantSpan == null) {
+			throw new MalformedSpanException("Variant span is null for delete operation");
+		}
 		deleteRange(variantSpan);
 	}
 
@@ -757,7 +763,10 @@ public final class RopeVariantStream implements VariantStream {
 	 */
 	private Node deleteRange(VariantSpan variantSpan) throws MalformedSpanException {
 		NodePartition partI = createPartition(variantSpan.start);
-		System.out.println("=============");
+		if (partI.right == null) {
+			return null;
+		}
+
 		NodePartition partJ = createPartition(variantSpan.width + 1, partI.right);
 		if (partI.left == null && partJ.right == null) {
 			root = null;
@@ -856,7 +865,6 @@ public final class RopeVariantStream implements VariantStream {
 			long start2 = invariantSpan.start;
 			long end2 = start2 + invariantSpan.width;
 			if (intersects(start, end, start2, end2)) {
-				System.out.println("Intersect: " + ispan);
 				long a = Math.max(0, start2 - start);
 				long b = Math.max(0, end - end2);
 
@@ -879,9 +887,9 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	private void insert(long i, Node x) throws MalformedSpanException {
-		if (i > characterCount()) {
+		if (i > characterCount() + 1) {
 			throw new IndexOutOfBoundsException("Attempting to insert in illegal range: Current Max = "
-					+ characterCount() + ", Attempted insert = " + i);
+					+ characterCount() + ", Attempted insert = " + i + " ,Node" + x);
 		}
 
 		if (root == null) {
@@ -895,7 +903,7 @@ public final class RopeVariantStream implements VariantStream {
 				throw new IndexOutOfBoundsException("Attempting to assign root with weight less than 1");
 			}
 			root = x;
-		} else if (i == characterCount()) {
+		} else if (i == characterCount() + 1) {
 			root = concat(root, x);
 		} else {
 			NodePartition partition = createPartition(i);
