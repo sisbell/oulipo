@@ -122,7 +122,11 @@ public class ContentService {
 
 		String body = oulipoRequest.getBody();
 		System.out.println("Load Data: " + body);
-		byte[] bodyBytes = BaseEncoding.base64Url().decode(body);
+		loadOperations(om, body);
+	}
+	
+	public static void loadOperations(OulipoMachine om, String base64Body) throws MalformedSpanException, IOException {
+		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);
 		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
 		Iterator<Op<?>> codes = reader.iterator();
 		while (codes.hasNext()) {

@@ -29,6 +29,7 @@ import org.fxmisc.richtext.model.PlainTextChange;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.richtext.model.TextChange.ChangeType;
 import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.editor.images.LinkedImage;
@@ -66,7 +67,8 @@ public class DocumentArea
 		 * @return
 		 */
 		public HyperOperation delete(TumblerAddress tumblerAddress, PlainTextChange change) {
-			HyperRegion region = new HyperRegion(change.getPosition(), change.getRemoved().length());
+			int width = change.getRemoved().length();
+			HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
 			HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.DELETE, change.getRemoved());
 			return op;
 		}
@@ -76,49 +78,6 @@ public class DocumentArea
 	 * Manages insertion of text. Maintains a buffer of text and when the
 	 */
 	public static class Inserter {
-
-		/**
-		 * Buffer for text to insert
-		 */
-		private StringBuilder insertionText = new StringBuilder();
-
-		private int previousPosition = 0;
-
-		public Optional<HyperOperation> createOperation(TumblerAddress tumblerAddress, int insertionEnd) {
-			if (hasText()) {
-				System.out.println("insertionEnd: " + insertionEnd +", length = " + insertionText.length());
-				HyperOperation op = new HyperOperation(tumblerAddress,
-						new HyperRegion(insertionEnd - insertionText.length(), insertionText.length()), OpCode.INSERT,
-						insertionText.toString());
-				return Optional.of(op);
-			}
-			return Optional.empty();
-		}
-
-		public void flush() {
-			insertionText = new StringBuilder();
-		}
-
-		/**
-		 * If current position is different than previous position, then the cursor has
-		 * moved
-		 * 
-		 * @param currentPosition
-		 *            the current position of cursor
-		 * @return true is cursor has moved
-		 */
-		protected boolean hasMoved(int currentPosition) {
-			return currentPosition - previousPosition != 0;
-		}
-
-		/**
-		 * The buffer contains text
-		 * 
-		 * @return true if buffer contains text
-		 */
-		protected boolean hasText() {
-			return insertionText.length() > 0;
-		}
 
 		/**
 		 * Appends current text into buffer and resets positions.
@@ -131,28 +90,15 @@ public class DocumentArea
 		 * @return
 		 */
 		public Optional<HyperOperation> insert(TumblerAddress tumblerAddress, PlainTextChange change) {
-			if (hasMoved(change.getPosition()) && hasText()) {
-				System.out.println(change.getInsertionEnd() + ":" + change.getInserted().length());
-				Optional<HyperOperation> ohop = createOperation(tumblerAddress, change.getInsertionEnd());
-				reset(change);
-				// System.out.println(opString());
-				return ohop;
+			System.out.println(change.getInsertionEnd() + ":" + change.getInserted().length());
+			int width = change.getInserted().length();
+			if (width > 0) {
+				HyperRegion region = new HyperRegion(change.getInsertionEnd() - width, width);
+				HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.INSERT, change.getInserted());
+				return Optional.of(op);
+			} else {
+				return Optional.empty();
 			}
-			previousPosition = change.getInsertionEnd();
-			insertionText.append(change.getInserted());
-			return Optional.empty();
-		}
-
-		/**
-		 * Resets positions and inserts current text into buffer
-		 * 
-		 * @param change
-		 *            the most recent text change
-		 */
-		public void reset(PlainTextChange change) {
-			previousPosition = change.getInsertionEnd();
-			insertionText = new StringBuilder();
-			insertionText.append(change.getInserted());
 		}
 	}
 
@@ -217,19 +163,33 @@ public class DocumentArea
 		setStyleCodecs(ParStyle.CODEC,
 				Codec.eitherCodec(StyledText.codec(LinkType2.CODEC), LinkedImage.codec(LinkType2.CODEC)));
 		requestFocus();
+		richChanges().subscribe(change -> {
+			// change.getType()
+			System.out.println("Rich text change");
+		});
+
 		EventStream<PlainTextChange> textChanges = plainTextChanges();
 		textChanges.subscribe(change -> {
-			try {
+			ChangeType type = change.getType();
+			if (ChangeType.INSERTION.equals(type)) {
 				if (!Strings.isNullOrEmpty(change.getInserted())) {
 					notifyTextInsertionChange(change);
-				} else {// deleted
-					notifyTextInsertionChange(change);
-					deleteText(change);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				ctx.showMessage("Text Change Exception: " + e.getMessage());
+			} else if (ChangeType.DELETION.equals(type)) {
+				notifyTextInsertionChange(change);
+				deleteText(change);
+			} else if (ChangeType.REPLACEMENT.equals(type)) {
+				System.out.println("Replacement");
+				notifyTextInsertionChange(change);
+				deleteText(change);
 			}
+			/*
+			 * try { if (!Strings.isNullOrEmpty(change.getInserted())) {
+			 * notifyTextInsertionChange(change); } else {// deleted
+			 * notifyTextInsertionChange(change); deleteText(change); } } catch (Exception
+			 * e) { e.printStackTrace(); ctx.showMessage("Text Change Exception: " +
+			 * e.getMessage()); }
+			 */
 		});
 	}
 
@@ -240,10 +200,11 @@ public class DocumentArea
 	 * @param linkType
 	 */
 	public void applyStyle(TumblerAddress span, TumblerAddress linkType) {
-		StyleSpans<LinkType2> styles = getStyleSpans(span.spanStart() - 1, span.spanStart() - 1 + span.spanWidth());
+		int styleStart = span.spanStart() - 1;
+		StyleSpans<LinkType2> styles = getStyleSpans(styleStart, styleStart + span.spanWidth());
 		LinkType2 mixin = LinkType2.bold(true);// TODO -need to know style type
 		StyleSpans<LinkType2> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-		setStyleSpans(span.spanStart() - 1, newStyles);
+		setStyleSpans(styleStart, newStyles);
 	}
 
 	private void delete2(PlainTextChange change) {
@@ -271,7 +232,7 @@ public class DocumentArea
 	 */
 
 	public void flush() {
-		inserter.flush();
+
 	}
 
 	public ArrayList<HyperOperation> getOperations() {

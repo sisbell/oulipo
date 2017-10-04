@@ -43,6 +43,7 @@ import org.oulipo.browser.editor.images.LinkedImage;
 import org.oulipo.browser.editor.images.RealLinkedImage;
 import org.oulipo.browser.pages.BaseController;
 import org.oulipo.browser.tables.ButtonsCreator;
+import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.model.Document;
@@ -52,8 +53,10 @@ import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.opcodes.InsertTextOp;
+import org.oulipo.streams.opcodes.DeleteOp;
 import org.reactfx.SuspendableNo;
 import org.reactfx.util.Either;
 
@@ -310,6 +313,17 @@ public final class PublisherController extends BaseController {
 					ctx.showMessage("Failed to write operation: " + e.getMessage());
 					e.printStackTrace();
 				}
+			} else if (hop.getOperation().equals(OpCode.DELETE)) {
+				try {
+					DeleteOp op = new DeleteOp(new VariantSpan((long) hop.getDocumentRegion().getStart() + 1,
+							(long) hop.getText().length()));
+					operations.write(op.toBytes());
+				} catch (IOException e) {
+					ctx.showMessage("Failed to write operation: " + e.getMessage());
+					e.printStackTrace();
+				} catch (MalformedSpanException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		hops.clear();
@@ -345,16 +359,17 @@ public final class PublisherController extends BaseController {
 		Link strikeThroughLink = LinkFactory.strikeThrough(address);
 		Link italicLink = LinkFactory.italic(address);
 
-		int position = 0;
+		int position = 1;
 		while (it.hasNext()) {
 			StyleSpan<LinkType2> span = it.next();
 			LinkType2 linkType = span.getStyle();
 			System.out.println(span);
+			System.out.println(linkType);
 
 			if (linkType.bold.isPresent() && linkType.bold.get()) {
 				try {
 					TumblerAddress s = TumblerAddress
-							.create(address.toExternalForm() + ".0.1." + (position + 1) + "~1." + span.getLength());
+							.create(address.toExternalForm() + ".0.1." + position + "~1." + span.getLength());
 					boldLink.fromVSpans.add(s);
 				} catch (MalformedTumblerException e) {
 					e.printStackTrace();
@@ -453,15 +468,13 @@ public final class PublisherController extends BaseController {
 					} else {
 						addressBarController.addContent(vbox, "New Title");
 					}
-					
+
 					// TODO: Does user own this document?
 					HBox box = new HBox();
 					box.getChildren().add(ButtonsCreator.writeDocument(addressBarController, address));
 					addressBarController.addRightAddressBar(null);
-
 				});
 
-			
 			}
 		});
 
