@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.opcodes.DeleteOp;
 import org.oulipo.streams.opcodes.InsertTextOp;
 import org.oulipo.streams.opcodes.Op;
 import org.oulipo.streams.opcodes.SwapOp;
@@ -85,11 +86,9 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 
 				break;
 			case Op.DELETE:
-
-				break;
+				VariantSpan deleteSpan = new VariantSpan(input.readLong(), input.readLong());
+				return nextOp = new DeleteOp(deleteSpan);
 			case Op.INSERT_TEXT:
-				System.out.println("NextOP: insertText");
-
 				return nextOp = InsertTextOp.read(input);
 			case Op.MOVE:
 
@@ -103,7 +102,7 @@ public final class OpCodeReader implements Iterable<Op<?>>, Closeable {
 				return nextOp = new SwapOp(new Data(v1, v2));
 			}
 			System.out.println("Return null opCode");
-			;
+			
 			return null;
 		}
 
