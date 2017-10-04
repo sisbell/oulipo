@@ -62,7 +62,7 @@ public interface VariantStream {
 		for (int i = 0; i < ispans.size(); i++) {
 			InvariantSpan ispan = ispans.get(i);
 			put(start, ispan);
-			start += (i == 0) ? ispan.width - 1 : ispan.width;
+			start += ispan.width;
 		}
 	}
 
