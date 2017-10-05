@@ -39,10 +39,13 @@ import org.oulipo.browser.editor.DocumentArea;
 import org.oulipo.browser.editor.LinkFactory;
 import org.oulipo.browser.editor.LinkType;
 import org.oulipo.browser.editor.ParStyle;
-import org.oulipo.browser.editor.images.LinkedImage;
-import org.oulipo.browser.editor.images.RealLinkedImage;
+import org.oulipo.browser.editor.remote.IpfsRemoteImage;
+import org.oulipo.browser.editor.remote.RemoteImage;
+//import org.oulipo.browser.editor.images.LinkedImage;
+//import org.oulipo.browser.editor.images.RealLinkedImage;
 import org.oulipo.browser.pages.BaseController;
 import org.oulipo.browser.tables.ButtonsCreator;
+import org.oulipo.client.services.RemoteFileManager;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
@@ -90,7 +93,7 @@ public final class PublisherController extends BaseController {
 
 	private Map<String, Endset> endsets = new HashMap<>();
 
-	private VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType>> renderPane;
+	private VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType>> renderPane;
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
@@ -258,12 +261,16 @@ public final class PublisherController extends BaseController {
 
 		File selectedFile = fileChooser.showOpenDialog(area.getScene().getWindow());
 		if (selectedFile != null) {
-			String imagePath = selectedFile.getAbsolutePath();
-			imagePath = imagePath.replace('\\', '/');
-			ReadOnlyStyledDocument<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> ros = ReadOnlyStyledDocument
-					.fromSegment(Either.right(new RealLinkedImage<>(imagePath, LinkType.EMPTY)), ParStyle.EMPTY,
-							LinkType.EMPTY, area.getSegOps());
-			area.replaceSelection(ros);
+			RemoteFileManager manager = ctx.getApplicationContext().getRemoteFileManager();
+			try {
+				String hash = manager.add(selectedFile);
+				ReadOnlyStyledDocument<ParStyle, Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> ros = ReadOnlyStyledDocument
+						.fromSegment(Either.right(new IpfsRemoteImage<>(hash, LinkType.EMPTY)), ParStyle.EMPTY,
+								LinkType.EMPTY, area.getSegOps());
+				area.replaceSelection(ros);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -280,7 +287,7 @@ public final class PublisherController extends BaseController {
 	}
 
 	public void printSpans() {
-		StyleSpans<LinkType> spans = area.getStyleSpans(0, 50);
+		StyleSpans<LinkType> spans = area.getStyleSpans(0, area.getLength());
 		Iterator<StyleSpan<LinkType>> it = spans.iterator();
 		while (it.hasNext()) {
 			StyleSpan<LinkType> span = it.next();

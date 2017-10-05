@@ -32,8 +32,11 @@ import org.fxmisc.richtext.model.StyledText;
 import org.fxmisc.richtext.model.TextChange.ChangeType;
 import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.BrowserContext;
-import org.oulipo.browser.editor.images.LinkedImage;
-import org.oulipo.browser.editor.images.LinkedImageOps;
+import org.oulipo.browser.editor.remote.RemoteImage;
+import org.oulipo.browser.editor.remote.RemoteImageOps;
+import org.oulipo.client.services.RemoteFileManager;
+//import org.oulipo.browser.editor.images.LinkedImage;
+//import org.oulipo.browser.editor.images.LinkedImageOps;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
@@ -52,7 +55,7 @@ import javafx.scene.paint.Color;
  * 
  */
 public class DocumentArea
-		extends GenericStyledArea<ParStyle, Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> {
+		extends GenericStyledArea<ParStyle, Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> {
 
 	/**
 	 * Manages deletion of text
@@ -103,12 +106,12 @@ public class DocumentArea
 	}
 
 	private static Node createNode(TextOps<StyledText<LinkType>, LinkType> styledTextOps,
-			Either<StyledText<LinkType>, LinkedImage<LinkType>> seg,
-			BiConsumer<? super TextExt, LinkType> applyStyle) {
+			Either<StyledText<LinkType>, RemoteImage<LinkType>> seg,
+			BiConsumer<? super TextExt, LinkType> applyStyle, RemoteFileManager fileManager) {
 		if (seg.isLeft()) {
 			return StyledTextArea.createStyledTextNode(seg.getLeft(), styledTextOps, applyStyle);
 		} else {
-			return seg.getRight().createNode();
+			return seg.getRight().createNode(fileManager);
 		}
 	}
 
@@ -122,10 +125,11 @@ public class DocumentArea
 	 */
 	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx) {
 		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
-		LinkedImageOps<LinkType> linkedImageOps = new LinkedImageOps<>();
-
+		RemoteImageOps<LinkType> linkedImageOps = new RemoteImageOps<>();
+		RemoteFileManager fileManager = ctx.getApplicationContext().getRemoteFileManager();
+		
 		return new DocumentArea(tumblerAddress, ctx, styledTextOps._or(linkedImageOps),
-				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss())));
+				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss()), fileManager));
 	}
 
 	private final BrowserContext ctx;
@@ -148,8 +152,8 @@ public class DocumentArea
 	private boolean writeOps;
 
 	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
-			TextOps<Either<StyledText<LinkType>, LinkedImage<LinkType>>, LinkType> segmentOps,
-			Function<Either<StyledText<LinkType>, LinkedImage<LinkType>>, Node> nodeFactory) {
+			TextOps<Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> segmentOps,
+			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
@@ -161,7 +165,7 @@ public class DocumentArea
 
 		setWrapText(true);
 		setStyleCodecs(ParStyle.CODEC,
-				Codec.eitherCodec(StyledText.codec(LinkType.CODEC), LinkedImage.codec(LinkType.CODEC)));
+				Codec.eitherCodec(StyledText.codec(LinkType.CODEC), RemoteImage.codec(LinkType.CODEC)));
 		requestFocus();
 		richChanges().subscribe(change -> {
 			// change.getType()
