@@ -40,6 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import retrofit2.Response;
 
 /**
  * Maps between Things and RDF representations
@@ -60,10 +61,12 @@ public final class RdfDataMapper implements DataMapper {
 
 		public boolean rawUpdate(String update) {
 			try {
-				fusekiService.update(update).execute().body();
-				return true;
+				Response<FusekiResponse> response = fusekiService.update(update).execute();
+				if(response.isSuccessful()) {
+					return true;
+				}
 			} catch (Exception e) {
-				e.printStackTrace();
+
 			}
 			return false;
 		}
