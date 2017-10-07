@@ -74,6 +74,20 @@ public class RopeVariantStreamTest {
 	}
 	
 	@Test
+	public void delete3() throws Exception {
+		VariantStream stream = new RopeVariantStream(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 11));
+		stream.put(1, spans);
+		System.out.println(stream.getInvariantSpans().getInvariantSpans());
+
+		stream.delete(new VariantSpan(1, 5));	
+		
+		List<InvariantSpan> results = stream.getInvariantSpans().getInvariantSpans();
+		assertEquals(new InvariantSpan(6, 6), results.get(0));
+
+	}
+		
+	@Test
 	public void delete6To19() throws Exception {// 6, 19
 		VariantStream stream = new RopeVariantStream(homeDocument, getA());
 		stream.delete(new VariantSpan(6, 19));

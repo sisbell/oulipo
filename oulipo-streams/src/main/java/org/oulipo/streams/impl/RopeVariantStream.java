@@ -740,8 +740,14 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		if (root.left == null && root.right == null) {
-			root = root.split(cutPoint);
-			return new NodePartition(root.left, root.right);
+			if (cutPoint >= root.characterCount()) {
+				return new NodePartition(root, null);
+			} else if (cutPoint == 1) {
+				return new NodePartition(null, root);
+			} else {
+				root = root.split(cutPoint);//TODO: if point 1, then need to 
+				return new NodePartition(root.left, root.right);
+			}
 		} else {
 			return createPartition(cutPoint, root);
 		}
