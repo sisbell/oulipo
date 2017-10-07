@@ -131,7 +131,7 @@ public final class RopeVariantStream implements VariantStream {
 					long b = end <= hi ? end : hi;
 
 					if (a != b) {
-						long invariantStart = queue.isEmpty() && position + x.weight <= hi
+						long invariantStart = queue.isEmpty() && position + x.weight -1 <= hi
 								? x.value.start + x.value.width - (b - a)
 								: x.value.start;
 						queue.add(new InvariantSpan(invariantStart, b - a));
