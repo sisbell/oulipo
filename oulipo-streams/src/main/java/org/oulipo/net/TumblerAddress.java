@@ -642,7 +642,7 @@ public final class TumblerAddress extends IRI {
 
 	@Override
 	public String toString() {
-		return "TumblerAddress [document=" + document + ", element=" + element + ", network=" + network + ", node="
+		return "TumblerAddress [address = " + value  + ", document=" + document + ", element=" + element + ", network=" + network + ", node="
 				+ node + ", resourcePath=" + resourcePath + ", scheme=" + scheme + ", user=" + user + "]";
 	}
 
