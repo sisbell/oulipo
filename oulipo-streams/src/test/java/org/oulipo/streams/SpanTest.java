@@ -17,10 +17,12 @@ package org.oulipo.streams;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
+import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 
 @RunWith(JUnitPlatform.class)
@@ -47,5 +49,68 @@ public class SpanTest {
 		Span s2 = new Span(10, 50, "ted://1");
 		assertFalse(s1.equals(s2));
 	}
+	
+	@Test
+	public void illegalStart() throws Exception {
+		assertThrows(MalformedSpanException.class, () -> {
+			new Span(0, 100);
+		});
+	}
+
+	@Test
+	public void nullTumblerOk() throws Exception {
+		new Span(100, 10, null);
+	}
+
+	@Test
+	public void splitLowerBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			Span span = new Span(100, 10);
+			SpanPartition partition = span.split(100);
+			System.out.println(partition);
+		});
+	}
+
+	@Test
+	public void splitOk() throws Exception {
+		Span span = new Span(100, 10);
+		SpanPartition partition = span.split(105);
+		assertEquals(100L, partition.getLeft().start);
+		assertEquals(5L, partition.getLeft().width);
+		assertEquals(105L, partition.getRight().start);
+		assertEquals(5L, partition.getRight().width);
+	}
+
+	@Test
+	public void splitOverUpperBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			Span span = new Span(100, 10);
+			span.split(120);
+		});
+	}
+
+	@Test
+	public void splitUnderLowerBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			Span span = new Span(100, 10);
+			span.split(90);
+		});
+	}
+
+	@Test
+	public void splitUpperBound() throws Exception {
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			Span span = new Span(100, 10);
+			span.split(110);
+		});
+	}
+
+	@Test
+	public void zeroWidth() throws Exception {
+		assertThrows(MalformedSpanException.class, () -> {
+			new Span(100, 0);
+		});
+	}
+
 
 }

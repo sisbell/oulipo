@@ -21,17 +21,17 @@ import org.oulipo.net.MalformedSpanException;
  * A two-part partition of an invariant span. It has left and right spans along
  * a cut point.
  */
-public final class InvariantSpanPartition {
+public final class SpanPartition {
 
 	/**
 	 * Left half of partition
 	 */
-	private final InvariantSpan left;
+	private final Span left;
 
 	/**
 	 * Right half of partition
 	 */
-	private final InvariantSpan right;
+	private final Span right;
 
 	/**
 	 * Constructs a span partition containing a left and right span. The edges of
@@ -45,7 +45,7 @@ public final class InvariantSpanPartition {
 	 *             if the edges of the spans do not touch (left.start + left.width
 	 *             == right.start)
 	 */
-	public InvariantSpanPartition(InvariantSpan left, InvariantSpan right) throws MalformedSpanException {
+	public SpanPartition(Span left, Span right) throws MalformedSpanException {
 		if (left == null) {
 			throw new IllegalArgumentException("left span is null");
 		}
@@ -68,7 +68,7 @@ public final class InvariantSpanPartition {
 	 * 
 	 * @return
 	 */
-	public InvariantSpan getLeft() {
+	public Span getLeft() {
 		return left;
 	}
 
@@ -77,7 +77,7 @@ public final class InvariantSpanPartition {
 	 * 
 	 * @return
 	 */
-	public InvariantSpan getRight() {
+	public Span getRight() {
 		return right;
 	}
 }

@@ -19,6 +19,8 @@ public class Schema {
 
 	public static final String DOCUMENT = "schema://oulipo/Document";
 
+	public static final String IMAGE = "schema://oulipo/Image";
+
 	public static final String INVARIANT_LINK = "schema://oulipo/InvariantLink";
 
 	public static final String INVARIANT_SPAN = "schema://oulipo/InvariantSpan";

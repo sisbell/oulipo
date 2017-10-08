@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.InvariantSpans;
+import org.oulipo.streams.Spans;
 import org.oulipo.streams.InvariantStream;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantStream;
@@ -107,7 +107,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-variant.json");
 		stream = new RopeVariantStream(tumbler);
 		if (file.exists()) {
-			InvariantSpans spans = mapper.readValue(file, InvariantSpans.class);
+			Spans spans = mapper.readValue(file, Spans.class);
 			stream.load(spans);
 		}
 		cache.put(tumbler, stream);
@@ -118,7 +118,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 	private void persistVariant(TumblerAddress tumbler, VariantStream stream)
 			throws IOException, MalformedSpanException {
 		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-variant.json");
-		mapper.writeValue(file, stream.getInvariantSpans());
+		mapper.writeValue(file, stream.getSpans());
 	}
 
 	@Override

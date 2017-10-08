@@ -63,9 +63,9 @@ public interface OulipoMachine extends VariantStream, InvariantStream {
 	 */
 	default List<VirtualContent> getVirtualContent() throws IOException, MalformedSpanException {
 		List<VirtualContent> virtuals = new ArrayList<>();
-		List<InvariantSpan> it = getInvariantSpans().getInvariantSpans();
+		List<Span> it = getSpans().getSpans();
 		int order = 0;
-		for (InvariantSpan span : it) {
+		for (Span span : it) {
 			VirtualContent vc = new VirtualContent();
 			vc.invariantSpan = span;
 

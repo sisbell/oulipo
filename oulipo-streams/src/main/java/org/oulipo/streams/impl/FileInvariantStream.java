@@ -24,7 +24,7 @@ import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.streams.InvariantSpan;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.InvariantStream;
 
 import com.google.common.base.Strings;
@@ -57,14 +57,14 @@ public class FileInvariantStream implements InvariantStream {
 	}
 
 	@Override
-	public InvariantSpan append(String text) throws IOException, MalformedSpanException {
+	public Span append(String text) throws IOException, MalformedSpanException {
 		if (Strings.isNullOrEmpty(text)) {
 			throw new MalformedSpanException(null, "No text - span length is 0");
 		}
 
 		FileLock lock = channel.lock();
 		try {
-			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length());
+			Span span = new Span(channel.position() + 1, text.length());
 
 			buffer.clear();
 			buffer.put(text.getBytes());
@@ -82,7 +82,7 @@ public class FileInvariantStream implements InvariantStream {
 	}
 
 	@Override
-	public String getText(InvariantSpan ispan) throws IOException {
+	public String getText(Span ispan) throws IOException {
 		return getText(ispan.start, ispan.width);
 	}
 

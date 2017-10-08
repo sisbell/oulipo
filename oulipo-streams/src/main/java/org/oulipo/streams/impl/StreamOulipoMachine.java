@@ -23,8 +23,8 @@ import java.util.concurrent.Executors;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.AbstractOulipoMachine;
-import org.oulipo.streams.InvariantSpan;
-import org.oulipo.streams.InvariantSpans;
+import org.oulipo.streams.Span;
+import org.oulipo.streams.Spans;
 import org.oulipo.streams.InvariantStream;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantSpan;
@@ -75,7 +75,7 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 	}
 
 	@Override
-	public InvariantSpan append(String text) throws IOException, MalformedSpanException {
+	public Span append(String text) throws IOException, MalformedSpanException {
 		return iStream.append(text);
 	}
 
@@ -90,27 +90,27 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 	}
 
 	@Override
-	public InvariantSpans getInvariantSpans() throws MalformedSpanException {
-		return vStream.getInvariantSpans();
+	public Spans getSpans() throws MalformedSpanException {
+		return vStream.getSpans();
 	}
 
 	@Override
-	public InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException {
-		return vStream.getInvariantSpans(variantSpan);
+	public Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException {
+		return vStream.getSpans(variantSpan);
 	}
 
 	@Override
-	public String getText(InvariantSpan ispan) throws IOException {
+	public String getText(Span ispan) throws IOException {
 		return iStream.getText(ispan);
 	}
 
 	@Override
-	public List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException {
+	public List<VariantSpan> getVariantSpans(Span invariantSpan) throws MalformedSpanException {
 		return vStream.getVariantSpans(invariantSpan);
 	}
 
 	@Override
-	public InvariantSpan index(long characterPosition) {
+	public Span index(long characterPosition) {
 		return vStream.index(characterPosition);
 	}
 

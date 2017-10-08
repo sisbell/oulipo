@@ -20,18 +20,18 @@ import java.util.List;
 
 import org.oulipo.net.TumblerAddress;
 
-public final class InvariantSpans {
+public final class Spans {
 
 	private TumblerAddress homeDocument;
 
-	private List<InvariantSpan> invariantSpans = new ArrayList<>();
+	private List<Span> spans = new ArrayList<>();
 
 	public TumblerAddress getHomeDocument() {
 		return homeDocument;
 	}
 
-	public List<InvariantSpan> getInvariantSpans() {
-		return invariantSpans;
+	public List<Span> getSpans() {
+		return spans;
 	}
 
 	public void setHomeDocument(TumblerAddress homeDocument) {

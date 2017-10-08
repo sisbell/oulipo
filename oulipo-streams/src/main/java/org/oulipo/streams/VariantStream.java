@@ -34,33 +34,33 @@ public interface VariantStream {
 
 	void delete(VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
-	InvariantSpans getInvariantSpans() throws MalformedSpanException;
+	Spans getSpans() throws MalformedSpanException;
 
-	InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException;
+	Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException;
 
-	List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException;
+	List<VariantSpan> getVariantSpans(Span Span) throws MalformedSpanException;
 
 	/**
-	 * Returns the <code>InvariantSpan<code> at the specified character position, or
+	 * Returns the <code>Span<code> at the specified character position, or
 	 * null if none exists at that position
 	 * 
 	 * @param characterPosition
 	 * @return
 	 */
-	InvariantSpan index(long characterPosition);
+	Span index(long characterPosition);
 
-	default void load(InvariantSpans spans) throws MalformedSpanException, IOException {
-		put(1, spans.getInvariantSpans());
+	default void load(Spans spans) throws MalformedSpanException, IOException {
+		put(1, spans.getSpans());
 	}
 
 	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
-	void put(long characterPosition, InvariantSpan invariantSpan) throws MalformedSpanException, IOException;
+	void put(long characterPosition, Span Span) throws MalformedSpanException, IOException;
 
-	default void put(long characterPosition, List<InvariantSpan> ispans) throws MalformedSpanException, IOException {
+	default void put(long characterPosition, List<Span> ispans) throws MalformedSpanException, IOException {
 		long start = characterPosition;
 		for (int i = 0; i < ispans.size(); i++) {
-			InvariantSpan ispan = ispans.get(i);
+			Span ispan = ispans.get(i);
 			put(start, ispan);
 			start += ispan.width;
 		}

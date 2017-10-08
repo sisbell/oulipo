@@ -81,7 +81,7 @@ public abstract class AbstractOulipoMachine implements OulipoMachine {
 	}
 
 	@Override
-	public void put(long to, InvariantSpan invariantSpan) throws MalformedSpanException, IOException {
+	public void put(long to, Span invariantSpan) throws MalformedSpanException, IOException {
 		assertGreaterThanZero(to);
 		assertSpanNotNull(invariantSpan);
 		push(writeOp(new PutOp(to, invariantSpan)));

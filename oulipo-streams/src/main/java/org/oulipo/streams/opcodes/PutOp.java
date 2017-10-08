@@ -19,17 +19,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.oulipo.streams.InvariantSpan;
+import org.oulipo.streams.Span;
 
 public final class PutOp extends Op<PutOp.Data> {
 
 	public static class Data {
 
-		public final InvariantSpan invariantSpan;
+		public final Span invariantSpan;
 
 		public final long to;
 
-		public Data(long to, InvariantSpan invariantSpan) {
+		public Data(long to, Span invariantSpan) {
 			this.to = to;
 			this.invariantSpan = invariantSpan;
 		}
@@ -39,7 +39,7 @@ public final class PutOp extends Op<PutOp.Data> {
 		super(Op.PUT, data);
 	}
 
-	public PutOp(long to, InvariantSpan invariantSpan) {
+	public PutOp(long to, Span invariantSpan) {
 		this(new Data(to, invariantSpan));
 	}
 

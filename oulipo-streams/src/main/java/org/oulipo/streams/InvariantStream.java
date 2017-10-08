@@ -41,7 +41,7 @@ public interface InvariantStream {
 	 * @throws MalformedSpanException
 	 *             if the invariant span is malformed
 	 */
-	InvariantSpan append(String text) throws IOException, MalformedSpanException;
+	Span append(String text) throws IOException, MalformedSpanException;
 
 	/**
 	 * Gets the text bounded by the specified invariantSpan. The text is pulled from
@@ -53,5 +53,5 @@ public interface InvariantStream {
 	 * @return the String bounded by the specified invariantSpan
 	 * @throws IOException
 	 */
-	String getText(InvariantSpan invariantSpan) throws IOException;
+	String getText(Span invariantSpan) throws IOException;
 }

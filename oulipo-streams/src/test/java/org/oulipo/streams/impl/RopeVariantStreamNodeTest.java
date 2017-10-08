@@ -21,7 +21,7 @@ import static org.oulipo.streams.impl.NodeFactory.getF;
 import static org.oulipo.streams.impl.NodeFactory.getK;
 
 import org.junit.Test;
-import org.oulipo.streams.InvariantSpan;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.impl.RopeVariantStream.Node;
 
 /**
@@ -32,28 +32,28 @@ public class RopeVariantStreamNodeTest {
 	@Test
 	public void split13() throws Exception {
 		Node result = getK().split(2);
-		assertEquals(new InvariantSpan(300, 2), result.left.value);
-		assertEquals(new InvariantSpan(302, 2), result.right.value);
+		assertEquals(new Span(300, 2), result.left.value);
+		assertEquals(new Span(302, 2), result.right.value);
 	}
 
 	@Test
 	public void splitEdge() throws Exception {
 		Node result = getE().split(4);
-		assertEquals(new InvariantSpan(100, 4), result.left.value);
-		assertEquals(new InvariantSpan(104, 2), result.right.value);
+		assertEquals(new Span(100, 4), result.left.value);
+		assertEquals(new Span(104, 2), result.right.value);
 	}
 
 	@Test
 	public void splitF() throws Exception {
 		Node result = getF().split(2);
-		assertEquals(new InvariantSpan(200, 2), result.left.value);
-		assertEquals(new InvariantSpan(202, 1), result.right.value);
+		assertEquals(new Span(200, 2), result.left.value);
+		assertEquals(new Span(202, 1), result.right.value);
 	}
 
 	@Test
 	public void splitMinEdge() throws Exception {
 		Node result = getE().split(1);
-		assertEquals(new InvariantSpan(100, 1), result.left.value);
-		assertEquals(new InvariantSpan(101, 5), result.right.value);
+		assertEquals(new Span(100, 1), result.left.value);
+		assertEquals(new Span(101, 5), result.right.value);
 	}
 }

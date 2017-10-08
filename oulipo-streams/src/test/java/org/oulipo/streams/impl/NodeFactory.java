@@ -16,7 +16,7 @@
 package org.oulipo.streams.impl;
 
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.streams.InvariantSpan;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.impl.RopeVariantStream.Node;
 
 final class NodeFactory {
@@ -26,14 +26,14 @@ final class NodeFactory {
 		Node B = new Node(9);
 		Node C = new Node(6);
 		Node D = new Node(6);
-		Node E = new Node(6, new InvariantSpan(100, 6));
-		Node F = new Node(3, new InvariantSpan(200, 3));
+		Node E = new Node(6, new Span(100, 6));
+		Node F = new Node(3, new Span(200, 3));
 		Node G = new Node(2);
 		Node H = new Node(1);
-		Node J = new Node(2, new InvariantSpan(250, 2));
-		Node K = new Node(4, new InvariantSpan(300, 4));
-		Node M = new Node(1, new InvariantSpan(350, 1));
-		Node N = new Node(6, new InvariantSpan(360, 6));
+		Node J = new Node(2, new Span(250, 2));
+		Node K = new Node(4, new Span(300, 4));
+		Node M = new Node(1, new Span(350, 1));
+		Node N = new Node(6, new Span(360, 6));
 
 		A.tag = "A";
 		B.tag = "B";

@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.InvariantSpan;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.OpCodeReader;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.opcodes.Op;
@@ -56,7 +56,7 @@ public class StreamOulipoMachineTest {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
 
 		StreamOulipoMachine som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
-		InvariantSpan span = som.append("Hello");
+		Span span = som.append("Hello");
 		assertEquals(span.start, 1);
 		assertEquals(span.width, 5);
 
@@ -77,7 +77,7 @@ public class StreamOulipoMachineTest {
 		StreamOulipoMachine som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
 		som.append("Hello");
 		som.append("World");
-		String result = som.getText(new InvariantSpan(5, 5));
+		String result = som.getText(new Span(5, 5));
 		assertEquals("oWorl", result);
 	}
 

@@ -26,9 +26,9 @@ import java.util.Queue;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.InvariantSpan;
-import org.oulipo.streams.InvariantSpanPartition;
-import org.oulipo.streams.InvariantSpans;
+import org.oulipo.streams.Span;
+import org.oulipo.streams.SpanPartition;
+import org.oulipo.streams.Spans;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
 
@@ -90,9 +90,9 @@ public final class RopeVariantStream implements VariantStream {
 		private long position = 1;
 
 		/**
-		 * Ordered collection of <code>InvariantSpan<code>s.
+		 * Ordered collection of <code>Span<code>s.
 		 */
-		final Queue<InvariantSpan> queue = new LinkedList<>();
+		final Queue<Span> queue = new LinkedList<>();
 
 		/**
 		 * Constructs a collector. The character position is the variant position of the
@@ -105,7 +105,7 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		/**
-		 * Collects <code>InvariantSpan</code>s between the specified lo and hi
+		 * Collects <code>Span</code>s between the specified lo and hi
 		 * characters.
 		 * 
 		 * The specified node x is the first parent node of the node at position lo.
@@ -134,7 +134,7 @@ public final class RopeVariantStream implements VariantStream {
 						long invariantStart = queue.isEmpty() && position + x.weight -1 <= hi
 								? x.value.start + x.value.width - (b - a)
 								: x.value.start;
-						queue.add(new InvariantSpan(invariantStart, b - a));
+						queue.add(new Span(invariantStart, b - a));
 					} 
 				}
 				position += x.weight;
@@ -162,7 +162,7 @@ public final class RopeVariantStream implements VariantStream {
 
 		public String tag;
 
-		public final InvariantSpan value;
+		public final Span value;
 
 		public long weight;
 
@@ -187,7 +187,7 @@ public final class RopeVariantStream implements VariantStream {
 		 * @throws IllegalArgumentException
 		 *             if the weight != value.width
 		 */
-		Node(long weight, InvariantSpan value) {
+		Node(long weight, Span value) {
 			if (weight < 0) {
 				throw new IndexOutOfBoundsException("weight must be greater than -1");
 			}
@@ -200,7 +200,7 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		Node(long weight, long start, long width) throws MalformedSpanException {
-			this(weight, new InvariantSpan(start, width));
+			this(weight, new Span(start, width));
 		}
 
 		/**
@@ -277,7 +277,7 @@ public final class RopeVariantStream implements VariantStream {
 			long cutPoint = value.start + variantPosition;
 			Node parent = new Node(variantPosition);// TODO
 
-			InvariantSpanPartition spans = value.split(cutPoint);
+			SpanPartition spans = value.split(cutPoint);
 			parent.left = new Node(spans.getLeft().width, spans.getLeft());
 			parent.right = new Node(spans.getRight().width, spans.getRight());
 
@@ -436,7 +436,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * This method is used to determine the displacement of the specified child
 	 * node.
 	 * 
-	 * @see #getInvariantSpans(VariantSpan)
+	 * @see #getSpans(VariantSpan)
 	 * 
 	 * @param child
 	 *            the child node from which to start adding.
@@ -711,7 +711,7 @@ public final class RopeVariantStream implements VariantStream {
 
 	@Override
 	public void copy(long characterPosition, VariantSpan variantSpan) throws MalformedSpanException, IOException {
-		List<InvariantSpan> spans = getInvariantSpans(variantSpan).getInvariantSpans();
+		List<Span> spans = getSpans(variantSpan).getSpans();
 		put(characterPosition, spans);
 	}
 
@@ -820,20 +820,20 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	@Override
-	public InvariantSpans getInvariantSpans() throws MalformedSpanException {
-		InvariantSpans spans = new InvariantSpans();
+	public Spans getSpans() throws MalformedSpanException {
+		Spans spans = new Spans();
 		Iterator<Node> it = getAllLeafNodes();
 		while (it.hasNext()) {
 			Node node = it.next();
 			if (node.value != null) {
-				spans.getInvariantSpans().add(node.value);
+				spans.getSpans().add(node.value);
 			}
 		}
 		return spans;
 	}
 
 	@Override
-	public InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException {
+	public Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException {
 		Node loNode = index(variantSpan.start, root, null);
 		Node searchNode = findSearchNode(loNode, variantSpan.start + variantSpan.width - 1);
 
@@ -843,29 +843,29 @@ public final class RopeVariantStream implements VariantStream {
 		InvariantSpanCollector collector = new InvariantSpanCollector(disp.getValue());
 		collector.collect(searchNode, variantSpan.start, variantSpan.start + variantSpan.width);
 
-		InvariantSpans spans = new InvariantSpans();
+		Spans spans = new Spans();
 
-		Iterator<InvariantSpan> it = collector.queue.iterator();
+		Iterator<Span> it = collector.queue.iterator();
 		while (it.hasNext()) {
-			InvariantSpan is = it.next();
+			Span is = it.next();
 			try {
 				is.homeDocument = homeDocument.toExternalForm();
 			} catch (MalformedTumblerException e) {
 				e.printStackTrace();// TODO: throw
 			}
-			spans.getInvariantSpans().add(is);
+			spans.getSpans().add(is);
 		}
 		return spans;
 	}
 
 	@Override
-	public List<VariantSpan> getVariantSpans(InvariantSpan invariantSpan) throws MalformedSpanException {
+	public List<VariantSpan> getVariantSpans(Span invariantSpan) throws MalformedSpanException {
 		// TODO: scans very inefficient
 		long index = 1;
 		List<VariantSpan> vspans = new ArrayList<>();
-		List<InvariantSpan> ispans = getInvariantSpans().getInvariantSpans();
+		List<Span> ispans = getSpans().getSpans();
 		for (int i = 0; i < ispans.size(); i++) {
-			InvariantSpan ispan = ispans.get(i);
+			Span ispan = ispans.get(i);
 			long start = ispan.start;
 			long end = start + ispan.width;
 			long start2 = invariantSpan.start;
@@ -887,7 +887,7 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	@Override
-	public InvariantSpan index(long characterPosition) {
+	public Span index(long characterPosition) {
 		Node idx = index(characterPosition, root, null);
 		return idx == null ? null : idx.value;
 	}
@@ -927,7 +927,7 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	@Override
-	public void put(long characterPosition, InvariantSpan val) throws MalformedSpanException {
+	public void put(long characterPosition, Span val) throws MalformedSpanException {
 		if (val == null) {
 			throw new IllegalArgumentException("invariant span is null");
 		}

@@ -32,7 +32,7 @@ public final class VirtualContent {
 	/**
 	 * The invariant span. This maps to the immutable text to of the homeDocument.
 	 */
-	public InvariantSpan invariantSpan;
+	public Span invariantSpan;
 
 	/**
 	 * Positional order of this content within the document
