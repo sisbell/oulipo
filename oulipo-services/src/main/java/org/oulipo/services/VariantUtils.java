@@ -44,7 +44,7 @@ public final class VariantUtils {
 	public static List<TumblerAddress> fromInvariantToVariant(TumblerAddress ispanAddress, OulipoMachine om)
 			throws MalformedTumblerException, MalformedSpanException {
 		List<TumblerAddress> variantSpans = new ArrayList<>();
-		org.oulipo.streams.InvariantSpan invariantSpan = new org.oulipo.streams.InvariantSpan(ispanAddress.spanStart(),
+		org.oulipo.streams.Span invariantSpan = new org.oulipo.streams.Span(ispanAddress.spanStart(),
 				ispanAddress.spanWidth());
 		List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
 		for (VariantSpan vspan : vspans) {
@@ -65,8 +65,8 @@ public final class VariantUtils {
 
 		for (TumblerAddress vspan : variantSpans) {
 			VariantSpan variantSpan = new VariantSpan(vspan.spanStart(), vspan.spanWidth());
-			List<org.oulipo.streams.InvariantSpan> ispans = om.getInvariantSpans(variantSpan).getInvariantSpans();
-			for (org.oulipo.streams.InvariantSpan ispan : ispans) {
+			List<org.oulipo.streams.Span> ispans = om.getSpans(variantSpan).getSpans();
+			for (org.oulipo.streams.Span ispan : ispans) {
 				TumblerAddress invariantSpanAddress = TumblerAddress
 						.create(ispan.homeDocument + ".0.3." + ispan.start + "~3." + ispan.width);
 				invariantSpans.add(invariantSpanAddress);
