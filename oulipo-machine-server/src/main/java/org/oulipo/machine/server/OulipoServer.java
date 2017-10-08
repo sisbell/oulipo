@@ -143,6 +143,7 @@ public class OulipoServer {
 		get("/docuverse/:networkId/1/1/1.1.1/1.1~1.1", req.getSystemVSpans(), transformer);
 		get("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", req.getElement(), transformer);
 
+		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/image", JSON, req.createOrUpdateLink(), transformer);
 		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", JSON, req.createOrUpdateLink(), transformer);
 		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/insert", req.insertContent(), transformer);
 

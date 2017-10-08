@@ -34,11 +34,15 @@ import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.editor.DocumentArea;
 import org.oulipo.browser.editor.LinkFactory;
 import org.oulipo.browser.editor.LinkType;
 import org.oulipo.browser.editor.ParStyle;
+import org.oulipo.browser.editor.a.Editor;
+import org.oulipo.browser.editor.a.RopeVariantStream;
+import org.oulipo.browser.editor.a.Segment;
 import org.oulipo.browser.editor.remote.IpfsRemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImage;
 //import org.oulipo.browser.editor.images.LinkedImage;
@@ -96,6 +100,8 @@ public final class PublisherController extends BaseController {
 	private VirtualizedScrollPane<GenericStyledArea<ParStyle, Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType>> renderPane;
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
+
+	private Editor editor;
 
 	private Button createMaterialButton(String resource, Runnable action, String toolTip) {
 		Image image = new Image(getClass().getResourceAsStream("/images/ic_" + resource + "_black_24dp_1x.png"));
@@ -205,9 +211,10 @@ public final class PublisherController extends BaseController {
 
 				Platform.runLater(() -> {
 					for (Entry<String, Endset> e : endsets.entrySet()) {
+						TumblerAddress linkType = TumblerAddress.createWithNoException(e.getKey());
 						HashSet<TumblerAddress> spans = e.getValue().fromVSpans;
 						for (TumblerAddress span : spans) {
-							area.applyStyle(span, TumblerAddress.createWithNoException(e.getKey()));
+							area.applyStyle(span, linkType);
 						}
 					}
 				});
@@ -268,6 +275,7 @@ public final class PublisherController extends BaseController {
 						.fromSegment(Either.right(new IpfsRemoteImage<>(hash, LinkType.EMPTY)), ParStyle.EMPTY,
 								LinkType.EMPTY, area.getSegOps());
 				area.replaceSelection(ros);
+				area.setImage(hash);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -310,6 +318,14 @@ public final class PublisherController extends BaseController {
 		System.out.println("------------------------------");
 		area.flush();
 
+		try {
+			for (Segment segment : editor.getSegments()) {
+				System.out.println(segment);
+			}
+		} catch (MalformedSpanException e1) {
+			e1.printStackTrace();
+		}
+
 		for (HyperOperation hop : hops) {
 			System.out.println("SAVE:" + hop);
 			if (hop.getOperation().equals(OpCode.INSERT)) {
@@ -348,7 +364,6 @@ public final class PublisherController extends BaseController {
 
 				@Override
 				public void onResponse(Call<String> arg0, Response<String> arg1) {
-					System.out.println("FINISH:" + arg1.body());
 					ctx.showMessage("Synched document changes with Oulipo Server");
 				}
 			});
@@ -358,47 +373,38 @@ public final class PublisherController extends BaseController {
 		}
 
 		// TODO: bulk upload
-		StyleSpans<LinkType> spans = area.getStyleSpans(0, area.getLength());
-		Iterator<StyleSpan<LinkType>> it = spans.iterator();
-
+		// StyleSpans<LinkType> spans = area.getStyleSpans(0, area.getLength());
+		// Iterator<StyleSpan<LinkType>> it = spans.iterator();
 		Link boldLink = LinkFactory.bold(address);
 		Link underlineLink = LinkFactory.underline(address);
 		Link strikeThroughLink = LinkFactory.strikeThrough(address);
 		Link italicLink = LinkFactory.italic(address);
 
-		int position = 1;
-		while (it.hasNext()) {
-			StyleSpan<LinkType> span = it.next();
-			LinkType linkType = span.getStyle();
-			System.out.println(span);
-			System.out.println(linkType);
-
-			if (linkType.bold.isPresent() && linkType.bold.get()) {
+		try {
+			for (Segment segment : editor.getSegments()) {
 				try {
 					TumblerAddress s = TumblerAddress
-							.create(address.toExternalForm() + ".0.1." + position + "~1." + span.getLength());
-					boldLink.fromVSpans.add(s);
+							.create(address.toExternalForm() + ".0.1." + segment.start + "~1." + segment.width);
+
+					if (segment.getLinkTypes.contains(TumblerAddress.BOLD)) {
+						boldLink.fromVSpans.add(s);
+					}
+					if (segment.getLinkTypes.contains(TumblerAddress.ITALIC)) {
+						italicLink.fromVSpans.add(s);
+					}
+					if (segment.getLinkTypes.contains(TumblerAddress.UNDERLINE)) {
+						underlineLink.fromVSpans.add(s);
+					}
+					if (segment.getLinkTypes.contains(TumblerAddress.STRIKE_THROUGH)) {
+						strikeThroughLink.fromVSpans.add(s);
+					}
 				} catch (MalformedTumblerException e) {
 					e.printStackTrace();
 				}
 			}
-
-			if (linkType.italic.isPresent() && linkType.italic.get()) {
-				// italicLink.fromVSpans.add(linkType.getSpanAddress());
-			}
-
-			if (linkType.strikethrough.isPresent() && linkType.strikethrough.get()) {
-				// strikeThroughLink.fromVSpans.add(linkType.getSpanAddress());
-			}
-
-			if (linkType.underline.isPresent() && linkType.underline.get()) {
-				// underlineLink.fromVSpans.add(linkType.getSpanAddress());
-			}
-
-			position += span.getLength();
-			System.out.println("LEN: " + span.getLength() + ", " + span.getStyle().toCss());
+		} catch (MalformedSpanException e) {
+			e.printStackTrace();
 		}
-
 		setLink(boldLink);
 		setLink(italicLink);
 		setLink(strikeThroughLink);
@@ -437,7 +443,8 @@ public final class PublisherController extends BaseController {
 
 		// controller.getContext().getAccountManager().getActiveAccount().publicKey
 		// controller.getContext().getApplicationContext().getStage(id)
-		this.area = DocumentArea.newInstance(address, ctx);
+		editor = new Editor(new RopeVariantStream(address));
+		this.area = DocumentArea.newInstance(address, ctx, editor);
 		this.renderPane = new VirtualizedScrollPane<>(area);
 		area.setMaxWidth(500);
 

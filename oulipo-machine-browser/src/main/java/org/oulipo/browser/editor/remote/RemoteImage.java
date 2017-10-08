@@ -23,9 +23,9 @@ public interface RemoteImage<S> {
 
 			@Override
 			public void encode(DataOutputStream os, RemoteImage<S> i) throws IOException {
+				String hash = i.getHash();
+				Codec.STRING_CODEC.encode(os, hash);
 				if (i.getStyle() != null) {
-					String hash = i.getHash();
-					Codec.STRING_CODEC.encode(os, hash);
 					styleCodec.encode(os, i.getStyle());
 				}
 			}

@@ -90,7 +90,7 @@ public class Span {
 	 * @return
 	 * @throws MalformedTumblerException
 	 */
-	public TumblerAddress addToTumbler(TumblerAddress documentAddress) throws MalformedTumblerException {
+	public final TumblerAddress addToTumbler(TumblerAddress documentAddress) throws MalformedTumblerException {
 		return new TumblerAddress.Builder(documentAddress.getDocumentAddress()).element("1." + start).width(width)
 				.build();
 	}
@@ -130,7 +130,7 @@ public class Span {
 	public String toString() {
 		return "Span [start=" + start + ", width=" + width + "]";
 	}
-	
+
 	/**
 	 * Splits this invariant span into two parts at the specified position. The cut
 	 * point is relative, or to the right of, this spans start value.
@@ -158,6 +158,9 @@ public class Span {
 		return new SpanPartition(new Span(start, cutPoint - start, homeDocument),
 				new Span(cutPoint, start + width - cutPoint, homeDocument));
 	}
-
+	
+	public Span copy() throws MalformedSpanException {
+		return new Span(start, width, homeDocument);
+	}
 
 }

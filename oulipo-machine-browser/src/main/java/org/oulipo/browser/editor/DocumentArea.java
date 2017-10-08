@@ -15,8 +15,9 @@
  *******************************************************************************/
 package org.oulipo.browser.editor;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -26,21 +27,21 @@ import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.TextExt;
 import org.fxmisc.richtext.model.Codec;
 import org.fxmisc.richtext.model.PlainTextChange;
-import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
 import org.fxmisc.richtext.model.TextChange.ChangeType;
 import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.BrowserContext;
+import org.oulipo.browser.editor.a.Editor;
 import org.oulipo.browser.editor.remote.RemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImageOps;
 import org.oulipo.client.services.RemoteFileManager;
-//import org.oulipo.browser.editor.images.LinkedImage;
-//import org.oulipo.browser.editor.images.LinkedImageOps;
+import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.resources.ops.HyperRegion;
+import org.oulipo.streams.VariantSpan;
 import org.reactfx.EventStream;
 import org.reactfx.util.Either;
 
@@ -106,8 +107,8 @@ public class DocumentArea
 	}
 
 	private static Node createNode(TextOps<StyledText<LinkType>, LinkType> styledTextOps,
-			Either<StyledText<LinkType>, RemoteImage<LinkType>> seg,
-			BiConsumer<? super TextExt, LinkType> applyStyle, RemoteFileManager fileManager) {
+			Either<StyledText<LinkType>, RemoteImage<LinkType>> seg, BiConsumer<? super TextExt, LinkType> applyStyle,
+			RemoteFileManager fileManager) {
 		if (seg.isLeft()) {
 			return StyledTextArea.createStyledTextNode(seg.getLeft(), styledTextOps, applyStyle);
 		} else {
@@ -123,22 +124,19 @@ public class DocumentArea
 	 * @return
 	 * @throws IllegalTumblerException
 	 */
-	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx) {
+	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx, Editor rope) {
 		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
 		RemoteImageOps<LinkType> linkedImageOps = new RemoteImageOps<>();
 		RemoteFileManager fileManager = ctx.getApplicationContext().getRemoteFileManager();
-		
+
 		return new DocumentArea(tumblerAddress, ctx, styledTextOps._or(linkedImageOps),
-				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss()), fileManager));
+				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss()), fileManager),
+				rope);
 	}
 
 	private final BrowserContext ctx;
 
 	private final Deleter deleter = new Deleter();
-
-	private int deletionPosition = 0;
-
-	private StringBuilder deletionText = new StringBuilder();
 
 	/**
 	 * Tumbler address of this Document
@@ -151,12 +149,15 @@ public class DocumentArea
 
 	private boolean writeOps;
 
+	private Editor editor;
+
 	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
 			TextOps<Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> segmentOps,
-			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory) {
+			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory, Editor rope) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
+		this.editor = rope;
 		this.ctx = ctx;
 		this.homeDocument = homeDocument;
 		homeDocument.setScheme("ted");
@@ -168,7 +169,6 @@ public class DocumentArea
 				Codec.eitherCodec(StyledText.codec(LinkType.CODEC), RemoteImage.codec(LinkType.CODEC)));
 		requestFocus();
 		richChanges().subscribe(change -> {
-			// change.getType()
 			System.out.println("Rich text change");
 		});
 
@@ -187,13 +187,6 @@ public class DocumentArea
 				notifyTextInsertionChange(change);
 				deleteText(change);
 			}
-			/*
-			 * try { if (!Strings.isNullOrEmpty(change.getInserted())) {
-			 * notifyTextInsertionChange(change); } else {// deleted
-			 * notifyTextInsertionChange(change); deleteText(change); } } catch (Exception
-			 * e) { e.printStackTrace(); ctx.showMessage("Text Change Exception: " +
-			 * e.getMessage()); }
-			 */
 		});
 	}
 
@@ -206,34 +199,20 @@ public class DocumentArea
 	public void applyStyle(TumblerAddress span, TumblerAddress linkType) {
 		int styleStart = span.spanStart() - 1;
 		StyleSpans<LinkType> styles = getStyleSpans(styleStart, styleStart + span.spanWidth());
-		LinkType mixin = LinkType.bold(true);// TODO -need to know style type
-		StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-		setStyleSpans(styleStart, newStyles);
-	}
-
-	private void delete2(PlainTextChange change) {
-		if ((change.getPosition() - deletionPosition) != 0 && deletionText.length() > 0) {
-			String text = deletionText.reverse().toString();
-			HyperOperation op = new HyperOperation(homeDocument, new HyperRegion(change.getPosition(), text.length()),
-					OpCode.DELETE, text);
-			operations.add(op);
-			deletionText = new StringBuilder();
-
-			System.out.println(op);
+		if(TumblerAddress.BOLD.equals(linkType)) {
+			LinkType mixin = LinkType.bold(true);
+			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
+			setStyleSpans(styleStart, newStyles);
+		} else if(TumblerAddress.ITALIC.equals(linkType)) {
+			LinkType mixin = LinkType.italic(true);
+			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
+			setStyleSpans(styleStart, newStyles);
 		}
-		deletionPosition = change.getPosition();
-		deletionText.append(change.getRemoved());
 	}
 
 	private void deleteText(PlainTextChange change) {
 		operations.add(deleter.delete(homeDocument, change));
 	}
-
-	/*
-	 * public Optional<HyperOperation> flush(TumblerAddress tumblerAddress) {
-	 * Optional<HyperOperation> ohop = inserter.createOperation(tumblerAddress);
-	 * inserter.flush(); return ohop; }
-	 */
 
 	public void flush() {
 
@@ -251,6 +230,12 @@ public class DocumentArea
 		if (writeOps) {
 			HyperRegion region = new HyperRegion(position, text.length());
 			operations.add(new HyperOperation(homeDocument, region, OpCode.INSERT, text));
+			// TODO: insert into rope
+		}
+		try {
+			editor.putText(position + 1, text);
+		} catch (MalformedSpanException e) {
+			e.printStackTrace();
 		}
 		super.insertText(position, text);
 	}
@@ -264,7 +249,14 @@ public class DocumentArea
 		if (writeOps) {
 			Optional<HyperOperation> ho = inserter.insert(homeDocument, change);
 			if (ho.isPresent()) {
-				operations.add(ho.get());
+				HyperOperation hop = ho.get();
+				operations.add(hop);
+				
+				try {
+					editor.putText(hop.getDocumentRegion().getStart() + 1, hop.getText());
+				} catch (MalformedSpanException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -305,41 +297,72 @@ public class DocumentArea
 		}
 	}
 
-	public void printSpans() {
-		StyleSpans<LinkType> spans = getStyleSpans(0, 50);
-		Iterator<StyleSpan<LinkType>> it = spans.iterator();
-		while (it.hasNext()) {
-			StyleSpan<LinkType> span = it.next();
-			System.out.println("LEN: " + span.getLength() + ", " + span.getStyle().toCss());
-			// span.getStyle().
-			// Rewrite style to give start, and width, otherwise iterate and add position
-			// these will return tumbler type and variant spans - translate into endset for
-			// home doc
-		}
-	}
-
 	private HyperRegion selectedRegion() {
 		return new HyperRegion(getSelection().getStart(), getLength());
 	}
 
+	public void setImage(String hash) {
+		updateStyleInSelection(LinkType.image(hash));
+	}
+
 	public void toggleBold() {
+		IndexRange selection = getSelection();
+		try {
+			editor.applyLinks(new VariantSpan(selection.getStart() + 1, selection.getLength()), 
+					Arrays.asList(TumblerAddress.BOLD));
+		} catch (MalformedSpanException | IOException e) {
+			e.printStackTrace();
+		}
+	
 		updateStyleInSelection(
 				spans -> LinkType.bold(!spans.styleStream().allMatch(style -> style.bold.orElse(false))));
 	}
 
 	public void toggleItalic() {
+		IndexRange selection = getSelection();
+		try {
+			editor.applyLinks(new VariantSpan(selection.getStart() + 1, selection.getLength()), 
+					Arrays.asList(TumblerAddress.ITALIC));
+		} catch (MalformedSpanException | IOException e) {
+			e.printStackTrace();
+		}
+	
 		updateStyleInSelection(
 				spans -> LinkType.italic(!spans.styleStream().allMatch(style -> style.italic.orElse(false))));
 	}
 
 	public void toggleStrikethrough() {
+		IndexRange selection = getSelection();
+		try {
+			editor.applyLinks(new VariantSpan(selection.getStart() + 1, selection.getLength()), 
+					Arrays.asList(TumblerAddress.STRIKE_THROUGH));
+		} catch (MalformedSpanException | IOException e) {
+			e.printStackTrace();
+		}
+	
 		updateStyleInSelection(spans -> LinkType
 				.strikethrough(!spans.styleStream().allMatch(style -> style.strikethrough.orElse(false))));
 	}
 
 	public void toggleUnderline() {
+		IndexRange selection = getSelection();
+		try {
+			editor.applyLinks(new VariantSpan(selection.getStart() + 1, selection.getLength()), 
+					Arrays.asList(TumblerAddress.UNDERLINE));
+		} catch (MalformedSpanException | IOException e) {
+			e.printStackTrace();
+		}
+	
 		updateStyleInSelection(
 				spans -> LinkType.underline(!spans.styleStream().allMatch(style -> style.underline.orElse(false))));
+	}
+
+	private void updateStyleInSelection(LinkType mixin) {
+		IndexRange selection = getSelection();
+		StyleSpans<LinkType> styles = getStyleSpans(selection.getStart(), selection.getStart() + 1);
+		StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
+		setStyleSpans(selection.getStart(), newStyles);
+
 	}
 
 	private void updateStyleInSelection(Function<StyleSpans<LinkType>, LinkType> mixinGetter) {
@@ -359,12 +382,6 @@ public class DocumentArea
 	public void writeOpsOff() {
 		writeOps = false;
 	}
-
-	/*
-	 * public void appendText(String text, boolean writeOpCodes) { if (writeOpCodes)
-	 * { this.insertText(getLength(), text); } else { super.insertText(getLength(),
-	 * text); } }
-	 */
 
 	public void writeOpsOn() {
 		writeOps = true;

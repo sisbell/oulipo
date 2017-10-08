@@ -29,14 +29,15 @@ public class LinkType {
 
 		@Override
 		public LinkType decode(DataInputStream is) throws IOException {
-			// TumblerAddress linkAddress = TumblerAddress.create(is.readUTF());
 			byte bius = is.readByte();
 			Optional<Integer> fontSize = decodeOptionalUint(is.readInt());
 			Optional<String> fontFamily = OPT_STRING_CODEC.decode(is);
 			Optional<Color> textColor = OPT_COLOR_CODEC.decode(is);
 			Optional<Color> bgrColor = OPT_COLOR_CODEC.decode(is);
+			Optional<String> image =  OPT_STRING_CODEC.decode(is);
+			
 			return new LinkType(bold(bius), italic(bius), underline(bius), strikethrough(bius), fontSize, fontFamily,
-					textColor, bgrColor);
+					textColor, bgrColor, image);
 		}
 
 		private Optional<Boolean> decodeOptionalBoolean(int i) throws IOException {
@@ -57,12 +58,12 @@ public class LinkType {
 
 		@Override
 		public void encode(DataOutputStream os, LinkType s) throws IOException {
-			// os.writeUTF(s.spanAddress.toExternalForm());
 			os.writeByte(encodeBoldItalicUnderlineStrikethrough(s));
 			os.writeInt(encodeOptionalUint(s.fontSize));
 			OPT_STRING_CODEC.encode(os, s.fontFamily);
 			OPT_COLOR_CODEC.encode(os, s.textColor);
 			OPT_COLOR_CODEC.encode(os, s.backgroundColor);
+			OPT_STRING_CODEC.encode(os, s.image);
 		}
 
 		private int encodeBoldItalicUnderlineStrikethrough(LinkType s) {
@@ -113,6 +114,10 @@ public class LinkType {
 		return "rgb(" + red + ", " + green + ", " + blue + ")";
 	}
 
+	public static LinkType image(String hash) {
+		return EMPTY.updateImage(hash);
+	}
+
 	public static LinkType fontFamily(String family) {
 		return EMPTY.updateFontFamily(family);
 	}
@@ -141,6 +146,7 @@ public class LinkType {
 	public final Optional<Boolean> bold;
 	public final Optional<String> fontFamily;
 	public final Optional<Integer> fontSize;
+	public final Optional<String> image;
 	public final Optional<Boolean> italic;
 	public final Optional<Boolean> strikethrough;
 	public final Optional<Color> textColor;
@@ -148,12 +154,12 @@ public class LinkType {
 
 	public LinkType() {
 		this(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-				Optional.empty(), Optional.empty());
+				Optional.empty(), Optional.empty(), Optional.empty());
 	}
 
 	public LinkType(Optional<Boolean> bold, Optional<Boolean> italic, Optional<Boolean> underline,
 			Optional<Boolean> strikethrough, Optional<Integer> fontSize, Optional<String> fontFamily,
-			Optional<Color> textColor, Optional<Color> backgroundColor) {
+			Optional<Color> textColor, Optional<Color> backgroundColor, Optional<String> image) {
 		this.bold = bold;
 		this.italic = italic;
 		this.underline = underline;
@@ -162,6 +168,7 @@ public class LinkType {
 		this.fontFamily = fontFamily;
 		this.textColor = textColor;
 		this.backgroundColor = backgroundColor;
+		this.image = image;
 	}
 
 	@Override
@@ -177,6 +184,10 @@ public class LinkType {
 		} else {
 			return false;
 		}
+	}
+
+	public String getImageHash() {
+		return image.isPresent() ? image.get() : null;
 	}
 
 	@Override
@@ -239,7 +250,7 @@ public class LinkType {
 		// TODO: highlight based on address - each address has assigned style/color
 		return sb.toString();
 	}
-
+	
 	@Override
 	public String toString() {
 		List<String> styles = new ArrayList<>();
@@ -252,48 +263,54 @@ public class LinkType {
 		fontFamily.ifPresent(f -> styles.add(f.toString()));
 		textColor.ifPresent(c -> styles.add(c.toString()));
 		backgroundColor.ifPresent(b -> styles.add(b.toString()));
+		image.ifPresent(b -> styles.add(b.toString()));
 
 		return String.join(",", styles);
 	}
 
 	public LinkType updateBackgroundColor(Color backgroundColor) {
 		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
-				Optional.of(backgroundColor));
+				Optional.of(backgroundColor), image);
 	}
 
 	public LinkType updateBold(boolean bold) {
 		return new LinkType(Optional.of(bold), italic, underline, strikethrough, fontSize, fontFamily, textColor,
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateFontFamily(String fontFamily) {
 		return new LinkType(bold, italic, underline, strikethrough, fontSize, Optional.of(fontFamily), textColor,
-				backgroundColor);
+				backgroundColor, image);
+	}
+	
+	public LinkType updateImage(String image) {
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
+				backgroundColor, Optional.of(image));
 	}
 
 	public LinkType updateFontSize(int fontSize) {
 		return new LinkType(bold, italic, underline, strikethrough, Optional.of(fontSize), fontFamily, textColor,
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateItalic(boolean italic) {
 		return new LinkType(bold, Optional.of(italic), underline, strikethrough, fontSize, fontFamily, textColor,
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateStrikethrough(boolean strikethrough) {
 		return new LinkType(bold, italic, underline, Optional.of(strikethrough), fontSize, fontFamily, textColor,
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateTextColor(Color textColor) {
 		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, Optional.of(textColor),
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateUnderline(boolean underline) {
 		return new LinkType(bold, italic, Optional.of(underline), strikethrough, fontSize, fontFamily, textColor,
-				backgroundColor);
+				backgroundColor, image);
 	}
 
 	public LinkType updateWith(LinkType mixin) {
@@ -304,7 +321,8 @@ public class LinkType {
 				mixin.fontSize.isPresent() ? mixin.fontSize : fontSize,
 				mixin.fontFamily.isPresent() ? mixin.fontFamily : fontFamily,
 				mixin.textColor.isPresent() ? mixin.textColor : textColor,
-				mixin.backgroundColor.isPresent() ? mixin.backgroundColor : backgroundColor);
+				mixin.backgroundColor.isPresent() ? mixin.backgroundColor : backgroundColor,
+				mixin.image.isPresent() ? mixin.image : image);
 	}
 
 }
