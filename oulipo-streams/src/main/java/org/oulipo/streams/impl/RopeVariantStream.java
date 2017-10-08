@@ -667,7 +667,7 @@ public final class RopeVariantStream implements VariantStream {
 	/**
 	 * Root node of this rope structure
 	 */
-	private Node root;
+	Node root;
 
 	/**
 	 * Constructs a <code>RopeVariantStream</code>
@@ -797,7 +797,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * @param width
 	 * @return
 	 */
-	private Node findSearchNode(Node x, long width) {
+	protected Node findSearchNode(Node x, long width) {
 		if (x == null) {
 			return root;
 		}
@@ -835,7 +835,7 @@ public final class RopeVariantStream implements VariantStream {
 	@Override
 	public InvariantSpans getInvariantSpans(VariantSpan variantSpan) throws MalformedSpanException {
 		Node loNode = index(variantSpan.start, root, null);
-		Node searchNode = findSearchNode(loNode, variantSpan.width);
+		Node searchNode = findSearchNode(loNode, variantSpan.start + variantSpan.width - 1);
 
 		Displacement disp = new Displacement();
 		addWeightsOfRightLeaningParentNodes(searchNode, disp);

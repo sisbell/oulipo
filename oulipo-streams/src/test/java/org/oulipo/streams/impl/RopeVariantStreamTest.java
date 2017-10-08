@@ -375,7 +375,6 @@ public class RopeVariantStreamTest {
 
 		List<InvariantSpan> spans = stream.getInvariantSpans(new VariantSpan(3, 4)).getInvariantSpans();
 
-		System.out.println(spans);
 		assertEquals(new InvariantSpan(3, 1, homeDocument.toExternalForm()), spans.get(0));
 		assertEquals(new InvariantSpan(4, 1, homeDocument.toExternalForm()), spans.get(1));
 		assertEquals(new InvariantSpan(5, 1, homeDocument.toExternalForm()), spans.get(2));
@@ -384,6 +383,28 @@ public class RopeVariantStreamTest {
 		assertEquals(4, spans.size());
 
 	}
+	
+	@Test
+	public void putSmallParitions2() throws Exception {
+		RopeVariantStream stream = new RopeVariantStream(homeDocument);
+		stream.put(1, new InvariantSpan(1, 1));
+		stream.put(2, new InvariantSpan(2, 1));
+		stream.put(3, new InvariantSpan(3, 1));
+		stream.put(4, new InvariantSpan(4, 1));
+		stream.put(5, new InvariantSpan(5, 1));
+		stream.put(6, new InvariantSpan(6, 1));
+		stream.put(7, new InvariantSpan(7, 1));
+		stream.put(8, new InvariantSpan(8, 1));
+		
+		List<InvariantSpan> spans = stream.getInvariantSpans(new VariantSpan(4, 2)).getInvariantSpans();
+
+		assertEquals(new InvariantSpan(4, 1, homeDocument.toExternalForm()), spans.get(0));
+		assertEquals(new InvariantSpan(5, 1, homeDocument.toExternalForm()), spans.get(1));
+
+		assertEquals(2, spans.size());
+
+	}
+
 
 	@Test
 	public void putSpans() throws Exception {
