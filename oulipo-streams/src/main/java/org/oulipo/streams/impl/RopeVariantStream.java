@@ -135,11 +135,11 @@ public final class RopeVariantStream implements VariantStream {
 								? x.value.start + x.value.width - (b - a)
 								: x.value.start;
 						queue.add(new InvariantSpan(invariantStart, b - a));
-					}
+					} 
 				}
 				position += x.weight;
 			}
-
+			
 			collect(x.left, lo, hi);
 			collect(x.right, lo, hi);
 		}
@@ -801,7 +801,7 @@ public final class RopeVariantStream implements VariantStream {
 		if (x == null) {
 			return root;
 		}
-		if (x.weight >= width) {
+		if (x.weight > width) {
 			return x;
 		}
 		return findSearchNode(x.parent, width);
