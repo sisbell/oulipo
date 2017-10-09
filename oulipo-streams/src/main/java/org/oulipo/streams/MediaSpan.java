@@ -24,6 +24,10 @@ public class MediaSpan extends Span {
 	public Span copy() throws MalformedSpanException {
 		return new MediaSpan(start, homeDocument, hash);
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "MediaSpan [hash=" + hash + ", homeDocument=" + homeDocument + ", start=" + start + ", width=" + width
+				+ "]";
+	}
 }

@@ -8,10 +8,18 @@ import org.oulipo.net.TumblerAddress;
 
 public final class OverlaySpan extends Span {
 
-	private List<TumblerAddress> linkTypes = new ArrayList<>();
+	public List<TumblerAddress> linkTypes = new ArrayList<>();
 
 	public OverlaySpan() {
 		super();
+	}
+
+	public OverlaySpan(long start, long width) throws MalformedSpanException {
+		super(start, width);
+	}
+	
+	public OverlaySpan(long start, long width, String homeDocument) throws MalformedSpanException {
+		super(start, width, homeDocument);
 	}
 
 	public OverlaySpan(long start, long width, String homeDocument, List<TumblerAddress> linkTypes) throws MalformedSpanException {
@@ -19,8 +27,13 @@ public final class OverlaySpan extends Span {
 		this.linkTypes = linkTypes;
 	}
 
-	public OverlaySpan(long start, long width) throws MalformedSpanException {
-		super(start, width);
+	@Override
+	public Span copy() throws MalformedSpanException {
+		return new OverlaySpan(start, width, homeDocument, new ArrayList<>(linkTypes));
+	}
+	
+	public boolean hasLinkType(TumblerAddress link) {
+		return linkTypes.contains(link);
 	}
 
 	@Override
@@ -39,7 +52,9 @@ public final class OverlaySpan extends Span {
 	}
 
 	@Override
-	public Span copy() throws MalformedSpanException {
-		return new OverlaySpan(start, width, homeDocument, linkTypes);
+	public String toString() {
+		return "OverlaySpan [linkTypes=" + linkTypes + ", homeDocument=" + homeDocument + ", start=" + start
+				+ ", width=" + width + "]";
 	}
+	
 }

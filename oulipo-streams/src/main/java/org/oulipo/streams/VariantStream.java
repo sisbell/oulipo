@@ -16,11 +16,23 @@
 package org.oulipo.streams;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 
 public interface VariantStream {
+
+	default void applyOverlays(VariantSpan variantSpan, List<TumblerAddress> links)
+			throws MalformedSpanException, IOException {
+		List<OverlaySpan> overlays = getOverlaySpans(variantSpan);
+		for(OverlaySpan overlaySpan : overlays) {
+			overlaySpan.linkTypes.addAll(links);			
+		}
+		delete(variantSpan);	
+		put(variantSpan.start, overlays);
+	}
 
 	default void copy(long characterPosition, List<VariantSpan> vspans) throws MalformedSpanException, IOException {
 		long start = characterPosition;
@@ -34,11 +46,52 @@ public interface VariantStream {
 
 	void delete(VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
+	default List<MediaSpan> getMediaSpans() throws MalformedSpanException {
+		List<MediaSpan> spans = new ArrayList<>();
+		for(Span s : getSpans().getSpans()) {
+			if(s instanceof MediaSpan) {
+				spans.add((MediaSpan) s);
+			}
+		}
+		return spans;
+	}
+
+	default List<MediaSpan> getMediaSpans(VariantSpan span) throws MalformedSpanException {
+		List<MediaSpan> spans = new ArrayList<>();
+		for(Span s : getSpans(span).getSpans()) {
+			if(s instanceof MediaSpan) {
+				spans.add((MediaSpan) s);
+			}
+		}
+		return spans;
+	
+	}
+	
+	default List<OverlaySpan> getOverlaySpans() throws MalformedSpanException {
+		List<OverlaySpan> spans = new ArrayList<>();
+		for(Span s : getSpans().getSpans()) {
+			if(s instanceof OverlaySpan) {
+				spans.add((OverlaySpan) s);
+			}
+		}
+		return spans;
+	}
+
+	default List<OverlaySpan> getOverlaySpans(VariantSpan span) throws MalformedSpanException {
+		List<OverlaySpan> spans = new ArrayList<>();
+		for(Span s : getSpans(span).getSpans()) {
+			if(s instanceof OverlaySpan) {
+				spans.add((OverlaySpan) s);
+			}
+		}
+		return spans;
+	}
+	
 	Spans getSpans() throws MalformedSpanException;
 
 	Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException;
 
-	List<VariantSpan> getVariantSpans(Span Span) throws MalformedSpanException;
+	List<VariantSpan> getVariantSpans(Span invariantSpan) throws MalformedSpanException;
 
 	/**
 	 * Returns the <code>Span<code> at the specified character position, or
@@ -55,17 +108,22 @@ public interface VariantStream {
 
 	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
-	void put(long characterPosition, Span Span) throws MalformedSpanException, IOException;
-
-	default void put(long characterPosition, List<Span> ispans) throws MalformedSpanException, IOException {
+	default void put(long characterPosition, List<? extends Span> spans) throws MalformedSpanException, IOException {
 		long start = characterPosition;
-		for (int i = 0; i < ispans.size(); i++) {
-			Span ispan = ispans.get(i);
-			put(start, ispan);
-			start += ispan.width;
+		for (int i = 0; i < spans.size(); i++) {
+			Span span = spans.get(i);
+			put(start, span);
+			start += span.width;
 		}
 	}
 
+	void put(long characterPosition, Span span) throws MalformedSpanException, IOException;
+	
+	default void put(OverlaySpan span) throws MalformedSpanException, IOException {
+		put(span.start, span);
+	}
+
 	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
+
 
 }

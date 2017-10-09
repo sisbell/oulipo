@@ -26,6 +26,7 @@ import java.util.Queue;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.OverlaySpan;
 import org.oulipo.streams.Span;
 import org.oulipo.streams.SpanPartition;
 import org.oulipo.streams.Spans;
@@ -965,5 +966,4 @@ public final class RopeVariantStream implements VariantStream {
 		insert(v1.start, to);
 		insert(v2.start, from);
 	}
-
 }
