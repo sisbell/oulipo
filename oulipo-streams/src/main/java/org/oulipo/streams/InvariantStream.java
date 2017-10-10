@@ -18,6 +18,7 @@ package org.oulipo.streams;
 import java.io.IOException;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 
 /**
  * An <code>InvariantStream</code> handles adding and getting text from an
@@ -31,7 +32,7 @@ import org.oulipo.net.MalformedSpanException;
 public interface InvariantStream {
 
 	/**
-	 * Appends text to the end of the IStream
+	 * Appends text to the end of the IStream. 
 	 * 
 	 * @param text
 	 *            the text to append. Text must not be null.
@@ -49,7 +50,7 @@ public interface InvariantStream {
 	 * invariantSpan.width)
 	 * 
 	 * @param invariantSpan
-	 *            text bounds withing IStream
+	 *            text bounds within IStream
 	 * @return the String bounded by the specified invariantSpan
 	 * @throws IOException
 	 */

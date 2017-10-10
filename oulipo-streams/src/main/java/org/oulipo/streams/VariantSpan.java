@@ -30,6 +30,10 @@ public final class VariantSpan extends Span {
 	private VariantSpan() {
 	}
 
+	public VariantSpan(long start, long width) throws MalformedSpanException {
+		super(start, width, "");
+	}
+
 	/**
 	 * Constructs a <code>VariantSpan</code> starting at the specified start
 	 * position with the specified width
@@ -42,17 +46,17 @@ public final class VariantSpan extends Span {
 	 * 
 	 * @throws MalformedSpanException
 	 *             if the start or width is an illegal value
-	 */
-	public VariantSpan(long start, long width) throws MalformedSpanException {
-		super(start, width);
-	}
-	
+	 */	
 	public VariantSpan(long start, long width, String homeDocument) throws MalformedSpanException {
 		super(start, width, homeDocument);
 	}
 
 	public VariantSpan(TumblerAddress tumbler) throws MalformedSpanException {
-		super(tumbler.spanStart(), tumbler.spanWidth());
+		super(tumbler.spanStart(), tumbler.spanWidth(), "");
 	}
 
+	@Override
+	public String toString() {
+		return "VariantSpan [homeDocument=" + homeDocument + ", start=" + start + ", width=" + width + "]";
+	}
 }

@@ -51,10 +51,12 @@ public class Span {
 	 *            start byte position of span
 	 * @param width
 	 *            number of characters in span
+	 * @param homeDocument
+	 *            the home document of the span
 	 * @throws MalformedSpanException
 	 *             if start < 1 || width < 1
 	 */
-	public Span(long start, long width) throws MalformedSpanException {
+	public Span(long start, long width, String homeDocument) throws MalformedSpanException {
 		this.start = start;
 		this.width = width;
 		if (start < 1) {
@@ -63,23 +65,11 @@ public class Span {
 		if (width < 1) {
 			throw new MalformedSpanException(this, "Width must be greater than 0");
 		}
+			this.homeDocument = homeDocument;
 	}
-
-	/**
-	 * Creates span
-	 * 
-	 * @param start
-	 *            start byte position of span
-	 * @param width
-	 *            number of characters in span
-	 * @param homeDocument
-	 *            the home document of the span
-	 * @throws MalformedSpanException
-	 *             if start < 1 || width < 1
-	 */
-	public Span(long start, long width, String homeDocument) throws MalformedSpanException {
-		this(start, width);
-		this.homeDocument = homeDocument;
+	
+	public Span(long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
+		this(start, width, homeDocument.value);
 	}
 
 	/**

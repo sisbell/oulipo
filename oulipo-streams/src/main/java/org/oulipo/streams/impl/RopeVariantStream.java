@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
@@ -106,8 +107,7 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		/**
-		 * Collects <code>Span</code>s between the specified lo and hi
-		 * characters.
+		 * Collects <code>Span</code>s between the specified lo and hi characters.
 		 * 
 		 * The specified node x is the first parent node of the node at position lo.
 		 * 
@@ -132,18 +132,18 @@ public final class RopeVariantStream implements VariantStream {
 					long b = end <= hi ? end : hi;
 
 					if (a != b) {
-						long invariantStart = queue.isEmpty() && position + x.weight -1 <= hi
+						long invariantStart = queue.isEmpty() && position + x.weight - 1 <= hi
 								? x.value.start + x.value.width - (b - a)
 								: x.value.start;
 						Span copy = x.value.copy();
 						copy.start = invariantStart;
 						copy.width = b - a;
 						queue.add(copy);
-					} 
+					}
 				}
 				position += x.weight;
 			}
-			
+
 			collect(x.left, lo, hi);
 			collect(x.right, lo, hi);
 		}
@@ -180,6 +180,10 @@ public final class RopeVariantStream implements VariantStream {
 			this(weight, null);
 		}
 
+		Node(long weight, long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
+			this(weight, new Span(start, width, homeDocument));
+		}
+
 		/**
 		 * Constructs leaf node
 		 * 
@@ -201,10 +205,6 @@ public final class RopeVariantStream implements VariantStream {
 			}
 			this.weight = weight;
 			this.value = value;
-		}
-
-		Node(long weight, long start, long width) throws MalformedSpanException {
-			this(weight, new Span(start, width));
 		}
 
 		/**
@@ -527,7 +527,7 @@ public final class RopeVariantStream implements VariantStream {
 		if (x == null) {
 			throw new IllegalStateException("Attempting to partition a null node");
 		}
-		if (cutPoint >= x.characterCount()) {
+		if (cutPoint > x.characterCount()) {
 			return new NodePartition(x, null);
 		} else if (cutPoint == 1) {
 			return new NodePartition(null, x);
@@ -696,6 +696,15 @@ public final class RopeVariantStream implements VariantStream {
 		this.root = root;
 	}
 
+	private boolean addOverlay(TumblerAddress link, Set<OverlaySpan> overlays) {
+		for (OverlaySpan overlaySpan : overlays) {
+			if (!overlaySpan.hasLinkType(link)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Get the number of characters in this rope.
 	 * 
@@ -749,7 +758,7 @@ public final class RopeVariantStream implements VariantStream {
 			} else if (cutPoint == 1) {
 				return new NodePartition(null, root);
 			} else {
-				root = root.split(cutPoint);//TODO: if point 1, then need to 
+				root = root.split(cutPoint);// TODO: if point 1, then need to
 				return new NodePartition(root.left, root.right);
 			}
 		} else {
@@ -821,6 +830,11 @@ public final class RopeVariantStream implements VariantStream {
 		Queue<Node> queue = new LinkedList<Node>();
 		collectLeafNodes(root, queue);
 		return queue.iterator();
+	}
+
+	@Override
+	public TumblerAddress getHomeDocument() {
+		return homeDocument;
 	}
 
 	@Override
@@ -965,5 +979,21 @@ public final class RopeVariantStream implements VariantStream {
 
 		insert(v1.start, to);
 		insert(v2.start, from);
+	}
+
+	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException {
+		Set<OverlaySpan> overlays = getOverlaySpans(variantSpan);
+		if (addOverlay(link, overlays)) {
+			for (OverlaySpan span : overlays) {
+				span.linkTypes.add(link);
+			}
+		} else {
+			for (OverlaySpan span : overlays) {
+				span.linkTypes.remove(link);
+			}
+		}
+
+		delete(variantSpan);
+		put(variantSpan.start, new ArrayList<>(overlays));
 	}
 }

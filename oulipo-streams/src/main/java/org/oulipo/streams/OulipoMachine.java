@@ -71,11 +71,12 @@ public interface OulipoMachine extends VariantStream, InvariantStream {
 
 			vc.order = order++;
 			if (Strings.isNullOrEmpty(span.homeDocument)) {
-				vc.content = getText(span);
 				vc.homeDocument = getHomeDocument();
 			} else {
 				vc.homeDocument = TumblerAddress.create(span.homeDocument);
 			}
+			vc.content = getText(span);
+
 
 			virtuals.add(vc);
 		}

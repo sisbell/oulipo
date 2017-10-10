@@ -5,17 +5,14 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.Span;
 import org.oulipo.streams.OpCodeReader;
-import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.opcodes.Op;
 
 import com.google.common.io.BaseEncoding;
@@ -77,7 +74,7 @@ public class StreamOulipoMachineTest {
 		StreamOulipoMachine som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
 		som.append("Hello");
 		som.append("World");
-		String result = som.getText(new Span(5, 5));
+		String result = som.getText(new Span(5, 5, homeDocument));
 		assertEquals("oWorl", result);
 	}
 

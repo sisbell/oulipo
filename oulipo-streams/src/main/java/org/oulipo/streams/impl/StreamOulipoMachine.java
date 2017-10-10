@@ -47,20 +47,20 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 			throws IOException, MalformedSpanException {
 		return new StreamOulipoMachine(loader, tumbler, writeOpCodes);
 	}
-	
+
 	private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
 	private final InvariantStream iStream;
 
 	protected final StreamLoader stream;
 
-	private final TumblerAddress tumbler;
+	private final TumblerAddress homeDocument;
 
 	private final VariantStream vStream;
 
 	private final boolean writeOpCodes;
-	
-	private StreamOulipoMachine(StreamLoader stream, TumblerAddress tumbler, boolean writeOpCodes)
+
+	private StreamOulipoMachine(StreamLoader stream, TumblerAddress homeDocument, boolean writeOpCodes)
 			throws IOException, MalformedSpanException {
 		super();
 		if (stream == null) {
@@ -69,9 +69,9 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 		this.stream = stream;
 		this.writeOpCodes = writeOpCodes;
 
-		this.iStream = stream.openInvariantStream(tumbler);
-		this.vStream = stream.openVariantStream(tumbler);
-		this.tumbler = tumbler;
+		this.iStream = stream.openInvariantStream(homeDocument);
+		this.vStream = stream.openVariantStream(homeDocument);
+		this.homeDocument = homeDocument;
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 
 	@Override
 	public TumblerAddress getHomeDocument() {
-		return tumbler;
+		return homeDocument;
 	}
 
 	@Override
@@ -141,6 +141,11 @@ public final class StreamOulipoMachine extends AbstractOulipoMachine {
 			vStream.swap(swapOp.v1, swapOp.v2);
 			break;
 		}
+	}
+
+	@Override
+	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException {
+		vStream.toggleOverlay(variantSpan, link);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.oulipo.streams;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 
 public class MediaSpan extends Span {
 
@@ -10,8 +11,8 @@ public class MediaSpan extends Span {
 		super(start, 1, homeDocument);
 	}
 
-	public MediaSpan(long start, String hash) throws MalformedSpanException {
-		super(start, 1);
+	public MediaSpan(long start, TumblerAddress homeDocument, String hash) throws MalformedSpanException {
+		super(start, 1, homeDocument);
 		this.hash = hash;
 	}
 

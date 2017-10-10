@@ -9,6 +9,7 @@ import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantStream;
 
 public class DefaultStreamsLoaderTest {
+	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
 
 	@Test
 	public void a() throws Exception {
@@ -16,9 +17,8 @@ public class DefaultStreamsLoaderTest {
 		File testDir = new File("test-streams");
 		System.out.println(testDir.getAbsolutePath());
 		StreamLoader streamLoader = new DefaultStreamLoader(testDir, spec);
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
 		VariantStream vs = streamLoader.openVariantStream(homeDocument);
-		vs.put(1, new Span(1, 10));
+		vs.put(1, new Span(1, 10, homeDocument));
 		streamLoader.flushVariantCache();
 	}
 }

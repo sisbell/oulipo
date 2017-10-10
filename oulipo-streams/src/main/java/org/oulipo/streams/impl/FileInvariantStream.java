@@ -24,6 +24,7 @@ import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.Span;
 import org.oulipo.streams.InvariantStream;
 
@@ -38,6 +39,8 @@ public class FileInvariantStream implements InvariantStream {
 
 	private FileChannel channel;
 
+	private final TumblerAddress homeDocument;
+
 	/**
 	 * Constructs an InvariantStream backed by the specified file. Creates a new
 	 * file if it does not exist
@@ -47,13 +50,14 @@ public class FileInvariantStream implements InvariantStream {
 	 * @throws IOException
 	 *             if there is an I/O exception with the specified file
 	 */
-	public FileInvariantStream(File file) throws IOException {
+	public FileInvariantStream(File file, TumblerAddress homeDocument) throws IOException {
 		file.getParentFile().mkdirs();
 		file.createNewFile();
 		RandomAccessFile f = new RandomAccessFile(file, "rw");
 
 		channel = f.getChannel();
 		channel.position(channel.size());
+		this.homeDocument = homeDocument;
 	}
 
 	@Override
@@ -64,7 +68,7 @@ public class FileInvariantStream implements InvariantStream {
 
 		FileLock lock = channel.lock();
 		try {
-			Span span = new Span(channel.position() + 1, text.length());
+			Span span = new Span(channel.position() + 1, text.length(), homeDocument);
 
 			buffer.clear();
 			buffer.put(text.getBytes());

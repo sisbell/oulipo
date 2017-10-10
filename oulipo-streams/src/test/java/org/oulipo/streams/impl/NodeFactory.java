@@ -16,24 +16,27 @@
 package org.oulipo.streams.impl;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.Span;
 import org.oulipo.streams.impl.RopeVariantStream.Node;
 
 final class NodeFactory {
+
+	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
 
 	private static Node createTestNode() throws MalformedSpanException {
 		Node A = new Node(22);
 		Node B = new Node(9);
 		Node C = new Node(6);
 		Node D = new Node(6);
-		Node E = new Node(6, new Span(100, 6));
-		Node F = new Node(3, new Span(200, 3));
+		Node E = new Node(6, new Span(100, 6, homeDocument));
+		Node F = new Node(3, new Span(200, 3, homeDocument));
 		Node G = new Node(2);
 		Node H = new Node(1);
-		Node J = new Node(2, new Span(250, 2));
-		Node K = new Node(4, new Span(300, 4));
-		Node M = new Node(1, new Span(350, 1));
-		Node N = new Node(6, new Span(360, 6));
+		Node J = new Node(2, new Span(250, 2, homeDocument));
+		Node K = new Node(4, new Span(300, 4, homeDocument));
+		Node M = new Node(1, new Span(350, 1, homeDocument));
+		Node N = new Node(6, new Span(360, 6, homeDocument));
 
 		A.tag = "A";
 		B.tag = "B";
@@ -75,7 +78,7 @@ final class NodeFactory {
 
 	public static Node createTestNode2() throws MalformedSpanException {
 		Node A = new Node(3);
-		Node B = new Node(3, 200, 3);
+		Node B = new Node(3, 200, 3, homeDocument);
 		Node C = new Node(6);
 		Node G = getG();
 		Node H = getH();

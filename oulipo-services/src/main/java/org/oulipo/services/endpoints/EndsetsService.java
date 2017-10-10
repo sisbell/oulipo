@@ -66,7 +66,7 @@ public class EndsetsService {
 		for (TumblerAddress ispanAddress : ispans) {
 			if (ispanAddress.value.startsWith(address.value)) {
 				org.oulipo.streams.Span invariantSpan = new org.oulipo.streams.Span(
-						ispanAddress.spanStart(), ispanAddress.spanWidth());
+						ispanAddress.spanStart(), ispanAddress.spanWidth(), ispanAddress);
 				List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
 				for (VariantSpan vspan : vspans) {
 					TumblerAddress variantSpanAddress = TumblerAddress

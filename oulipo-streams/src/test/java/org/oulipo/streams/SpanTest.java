@@ -27,6 +27,8 @@ import org.oulipo.net.TumblerAddress;
 
 @RunWith(JUnitPlatform.class)
 public class SpanTest {
+	
+	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
 
 	// TODO: should authority include width?
 	public void addTumbler() throws Exception {
@@ -53,19 +55,19 @@ public class SpanTest {
 	@Test
 	public void illegalStart() throws Exception {
 		assertThrows(MalformedSpanException.class, () -> {
-			new Span(0, 100);
+			new Span(0, 100, homeDocument);
 		});
 	}
 
 	@Test
 	public void nullTumblerOk() throws Exception {
-		new Span(100, 10, null);
+		new Span(100, 10, "");
 	}
 
 	@Test
 	public void splitLowerBound() throws Exception {
 		assertThrows(IndexOutOfBoundsException.class, () -> {
-			Span span = new Span(100, 10);
+			Span span = new Span(100, 10, homeDocument);
 			SpanPartition partition = span.split(100);
 			System.out.println(partition);
 		});
@@ -73,7 +75,7 @@ public class SpanTest {
 
 	@Test
 	public void splitOk() throws Exception {
-		Span span = new Span(100, 10);
+		Span span = new Span(100, 10, homeDocument);
 		SpanPartition partition = span.split(105);
 		assertEquals(100L, partition.getLeft().start);
 		assertEquals(5L, partition.getLeft().width);
@@ -84,7 +86,7 @@ public class SpanTest {
 	@Test
 	public void splitOverUpperBound() throws Exception {
 		assertThrows(IndexOutOfBoundsException.class, () -> {
-			Span span = new Span(100, 10);
+			Span span = new Span(100, 10, homeDocument);
 			span.split(120);
 		});
 	}
@@ -92,7 +94,7 @@ public class SpanTest {
 	@Test
 	public void splitUnderLowerBound() throws Exception {
 		assertThrows(IndexOutOfBoundsException.class, () -> {
-			Span span = new Span(100, 10);
+			Span span = new Span(100, 10, homeDocument);
 			span.split(90);
 		});
 	}
@@ -100,7 +102,7 @@ public class SpanTest {
 	@Test
 	public void splitUpperBound() throws Exception {
 		assertThrows(IndexOutOfBoundsException.class, () -> {
-			Span span = new Span(100, 10);
+			Span span = new Span(100, 10, homeDocument);
 			span.split(110);
 		});
 	}
@@ -108,7 +110,7 @@ public class SpanTest {
 	@Test
 	public void zeroWidth() throws Exception {
 		assertThrows(MalformedSpanException.class, () -> {
-			new Span(100, 0);
+			new Span(100, 0, homeDocument);
 		});
 	}
 

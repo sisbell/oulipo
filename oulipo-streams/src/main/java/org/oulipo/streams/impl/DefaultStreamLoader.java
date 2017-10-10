@@ -93,7 +93,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 	@Override
 	public InvariantStream openInvariantStream(TumblerAddress tumbler) throws IOException {
 		return new FileInvariantStream(
-				new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-invariant.txt"));
+				new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-invariant.txt"), tumbler);
 	}
 
 	@Override
