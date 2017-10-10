@@ -34,19 +34,13 @@ import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
 import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
-import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.editor.DocumentArea;
 import org.oulipo.browser.editor.LinkFactory;
 import org.oulipo.browser.editor.LinkType;
 import org.oulipo.browser.editor.ParStyle;
-import org.oulipo.browser.editor.a.Editor;
-import org.oulipo.browser.editor.a.RopeVariantStream;
-import org.oulipo.browser.editor.a.Segment;
 import org.oulipo.browser.editor.remote.IpfsRemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImage;
-//import org.oulipo.browser.editor.images.LinkedImage;
-//import org.oulipo.browser.editor.images.RealLinkedImage;
 import org.oulipo.browser.pages.BaseController;
 import org.oulipo.browser.tables.ButtonsCreator;
 import org.oulipo.client.services.RemoteFileManager;
@@ -60,8 +54,12 @@ import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.streams.OverlaySpan;
+import org.oulipo.streams.Span;
 import org.oulipo.streams.VariantSpan;
+import org.oulipo.streams.VariantStream;
 import org.oulipo.streams.VirtualContent;
+import org.oulipo.streams.impl.RopeVariantStream;
 import org.oulipo.streams.opcodes.DeleteOp;
 import org.oulipo.streams.opcodes.InsertTextOp;
 import org.reactfx.SuspendableNo;
@@ -101,7 +99,7 @@ public final class PublisherController extends BaseController {
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
-	private Editor editor;
+	private VariantStream variantStream;
 
 	private Button createMaterialButton(String resource, Runnable action, String toolTip) {
 		Image image = new Image(getClass().getResourceAsStream("/images/ic_" + resource + "_black_24dp_1x.png"));
@@ -214,7 +212,9 @@ public final class PublisherController extends BaseController {
 						TumblerAddress linkType = TumblerAddress.createWithNoException(e.getKey());
 						HashSet<TumblerAddress> spans = e.getValue().fromVSpans;
 						for (TumblerAddress span : spans) {
+							System.out.println("Apply span: " + span + ", " + linkType);
 							area.applyStyle(span, linkType);
+							
 						}
 					}
 				});
@@ -316,11 +316,10 @@ public final class PublisherController extends BaseController {
 		ArrayList<HyperOperation> hops = area.getOperations();
 		ByteArrayOutputStream operations = new ByteArrayOutputStream();
 		System.out.println("------------------------------");
-		area.flush();
 
 		try {
-			for (Segment segment : editor.getSegments()) {
-				System.out.println(segment);
+			for (Span span : variantStream.getSpans().getSpans()) {
+				System.out.println(span);
 			}
 		} catch (MalformedSpanException e1) {
 			e1.printStackTrace();
@@ -373,29 +372,30 @@ public final class PublisherController extends BaseController {
 		}
 
 		// TODO: bulk upload
-		// StyleSpans<LinkType> spans = area.getStyleSpans(0, area.getLength());
-		// Iterator<StyleSpan<LinkType>> it = spans.iterator();
 		Link boldLink = LinkFactory.bold(address);
 		Link underlineLink = LinkFactory.underline(address);
 		Link strikeThroughLink = LinkFactory.strikeThrough(address);
 		Link italicLink = LinkFactory.italic(address);
 
 		try {
-			for (Segment segment : editor.getSegments()) {
+			for (OverlaySpan overlaySpan : variantStream.getOverlaySpans()) {
 				try {
 					TumblerAddress s = TumblerAddress
-							.create(address.toExternalForm() + ".0.1." + segment.start + "~1." + segment.width);
+							.create(address.toExternalForm() + ".0.1." + overlaySpan.start + "~1." + overlaySpan.width);
 
-					if (segment.getLinkTypes.contains(TumblerAddress.BOLD)) {
+					if (overlaySpan.hasLinkType(TumblerAddress.BOLD)) {
+						System.out.println("Add bold: " + overlaySpan);
 						boldLink.fromVSpans.add(s);
 					}
-					if (segment.getLinkTypes.contains(TumblerAddress.ITALIC)) {
+					if (overlaySpan.hasLinkType(TumblerAddress.ITALIC)) {
+						System.out.println("Add italic: " + overlaySpan);
+
 						italicLink.fromVSpans.add(s);
 					}
-					if (segment.getLinkTypes.contains(TumblerAddress.UNDERLINE)) {
+					if (overlaySpan.hasLinkType(TumblerAddress.UNDERLINE)) {
 						underlineLink.fromVSpans.add(s);
 					}
-					if (segment.getLinkTypes.contains(TumblerAddress.STRIKE_THROUGH)) {
+					if (overlaySpan.hasLinkType(TumblerAddress.STRIKE_THROUGH)) {
 						strikeThroughLink.fromVSpans.add(s);
 					}
 				} catch (MalformedTumblerException e) {
@@ -412,7 +412,8 @@ public final class PublisherController extends BaseController {
 	}
 
 	private void setLink(Link link) {
-		if (!link.fromVSpans.isEmpty()) {
+	//	if (!link.fromVSpans.isEmpty()) {
+			System.out.println("Set link: " + link);
 			try {
 				tumblerService.createOrUpdateLink(link, new Callback<Link>() {
 
@@ -434,7 +435,7 @@ public final class PublisherController extends BaseController {
 				ctx.showMessage("Failed to sync link changes with Oulipo Server: " + e.getMessage());
 				e.printStackTrace();
 			}
-		}
+	//	}
 	}
 
 	@Override
@@ -443,8 +444,8 @@ public final class PublisherController extends BaseController {
 
 		// controller.getContext().getAccountManager().getActiveAccount().publicKey
 		// controller.getContext().getApplicationContext().getStage(id)
-		editor = new Editor(new RopeVariantStream(address));
-		this.area = DocumentArea.newInstance(address, ctx, editor);
+		variantStream = new RopeVariantStream(address);
+		this.area = DocumentArea.newInstance(address, ctx, variantStream);
 		this.renderPane = new VirtualizedScrollPane<>(area);
 		area.setMaxWidth(500);
 
