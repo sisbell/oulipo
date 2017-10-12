@@ -17,26 +17,26 @@ package org.oulipo.streams.impl;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.Span;
 import org.oulipo.streams.impl.RopeVariantStream.Node;
+import org.oulipo.streams.types.SpanElement;
 
 final class NodeFactory {
 
 	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
 
-	private static Node createTestNode() throws MalformedSpanException {
-		Node A = new Node(22);
-		Node B = new Node(9);
-		Node C = new Node(6);
-		Node D = new Node(6);
-		Node E = new Node(6, new Span(100, 6, homeDocument));
-		Node F = new Node(3, new Span(200, 3, homeDocument));
-		Node G = new Node(2);
-		Node H = new Node(1);
-		Node J = new Node(2, new Span(250, 2, homeDocument));
-		Node K = new Node(4, new Span(300, 4, homeDocument));
-		Node M = new Node(1, new Span(350, 1, homeDocument));
-		Node N = new Node(6, new Span(360, 6, homeDocument));
+	private static Node<SpanElement> createTestNode() throws MalformedSpanException {
+		Node<SpanElement> A = new Node<>(22);
+		Node<SpanElement> B = new Node<>(9);
+		Node<SpanElement> C = new Node<>(6);
+		Node<SpanElement> D = new Node<>(6);
+		Node<SpanElement> E = new Node<>(6, new SpanElement(100, 6, homeDocument));
+		Node<SpanElement> F = new Node<>(3, new SpanElement(200, 3, homeDocument));
+		Node<SpanElement> G = new Node<>(2);
+		Node<SpanElement> H = new Node<>(1);
+		Node<SpanElement> J = new Node<>(2, new SpanElement(250, 2, homeDocument));
+		Node<SpanElement> K = new Node<>(4, new SpanElement(300, 4, homeDocument));
+		Node<SpanElement> M = new Node<>(1, new SpanElement(350, 1, homeDocument));
+		Node<SpanElement> N = new Node<>(6, new SpanElement(360, 6, homeDocument));
 
 		A.tag = "A";
 		B.tag = "B";
@@ -76,12 +76,12 @@ final class NodeFactory {
 		return A;
 	}
 
-	public static Node createTestNode2() throws MalformedSpanException {
-		Node A = new Node(3);
-		Node B = new Node(3, 200, 3, homeDocument);
-		Node C = new Node(6);
-		Node G = getG();
-		Node H = getH();
+	public static Node<SpanElement> createTestNode2() throws MalformedSpanException {
+		Node<SpanElement> A = new Node<>(3);
+		Node<SpanElement> B = new Node<>(3, new SpanElement(200, 3, homeDocument));
+		Node<SpanElement> C = new Node<>(6);
+		Node<SpanElement> G = getG();
+		Node<SpanElement> H = getH();
 
 		A.tag = "A";
 		B.tag = "B";
@@ -99,31 +99,31 @@ final class NodeFactory {
 		return A;
 	}
 
-	static Node getA() throws MalformedSpanException {
+	static Node<SpanElement> getA() throws MalformedSpanException {
 		return createTestNode();
 	}
 
-	static Node getB() throws MalformedSpanException {
+	static Node<SpanElement> getB() throws MalformedSpanException {
 		return createTestNode().left;
 	}
 
-	static Node getE() throws MalformedSpanException {
+	static Node<SpanElement> getE() throws MalformedSpanException {
 		return createTestNode().left.left.left;
 	}
 
-	static Node getF() throws MalformedSpanException {
+	static Node<SpanElement> getF() throws MalformedSpanException {
 		return createTestNode().left.left.right;
 	}
 
-	static Node getG() throws MalformedSpanException {
+	static Node<SpanElement> getG() throws MalformedSpanException {
 		return createTestNode().left.right.left;
 	}
 
-	static Node getH() throws MalformedSpanException {
+	static Node<SpanElement> getH() throws MalformedSpanException {
 		return createTestNode().left.right.right;
 	}
 
-	static Node getK() throws MalformedSpanException {
+	static Node<SpanElement> getK() throws MalformedSpanException {
 		return createTestNode().left.right.left.right;
 	}
 

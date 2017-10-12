@@ -73,6 +73,11 @@ public class TumblerAddressTest {
 	}
 
 	@Test
+	public void createVariantSpan() throws Exception {
+		TumblerAddress.create("1.44.0.62001.0.1771.1.1.0.3.11~3.12");
+	}
+
+	@Test
 	public void deepCopyOk() throws Exception {
 		TumblerAddress ta = TumblerAddress.create("ted://1.5.1.0.8.4.0.16.4.0.2.43.62");
 		TumblerAddress ta2 = new TumblerAddress.Builder(ta).build();
@@ -170,7 +175,7 @@ public class TumblerAddressTest {
 		String result = new ObjectMapper().writeValueAsString(ta);
 		assertEquals("\"ted://1.5.1.0.8.4.0.16.4.0.2.43.62\"", result);
 	}
-
+	
 	@Test
 	public void serializeWithSpan() throws Exception {
 		TumblerAddress ta = TumblerAddress.create("ted://1.5.1.0.8.4.0.16.4.1.0.1.100~1.200");

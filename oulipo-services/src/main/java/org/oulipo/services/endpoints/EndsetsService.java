@@ -38,6 +38,7 @@ import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.impl.StreamOulipoMachine;
+import org.oulipo.streams.types.SpanElement;
 
 /**
  * Groups from and to VSpans by link type
@@ -49,23 +50,22 @@ public class EndsetsService {
 
 	private final ResourceSessionManager sessionManager;
 
-	private StreamLoader streamLoader;
+	private StreamLoader<SpanElement> streamLoader;
 
 	private final ThingRepository thingRepo;
 
-	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader streamLoader) {
+	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader<SpanElement> streamLoader) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
-
 	}
 
-	private TumblerAddress[] filter(List<TumblerAddress> ispans, TumblerAddress address, OulipoMachine om)
+	private TumblerAddress[] filter(List<TumblerAddress> ispans, TumblerAddress address, OulipoMachine<SpanElement> om)
 			throws MalformedSpanException, MalformedTumblerException {
 		Set<TumblerAddress> set = new HashSet<>();
 		for (TumblerAddress ispanAddress : ispans) {
 			if (ispanAddress.value.startsWith(address.value)) {
-				org.oulipo.streams.Span invariantSpan = new org.oulipo.streams.Span(
+				SpanElement invariantSpan = new SpanElement(
 						ispanAddress.spanStart(), ispanAddress.spanWidth(), ispanAddress);
 				List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
 				for (VariantSpan vspan : vspans) {
@@ -82,7 +82,7 @@ public class EndsetsService {
 		sessionManager.getDocumentForReadAccess(oulipoRequest);
 
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
 
 		Collection<Thing> ispans = thingRepo.findEndsetsOfDoc(documentAddress);
 

@@ -25,8 +25,8 @@ import java.nio.charset.Charset;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.Span;
 import org.oulipo.streams.InvariantStream;
+import org.oulipo.streams.types.SpanElement;
 
 import com.google.common.base.Strings;
 
@@ -61,14 +61,15 @@ public class FileInvariantStream implements InvariantStream {
 	}
 
 	@Override
-	public Span append(String text) throws IOException, MalformedSpanException {
+	public SpanElement append(String text) throws IOException, MalformedSpanException {
 		if (Strings.isNullOrEmpty(text)) {
-			throw new MalformedSpanException(null, "No text - span length is 0");
+			throw new MalformedSpanException("No text - span length is 0");
 		}
 
 		FileLock lock = channel.lock();
 		try {
-			Span span = new Span(channel.position() + 1, text.length(), homeDocument);
+			SpanElement span = new SpanElement(channel.position() + 1, text.length(),
+					homeDocument);
 
 			buffer.clear();
 			buffer.put(text.getBytes());
@@ -85,15 +86,15 @@ public class FileInvariantStream implements InvariantStream {
 		}
 	}
 
-	@Override
-	public String getText(Span ispan) throws IOException {
-		return getText(ispan.start, ispan.width);
-	}
-
 	private String getText(long position, long width) throws IOException {
 		ByteBuffer buf = ByteBuffer.allocate((int) width);
 		channel.read(buf, position - 1);
 		buf.rewind();
 		return Charset.forName("UTF-8").decode(buf).toString();
+	}
+
+	@Override
+	public String getText(SpanElement ispan) throws IOException {
+		return getText(ispan.getStart(), ispan.getWidth());
 	}
 }

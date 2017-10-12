@@ -38,6 +38,7 @@ import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.impl.StreamOulipoMachine;
 import org.oulipo.streams.opcodes.InsertTextOp;
 import org.oulipo.streams.opcodes.Op;
+import org.oulipo.streams.types.SpanElement;
 
 import com.google.common.io.BaseEncoding;
 
@@ -45,9 +46,9 @@ public class ContentService {
 
 	private final ResourceSessionManager sessionManager;
 
-	private final StreamLoader streamLoader;
+	private final StreamLoader<SpanElement> streamLoader;
 
-	public ContentService(ResourceSessionManager sessionManager, StreamLoader streamLoader) {
+	public ContentService(ResourceSessionManager sessionManager, StreamLoader<SpanElement> streamLoader) {
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
 	}
@@ -60,7 +61,7 @@ public class ContentService {
 
 		TumblerAddress elementAddress = oulipoRequest.getElementAddress();
 
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), true);
+		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), true);
 
 		if (!elementAddress.isBytesElement()) {
 			throw new EditResourceException(elementAddress, "Attempting to copy content outside of byte space");
@@ -83,7 +84,8 @@ public class ContentService {
 		OulipoMachine om = StreamOulipoMachine.create(streamLoader, elementAddress, true);
 
 		if (elementAddress.hasSpan()) {
-			om.delete(new VariantSpan(elementAddress));
+			//TODO:
+			//om.delete(new VariantSpan(elementAddress));
 			return "{}";// OK: Response
 		} else {
 			throw new EditResourceException(elementAddress, "Attempting to delete content without specifying a span");
@@ -118,14 +120,14 @@ public class ContentService {
 		oulipoRequest.authorize();
 
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
 
 		String body = oulipoRequest.getBody();
 		System.out.println("Load Data: " + body);
 		loadOperations(om, body);
 	}
 	
-	public static void loadOperations(OulipoMachine om, String base64Body) throws MalformedSpanException, IOException {
+	public static void loadOperations(OulipoMachine<SpanElement> om, String base64Body) throws MalformedSpanException, IOException {
 		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);
 		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
 		Iterator<Op<?>> codes = reader.iterator();

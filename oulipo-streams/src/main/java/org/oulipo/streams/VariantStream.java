@@ -16,24 +16,31 @@
 package org.oulipo.streams;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.types.OverlayElement;
+import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.StreamElement;
 
-public interface VariantStream {
+public interface VariantStream<T extends StreamElement> {
 
-	default void applyOverlays(VariantSpan variantSpan, List<TumblerAddress> links)
+	default void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
 			throws MalformedSpanException, IOException {
-		Set<OverlaySpan> overlays = getOverlaySpans(variantSpan);
-		for (OverlaySpan overlaySpan : overlays) {
-			overlaySpan.linkTypes.addAll(links);
+		List<T> elements = getStreamElements(variantSpan);
+		
+		if (!elements.isEmpty() && !(elements.get(0) instanceof OverlayElement)) {
+			throw new UnsupportedOperationException("Can only apply overlays to OverlayElements");
+		}
+		
+		for (T element : elements) {
+			OverlayElement overlay = (OverlayElement) element;
+			overlay.addLinkTypes(links);
 		}
 		delete(variantSpan);
-		put(variantSpan.start, new ArrayList<>(overlays));
+		putElements(variantSpan.start, elements);
 	}
 
 	default void copy(long characterPosition, List<VariantSpan> vspans) throws MalformedSpanException, IOException {
@@ -48,52 +55,27 @@ public interface VariantStream {
 
 	void delete(VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
-	default Set<MediaSpan> getMediaSpans() throws MalformedSpanException {
-		Set<MediaSpan> spans = new HashSet<>();
-		for (Span s : getSpans().getSpans()) {
-			if (s instanceof MediaSpan) {
-				spans.add((MediaSpan) s);
-			}
-		}
-		return spans;
-	}
+	/**
+	 * Gets the home document that contains the variant spans. The contained
+	 * invariant span values may have different homeDocuments (transclusion)
+	 * 
+	 * @return home document
+	 */
+	TumblerAddress getHomeDocument();
 
-	default Set<MediaSpan> getMediaSpans(VariantSpan span) throws MalformedSpanException {
-		Set<MediaSpan> spans = new HashSet<>();
-		for (Span s : getSpans(span).getSpans()) {
-			if (s instanceof MediaSpan) {
-				spans.add((MediaSpan) s);
-			}
-		}
-		return spans;
+	List<T> getStreamElements() throws MalformedSpanException;
 
-	}
+	List<T> getStreamElements(VariantSpan variantSpan) throws MalformedSpanException;
 
-	default Set<OverlaySpan> getOverlaySpans() throws MalformedSpanException {
-		Set<OverlaySpan> spans = new HashSet<>();
-		for (Span s : getSpans().getSpans()) {
-			if (s instanceof OverlaySpan) {
-				spans.add((OverlaySpan) s);
-			}
-		}
-		return spans;
-	}
-
-	default Set<OverlaySpan> getOverlaySpans(VariantSpan span) throws MalformedSpanException {
-		Set<OverlaySpan> spans = new HashSet<>();
-		for (Span s : getSpans(span).getSpans()) {
-			if (s instanceof OverlaySpan) {
-				spans.add((OverlaySpan) s);
-			}
-		}
-		return spans;
-	}
-
-	Spans getSpans() throws MalformedSpanException;
-
-	Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException;
-
-	List<VariantSpan> getVariantSpans(Span invariantSpan) throws MalformedSpanException;
+	/**
+	 * Gets all variant spans that intersect the specified span element. If the
+	 * VariantStream instance contains no span elements, returns an empty list.
+	 * 
+	 * @param spanElement
+	 * @return
+	 * @throws MalformedSpanException
+	 */
+	List<VariantSpan> getVariantSpans(SpanElement spanElement) throws MalformedSpanException;
 
 	/**
 	 * Returns the <code>Span<code> at the specified character position, or null if
@@ -102,48 +84,47 @@ public interface VariantStream {
 	 * @param characterPosition
 	 * @return
 	 */
-	Span index(long characterPosition);
+	T index(long characterPosition);
 
-	default void load(Spans spans) throws MalformedSpanException, IOException {
-		put(1, spans.getSpans());
-	}
-
-	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
-
-	default void put(long characterPosition, List<? extends Span> spans) throws MalformedSpanException, IOException {
-		long start = characterPosition;
-		for (int i = 0; i < spans.size(); i++) {
-			Span span = spans.get(i);
-			put(start, span);
-			start += span.width;
-		}
-	}
-
-	void put(long characterPosition, Span span) throws MalformedSpanException, IOException;
-
-	default void put(OverlaySpan span) throws MalformedSpanException, IOException {
-		put(span.start, span);
+	default void load(List<T> elements) throws MalformedSpanException, IOException {
+		 putElements(1, elements);
 	}
 
 	/**
-	 * Gets the home document that contains the variant spans. The contained invariant span values may
-	 * have different homeDocuments (transclusion)
+	 * Moves all stream elements in the bounds of the specified VariantStream to the
+	 * specified position
 	 * 
-	 * @return home document
-	 */
-	TumblerAddress getHomeDocument();
-	
-	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
-
-	/**
-	 * Toggle the overlay. If any of the overlays in the specified variantSpan do not have the link type,
-	 * then add the link type to every overlay, otherwise remove it from every overlay.
-	 * 
+	 * @param to
+	 *            position to move stream elements to
 	 * @param variantSpan
-	 * @param link the link type of the overlay
 	 * @throws MalformedSpanException
 	 * @throws IOException
 	 */
-	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link)
-			throws MalformedSpanException, IOException;
+	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
+
+	void put(long characterPosition, T streamElement) throws MalformedSpanException, IOException;
+
+	default void putElements(long characterPosition, List<T> streamElements) throws MalformedSpanException, IOException {
+		long start = characterPosition;
+		for (int i = 0; i < streamElements.size(); i++) {
+			T element = streamElements.get(i);
+			put(start, element);
+			start += element.getWidth();
+		}
+	}
+
+	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
+
+	/**
+	 * Toggle the overlay. If any of the overlays in the specified variantSpan do
+	 * not have the link type, then add the link type to every overlay, otherwise
+	 * remove it from every overlay.
+	 * 
+	 * @param variantSpan
+	 * @param link
+	 *            the link type of the overlay
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
+	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
 }

@@ -22,17 +22,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.OverlaySpan;
-import org.oulipo.streams.Span;
-import org.oulipo.streams.SpanPartition;
-import org.oulipo.streams.Spans;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
+import org.oulipo.streams.types.OverlayElement;
+import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.StreamElement;
+import org.oulipo.streams.types.StreamElementPartition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -40,7 +38,7 @@ import com.google.common.collect.Lists;
 /**
  * Rope implementation of the <code>VariantStream</code>
  */
-public final class RopeVariantStream implements VariantStream {
+public final class RopeVariantStream<T extends StreamElement> implements VariantStream<T> {
 
 	/**
 	 * The number of characters to the left of a node
@@ -87,14 +85,14 @@ public final class RopeVariantStream implements VariantStream {
 	/**
 	 * Collects invariant spans between two variant points: lo to hi
 	 */
-	private static class InvariantSpanCollector {
+	private static class InvariantSpanCollector<S extends StreamElement> {
 
 		private long position = 1;
 
 		/**
-		 * Ordered collection of <code>Span<code>s.
+		 * Ordered collection of <code>StreamElement<code>s.
 		 */
-		final Queue<Span> queue = new LinkedList<>();
+		final Queue<S> queue = new LinkedList<>();
 
 		/**
 		 * Constructs a collector. The character position is the variant position of the
@@ -107,7 +105,8 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		/**
-		 * Collects <code>Span</code>s between the specified lo and hi characters.
+		 * Collects <code>StreamElement</code>s between the specified lo and hi
+		 * characters.
 		 * 
 		 * The specified node x is the first parent node of the node at position lo.
 		 * 
@@ -119,7 +118,7 @@ public final class RopeVariantStream implements VariantStream {
 		 * @param hi
 		 * @throws MalformedSpanException
 		 */
-		void collect(Node x, long lo, long hi) throws MalformedSpanException {
+		void collect(Node<S> x, long lo, long hi) throws MalformedSpanException {
 			if (x == null || position > hi) {
 				return;
 			}
@@ -132,12 +131,17 @@ public final class RopeVariantStream implements VariantStream {
 					long b = end <= hi ? end : hi;
 
 					if (a != b) {
-						long invariantStart = queue.isEmpty() && position + x.weight - 1 <= hi
-								? x.value.start + x.value.width - (b - a)
-								: x.value.start;
-						Span copy = x.value.copy();
-						copy.start = invariantStart;
-						copy.width = b - a;
+						S copy = x.value.copy();
+						copy.setWidth(b - a);
+
+						if (x.value instanceof SpanElement) {
+							SpanElement span = (SpanElement) copy;
+							SpanElement value = (SpanElement) x.value;
+							long invariantStart = queue.isEmpty() && position + x.weight - 1 <= hi
+									? value.getStart() + value.getWidth() - (b - a)
+									: value.getStart();
+							span.setStart(invariantStart);
+						}
 						queue.add(copy);
 					}
 				}
@@ -156,17 +160,17 @@ public final class RopeVariantStream implements VariantStream {
 	/**
 	 * Internal node of rope
 	 */
-	public static class Node {
+	public static class Node<T extends StreamElement> {
 
-		public Node left;
+		public Node<T> left;
 
-		Node parent;
+		Node<T> parent;
 
-		public Node right;
+		public Node<T> right;
 
 		public String tag;
 
-		public final Span value;
+		public final T value;
 
 		public long weight;
 
@@ -180,9 +184,11 @@ public final class RopeVariantStream implements VariantStream {
 			this(weight, null);
 		}
 
-		Node(long weight, long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
-			this(weight, new Span(start, width, homeDocument));
-		}
+		/*
+		 * Node(long weight, long start, long width, TumblerAddress homeDocument) throws
+		 * MalformedSpanException { this(weight, new StreamElement(start, width,
+		 * homeDocument)); }
+		 */
 
 		/**
 		 * Constructs leaf node
@@ -195,16 +201,24 @@ public final class RopeVariantStream implements VariantStream {
 		 * @throws IllegalArgumentException
 		 *             if the weight != value.width
 		 */
-		Node(long weight, Span value) {
+		Node(long weight, T value) {
 			if (weight < 0) {
 				throw new IndexOutOfBoundsException("weight must be greater than -1");
 			}
-			if (value != null && weight != value.width) {
+			if (value != null && weight != value.getWidth()) {
 				throw new IllegalArgumentException(
-						"weight must equal span width : weight = " + weight + ", width = " + value.width);
+						"weight must equal span width : weight = " + weight + ", width = " + value.getWidth());
 			}
 			this.weight = weight;
 			this.value = value;
+		}
+
+		private void addWeightsOfRightLeaningChildNodes(Node<T> x, Displacement weight) {
+			if (x == null || x.right == null) {
+				return;
+			}
+			weight.add(x.right.weight);
+			addWeightsOfRightLeaningChildNodes(x.right, weight);
 		}
 
 		/**
@@ -213,9 +227,6 @@ public final class RopeVariantStream implements VariantStream {
 		 * @return
 		 */
 		long characterCount() {
-			/*
-			 * if(isLeaf()) { return weight + value.width;//TODO }
-			 */
 			Displacement w = new Displacement();
 			addWeightsOfRightLeaningChildNodes(this, w);
 			return weight + w.getValue();
@@ -226,8 +237,8 @@ public final class RopeVariantStream implements VariantStream {
 		 * 
 		 * @return
 		 */
-		Node copy() {
-			Node node = new Node(weight, value);
+		Node<T> copy() {
+			Node<T> node = new Node<T>(weight, value);
 			node.right = right;
 			node.left = left;
 			node.parent = parent;
@@ -273,17 +284,19 @@ public final class RopeVariantStream implements VariantStream {
 		 *             if this is a branch node or if unable to split the invariantSpan
 		 *             for a leaf node.
 		 */
-		Node split(long variantPosition) throws MalformedSpanException {
+		Node<T> split(long variantPosition) throws MalformedSpanException {
 			if (!isLeaf()) {
 				throw new MalformedSpanException("Can only split a leaf node");
 			}
+			
+			long cutPoint = (value instanceof SpanElement) ? ((SpanElement) value).getStart() + variantPosition
+					: variantPosition;
+			Node<T> parent = new Node<T>(variantPosition);
 
-			long cutPoint = value.start + variantPosition;
-			Node parent = new Node(variantPosition);// TODO
-
-			SpanPartition spans = value.split(cutPoint);
-			parent.left = new Node(spans.getLeft().width, spans.getLeft());
-			parent.right = new Node(spans.getRight().width, spans.getRight());
+			StreamElementPartition<T> spans = value.split(cutPoint);
+			// TODO: add start- need to know where this value starts
+			parent.left = new Node<T>(spans.getLeft().getWidth(), spans.getLeft());
+			parent.right = new Node<T>(spans.getRight().getWidth(), spans.getRight());
 
 			parent.left.parent = parent;
 			parent.right.parent = parent;
@@ -299,13 +312,13 @@ public final class RopeVariantStream implements VariantStream {
 	/**
 	 * Partition of node into left and right halves
 	 */
-	static class NodePartition {
+	static class NodePartition<S extends StreamElement> {
 
-		final Node left;
+		final Node<S> left;
 
-		final Node right;
+		final Node<S> right;
 
-		NodePartition(Node left, Node right) {
+		NodePartition(Node<S> left, Node<S> right) {
 			this.left = left;
 			this.right = right;
 		}
@@ -317,7 +330,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * list. A pruner will not split any leaf nodes, as this needs to be handled
 	 * prior to pruning.
 	 */
-	static class Pruner {
+	static class Pruner<S extends StreamElement> {
 
 		/**
 		 * Pruning or cut point
@@ -332,7 +345,7 @@ public final class RopeVariantStream implements VariantStream {
 		/**
 		 * List of nodes that have been cut from the main branch
 		 */
-		final List<Node> orphans;
+		final List<Node<S>> orphans;
 
 		/**
 		 * Width of pruned leaf nodes. As each node is pruned, this value increases. The
@@ -340,7 +353,7 @@ public final class RopeVariantStream implements VariantStream {
 		 */
 		Wid wid;
 
-		Pruner(long cutPoint, Wid wid, Displacement disp, List<Node> orphans) {
+		Pruner(long cutPoint, Wid wid, Displacement disp, List<Node<S>> orphans) {
 			if (cutPoint < 1) {
 				throw new IllegalArgumentException("Cut point must be positive: " + cutPoint);
 			}
@@ -356,7 +369,7 @@ public final class RopeVariantStream implements VariantStream {
 			this.orphans = orphans;
 		}
 
-		void prune(Node x) {
+		void prune(Node<S> x) {
 			if (x == null) {
 				return;
 			}
@@ -415,72 +428,6 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	/**
-	 * Adds up the weights of all right nodes branching from the specified node. If
-	 * this is done from the root node, it will give the character count of the
-	 * rope, otherwise it gives all the character count in the specified node.
-	 * 
-	 * @param x
-	 * @param weight
-	 *            the displacement weights
-	 */
-	private static void addWeightsOfRightLeaningChildNodes(Node x, Displacement weight) {
-		if (x == null || x.right == null) {
-			return;
-		}
-		weight.add(x.right.weight);
-		addWeightsOfRightLeaningChildNodes(x.right, weight);
-	}
-
-	/**
-	 * Adds the parent weights of right leaning children. If a child node is not
-	 * right leaning its parent weight will not be added.
-	 * 
-	 * The count is added from bottom to top.
-	 * 
-	 * This method is used to determine the displacement of the specified child
-	 * node.
-	 * 
-	 * @see #getSpans(VariantSpan)
-	 * 
-	 * @param child
-	 *            the child node from which to start adding.
-	 * @param disp
-	 *            the displacement of the child node
-	 */
-	private static void addWeightsOfRightLeaningParentNodes(Node child, Displacement disp) {
-		if (child.parent == null) {
-			return;
-		}
-
-		if (child.isRightNode()) {
-			disp.add(child.parent.weight);
-		}
-
-		addWeightsOfRightLeaningParentNodes(child.parent, disp);
-	}
-
-	/**
-	 * In-Order traversal and collection of all leaf nodes under the specified node.
-	 * 
-	 * @param x
-	 *            - the node to traverse
-	 * @param queue
-	 *            the queue to collect leaf nodes
-	 */
-	private static void collectLeafNodes(Node x, Queue<Node> queue) {
-		if (x == null) {
-			return;
-		}
-
-		if (x.value != null) {
-			queue.add(x);
-		}
-
-		collectLeafNodes(x.left, queue);
-		collectLeafNodes(x.right, queue);
-	}
-
-	/**
 	 * Creates a parent node that attaches the left and right nodes. The
 	 * parent.weight is equivalent to the number of characters under the left node
 	 * or 0 is the left node is null
@@ -491,8 +438,8 @@ public final class RopeVariantStream implements VariantStream {
 	 *            the right node to attach
 	 * @return parent node with attached left and right nodes
 	 */
-	private static Node concat(Node left, Node right) {
-		Node parent = new Node(left != null ? left.characterCount() : 0);
+	static <T extends StreamElement> Node<T> concat(Node<T> left, Node<T> right) {
+		Node<T> parent = new Node<T>(left != null ? left.characterCount() : 0);
 		if (left != null) {
 			parent.left = left;
 			parent.left.parent = parent;
@@ -523,31 +470,32 @@ public final class RopeVariantStream implements VariantStream {
 	 * @throws MalformedSpanException
 	 *             if the cut partition is malformed
 	 */
-	static NodePartition createPartition(long cutPoint, Node x) throws MalformedSpanException {
+	static <T extends StreamElement> NodePartition<T> createPartition(long cutPoint, Node<T> x)
+			throws MalformedSpanException {
 		if (x == null) {
 			throw new IllegalStateException("Attempting to partition a null node");
 		}
 		if (cutPoint > x.characterCount()) {
-			return new NodePartition(x, null);
+			return new NodePartition<T>(x, null);
 		} else if (cutPoint == 1) {
-			return new NodePartition(null, x);
+			return new NodePartition<T>(null, x);
 		}
 
-		List<Node> orphans = new ArrayList<>();
+		List<Node<T>> orphans = new ArrayList<>();
 		split(cutPoint, x, orphans);
 
 		if (orphans.isEmpty()) {
 			throw new IllegalStateException("No partition available after cut");
 		}
 
-		Iterator<Node> it = orphans.iterator();
+		Iterator<Node<T>> it = orphans.iterator();
 
-		Node orphan = it.next();
+		Node<T> orphan = it.next();
 
 		while (it.hasNext()) {
 			orphan = concat(orphan, it.next());
 		}
-		return new NodePartition(x, orphan);
+		return new NodePartition<T>(x, orphan);
 	}
 
 	/**
@@ -557,8 +505,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * @param x
 	 * @param orphans
 	 */
-	private static void cutRightNode(Node x, List<Node> orphans) {
-		System.out.println("cut off right: " + x.right);
+	private static <T extends StreamElement> void cutRightNode(Node<T> x, List<Node<T>> orphans) {
 		if (x.right != null) {
 			orphans.add(x.right);
 			x.right = null;
@@ -573,9 +520,9 @@ public final class RopeVariantStream implements VariantStream {
 	 *            the node to search from
 	 * @return
 	 */
-	static Node index(long characterPosition, Node x, Displacement disp) {
+	static <T extends StreamElement> Node<T> index(long characterPosition, Node<T> x, Displacement disp) {
 		if (x == null) {
-			return new Node(characterPosition);
+			return new Node<T>(characterPosition);
 		}
 
 		if (disp != null && !x.isLeaf() && characterPosition > x.weight) {
@@ -605,7 +552,8 @@ public final class RopeVariantStream implements VariantStream {
 	 * @throws MalformedSpanException
 	 *             if any cut node has a malformed span
 	 */
-	static void split(long cutPoint, Node x, List<Node> orphans) throws MalformedSpanException {
+	static <T extends StreamElement> void split(long cutPoint, Node<T> x, List<Node<T>> orphans)
+			throws MalformedSpanException {
 		if (x == null) {
 			return;
 		}
@@ -616,9 +564,9 @@ public final class RopeVariantStream implements VariantStream {
 
 		Wid wid = new Wid();
 		Displacement disp = new Displacement();
-		Node indexNode = index(cutPoint, x, disp);
+		Node<T> indexNode = index(cutPoint, x, disp);
 
-		Node indexParent = indexNode.parent;
+		Node<T> indexParent = indexNode.parent;
 
 		if (disp.getValue() > cutPoint) {
 			throw new MalformedSpanException("CutPoint can't be less than displacement: cutPoint = " + cutPoint
@@ -626,7 +574,7 @@ public final class RopeVariantStream implements VariantStream {
 		}
 
 		if (disp.getValue() != cutPoint - 1) {
-			Node splitNode = indexNode.split(cutPoint - disp.getValue() - 1);
+			Node<T> splitNode = indexNode.split(cutPoint - disp.getValue() - 1);
 			splitNode.parent = indexNode.parent;
 			if (indexParent != null) {// TODO: investigate this condition
 				if (indexNode.isRightNode()) {
@@ -652,7 +600,7 @@ public final class RopeVariantStream implements VariantStream {
 		wid.value = indexNode.weight;
 
 		if (indexParent != null) {
-			Pruner pruner = new Pruner(cutPoint, wid, disp, orphans);
+			Pruner<T> pruner = new Pruner<T>(cutPoint, wid, disp, orphans);
 			pruner.prune(indexParent);
 		}
 		// TODO: re-balance tree
@@ -671,7 +619,7 @@ public final class RopeVariantStream implements VariantStream {
 	/**
 	 * Root node of this rope structure
 	 */
-	Node root;
+	Node<T> root;
 
 	/**
 	 * Constructs a <code>RopeVariantStream</code>
@@ -691,18 +639,63 @@ public final class RopeVariantStream implements VariantStream {
 	 * @param root
 	 *            the root node
 	 */
-	public RopeVariantStream(TumblerAddress homeDocument, Node root) {
+	public RopeVariantStream(TumblerAddress homeDocument, Node<T> root) {
 		this.homeDocument = homeDocument;
 		this.root = root;
 	}
 
-	private boolean addOverlay(TumblerAddress link, Set<OverlaySpan> overlays) {
-		for (OverlaySpan overlaySpan : overlays) {
-			if (!overlaySpan.hasLinkType(link)) {
+	private boolean addOverlay(TumblerAddress link, List<T> overlays) {
+		for (T overlaySpan : overlays) {
+			if ((overlaySpan instanceof OverlayElement) && !((OverlayElement) overlaySpan).hasLinkType(link)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Adds up the weights of all right nodes branching from the specified node. If
+	 * this is done from the root node, it will give the character count of the
+	 * rope, otherwise it gives all the character count in the specified node.
+	 * 
+	 * @param x
+	 * @param weight
+	 *            the displacement weights
+	 */
+	private void addWeightsOfRightLeaningChildNodes(Node<T> x, Displacement weight) {
+		if (x == null || x.right == null) {
+			return;
+		}
+		weight.add(x.right.weight);
+		addWeightsOfRightLeaningChildNodes(x.right, weight);
+	}
+
+	/**
+	 * Adds the parent weights of right leaning children. If a child node is not
+	 * right leaning its parent weight will not be added.
+	 * 
+	 * The count is added from bottom to top.
+	 * 
+	 * This method is used to determine the displacement of the specified child
+	 * node.
+	 * 
+	 * @see #getStreamElements(VariantSpan)
+	 * 
+	 * @param child
+	 *            the child node from which to start adding.
+	 * @param disp
+	 *            the displacement of the child node
+	 */
+	private void addWeightsOfRightLeaningParentNodes(Node<T> child, Displacement disp) {
+		if (child.parent == null) {
+			return;
+		}
+
+		if (child.isRightNode()) {
+			disp.add(child.parent.weight);
+		}
+
+		addWeightsOfRightLeaningParentNodes(child.parent, disp);
 	}
 
 	/**
@@ -715,17 +708,37 @@ public final class RopeVariantStream implements VariantStream {
 			return 0;
 		}
 		if (root.right == null && root.left == null) {
-			return root.value.width;
+			return root.value.getWidth();
 		}
 		Displacement w = new Displacement();
 		addWeightsOfRightLeaningChildNodes(root, w);
 		return root.weight + w.getValue();
 	}
 
+	/**
+	 * In-Order traversal and collection of all leaf nodes under the specified node.
+	 * 
+	 * @param x
+	 *            - the node to traverse
+	 * @param queue
+	 *            the queue to collect leaf nodes
+	 */
+	private void collectLeafNodes(Node<T> x, Queue<Node<T>> queue) {
+		if (x == null) {
+			return;
+		}
+
+		if (x.value != null) {
+			queue.add(x);
+		}
+
+		collectLeafNodes(x.left, queue);
+		collectLeafNodes(x.right, queue);
+	}
+
 	@Override
 	public void copy(long characterPosition, VariantSpan variantSpan) throws MalformedSpanException, IOException {
-		List<Span> spans = getSpans(variantSpan).getSpans();
-		put(characterPosition, spans);
+		putElements(characterPosition, getStreamElements(variantSpan));
 	}
 
 	/**
@@ -738,7 +751,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * @throws IndexOutOfBoundsException
 	 *             if cut point is out of range
 	 */
-	private NodePartition createPartition(long cutPoint) throws MalformedSpanException {
+	private NodePartition<T> createPartition(long cutPoint) throws MalformedSpanException {
 		if (root == null) {
 			throw new IllegalStateException("No root of this tree");
 		}
@@ -754,12 +767,12 @@ public final class RopeVariantStream implements VariantStream {
 
 		if (root.left == null && root.right == null) {
 			if (cutPoint >= root.characterCount()) {
-				return new NodePartition(root, null);
+				return new NodePartition<T>(root, null);
 			} else if (cutPoint == 1) {
-				return new NodePartition(null, root);
+				return new NodePartition<T>(null, root);
 			} else {
-				root = root.split(cutPoint);// TODO: if point 1, then need to
-				return new NodePartition(root.left, root.right);
+				root = root.split(cutPoint);
+				return new NodePartition<T>(root.left, root.right);
 			}
 		} else {
 			return createPartition(cutPoint, root);
@@ -780,13 +793,13 @@ public final class RopeVariantStream implements VariantStream {
 	 * @return returns Node containing deleted portion
 	 * 
 	 */
-	private Node deleteRange(VariantSpan variantSpan) throws MalformedSpanException {
-		NodePartition partI = createPartition(variantSpan.start);
+	private Node<T> deleteRange(VariantSpan variantSpan) throws MalformedSpanException {
+		NodePartition<T> partI = createPartition(variantSpan.start);
 		if (partI.right == null) {
 			return null;
 		}
 
-		NodePartition partJ = createPartition(variantSpan.width + 1, partI.right);
+		NodePartition<T> partJ = createPartition(variantSpan.width + 1, partI.right);
 		if (partI.left == null && partJ.right == null) {
 			root = null;
 			return partI.right;
@@ -810,7 +823,7 @@ public final class RopeVariantStream implements VariantStream {
 	 * @param width
 	 * @return
 	 */
-	protected Node findSearchNode(Node x, long width) {
+	protected Node<T> findSearchNode(Node<T> x, long width) {
 		if (x == null) {
 			return root;
 		}
@@ -826,8 +839,8 @@ public final class RopeVariantStream implements VariantStream {
 	 * @return
 	 * @throws MalformedSpanException
 	 */
-	Iterator<Node> getAllLeafNodes() throws MalformedSpanException {
-		Queue<Node> queue = new LinkedList<Node>();
+	Iterator<Node<T>> getAllLeafNodes() throws MalformedSpanException {
+		Queue<Node<T>> queue = new LinkedList<Node<T>>();
 		collectLeafNodes(root, queue);
 		return queue.iterator();
 	}
@@ -838,79 +851,75 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	@Override
-	public Spans getSpans() throws MalformedSpanException {
-		Spans spans = new Spans();
-		Iterator<Node> it = getAllLeafNodes();
+	public List<T> getStreamElements() throws MalformedSpanException {
+		List<T> elements = new ArrayList<>();
+		Iterator<Node<T>> it = getAllLeafNodes();
 		while (it.hasNext()) {
-			Node node = it.next();
+			Node<T> node = it.next();
 			if (node.value != null) {
-				spans.getSpans().add(node.value);
+				elements.add(node.value);
 			}
 		}
-		return spans;
+		return elements;
 	}
 
 	@Override
-	public Spans getSpans(VariantSpan variantSpan) throws MalformedSpanException {
-		Node loNode = index(variantSpan.start, root, null);
-		Node searchNode = findSearchNode(loNode, variantSpan.start + variantSpan.width - 1);
+	public List<T> getStreamElements(VariantSpan variantSpan) throws MalformedSpanException {
+		Node<T> loNode = index(variantSpan.start, root, null);
+		Node<T> searchNode = findSearchNode(loNode, variantSpan.start + variantSpan.width - 1);
 
 		Displacement disp = new Displacement();
 		addWeightsOfRightLeaningParentNodes(searchNode, disp);
 
-		InvariantSpanCollector collector = new InvariantSpanCollector(disp.getValue());
+		InvariantSpanCollector<T> collector = new InvariantSpanCollector<T>(disp.getValue());
 		collector.collect(searchNode, variantSpan.start, variantSpan.start + variantSpan.width);
 
-		Spans spans = new Spans();
+		List<T> elements = new ArrayList<>();
 
-		Iterator<Span> it = collector.queue.iterator();
+		Iterator<T> it = collector.queue.iterator();
 		while (it.hasNext()) {
-			Span is = it.next();
-			try {
-				is.homeDocument = homeDocument.toExternalForm();
-			} catch (MalformedTumblerException e) {
-				e.printStackTrace();// TODO: throw
-			}
-			spans.getSpans().add(is);
+			T is = it.next();
+			is.setHomeDocument(homeDocument);
+			elements.add(is);
 		}
-		return spans;
+		return elements;
 	}
 
 	@Override
-	public List<VariantSpan> getVariantSpans(Span invariantSpan) throws MalformedSpanException {
+	public List<VariantSpan> getVariantSpans(SpanElement targetSpan) throws MalformedSpanException {
 		// TODO: scans very inefficient
 		long index = 1;
 		List<VariantSpan> vspans = new ArrayList<>();
-		List<Span> ispans = getSpans().getSpans();
-		for (int i = 0; i < ispans.size(); i++) {
-			Span ispan = ispans.get(i);
-			long start = ispan.start;
-			long end = start + ispan.width;
-			long start2 = invariantSpan.start;
-			long end2 = start2 + invariantSpan.width;
+		List<T> spans = getStreamElements();
+		for (int i = 0; i < spans.size(); i++) {
+			SpanElement span = (SpanElement) spans.get(i);
+			long start = span.getStart();
+			long end = start + span.getWidth();
+			long start2 = targetSpan.getStart();
+			long end2 = start2 + targetSpan.getWidth();
 			if (intersects(start, end, start2, end2)) {
 				long a = Math.max(0, start2 - start);
 				long b = Math.max(0, end - end2);
 
 				System.out.println("[" + a + "," + b + "]");
-				System.out.println("Index = " + index + ", span width = " + ispan.width);
-				VariantSpan vs = new VariantSpan(index + a, ispan.width - b - a);
+				System.out.println("Index = " + index + ", span width = " + span.getWidth());
+				VariantSpan vs = new VariantSpan(index + a, span.getWidth() - b - a);
 				vs.homeDocument = homeDocument.value;// TODO: transcluded
 				vspans.add(vs);
 			}
 
-			index += ispan.width;
+			index += span.getWidth();
 		}
 		return vspans;
 	}
 
 	@Override
-	public Span index(long characterPosition) {
-		Node idx = index(characterPosition, root, null);
+	public T index(long characterPosition) {
+		Node<T> idx = index(characterPosition, root, null);
 		return idx == null ? null : idx.value;
 	}
 
-	private void insert(long i, Node x) throws MalformedSpanException {
+	private void insert(long i, Node<T> x) throws MalformedSpanException {
 		if (i > characterCount() + 1) {
 			throw new IndexOutOfBoundsException("Attempting to insert in illegal range: Current Max = "
 					+ characterCount() + ", Attempted insert = " + i + " ,Node" + x);
@@ -930,7 +939,7 @@ public final class RopeVariantStream implements VariantStream {
 		} else if (i == characterCount() + 1) {
 			root = concat(root, x);
 		} else {
-			NodePartition partition = createPartition(i);
+			NodePartition<T> partition = createPartition(i);
 			root = concat(concat(partition.left, x), partition.right);
 		}
 	}
@@ -945,7 +954,7 @@ public final class RopeVariantStream implements VariantStream {
 	}
 
 	@Override
-	public void put(long characterPosition, Span val) throws MalformedSpanException {
+	public void put(long characterPosition, T val) throws MalformedSpanException {
 		if (val == null) {
 			throw new IllegalArgumentException("invariant span is null");
 		}
@@ -954,11 +963,11 @@ public final class RopeVariantStream implements VariantStream {
 			throw new IndexOutOfBoundsException("put position must be greater than 0");
 		}
 
-		if (val.width < 1) {
+		if (val.getWidth() < 1) {
 			throw new MalformedSpanException("invariant span must have a width greater than 0");
 		}
 
-		insert(characterPosition, new Node(val.width, val));
+		insert(characterPosition, new Node<T>(val.getWidth(), val));
 	}
 
 	public void save(OutputStream os) throws MalformedSpanException, IOException {
@@ -969,31 +978,36 @@ public final class RopeVariantStream implements VariantStream {
 	public void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException {
 		// assume v1 < v2, no overlap
 
-		Node from = deleteRange(v1);
+		Node<T> from = deleteRange(v1);
 		from.parent = null;
 
 		long startV2 = v2.start - v1.width;
 
-		Node to = deleteRange(new VariantSpan(startV2, v2.width));
+		Node<T> to = deleteRange(new VariantSpan(startV2, v2.width));
 		to.parent = null;
 
 		insert(v1.start, to);
 		insert(v2.start, from);
 	}
 
-	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException {
-		Set<OverlaySpan> overlays = getOverlaySpans(variantSpan);
-		if (addOverlay(link, overlays)) {
-			for (OverlaySpan span : overlays) {
-				span.linkTypes.add(link);
+	@Override
+	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress linkType)
+			throws MalformedSpanException, IOException {
+		List<T> overlays = getStreamElements(variantSpan);
+		if (addOverlay(linkType, overlays)) {
+			for (StreamElement span : overlays) {
+				OverlayElement overlay = (OverlayElement) span;
+				overlay.addLinkType(linkType);
 			}
 		} else {
-			for (OverlaySpan span : overlays) {
-				span.linkTypes.remove(link);
+			for (StreamElement span : overlays) {
+				OverlayElement overlay = (OverlayElement) span;
+				overlay.removeLinkType(linkType);
 			}
 		}
 
 		delete(variantSpan);
-		put(variantSpan.start, new ArrayList<>(overlays));
+		putElements(variantSpan.start, overlays);
 	}
+
 }

@@ -17,7 +17,6 @@ package org.oulipo.browser.editor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -40,13 +39,14 @@ import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.resources.ops.HyperRegion;
-import org.oulipo.streams.OverlaySpan;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
+import org.oulipo.streams.types.OverlayElement;
 import org.reactfx.EventStream;
 import org.reactfx.util.Either;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
@@ -126,7 +126,7 @@ public class DocumentArea
 	 * @throws IllegalTumblerException
 	 */
 	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx,
-			VariantStream variantStream) {
+			VariantStream<OverlayElement> variantStream) {
 		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
 		RemoteImageOps<LinkType> linkedImageOps = new RemoteImageOps<>();
 		RemoteFileManager fileManager = ctx.getApplicationContext().getRemoteFileManager();
@@ -149,14 +149,14 @@ public class DocumentArea
 
 	private final ArrayList<HyperOperation> operations = new ArrayList<>();
 
-	private VariantStream variantStream;
+	private VariantStream<OverlayElement> variantStream;
 
 	private boolean writeOps;
 
 	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
 			TextOps<Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> segmentOps,
 			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory,
-			VariantStream variantStream) {
+			VariantStream<OverlayElement> variantStream) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
@@ -221,7 +221,7 @@ public class DocumentArea
 		}
 
 		try {
-			variantStream.applyOverlays(new VariantSpan(span.spanStart(), span.spanWidth()), Arrays.asList(linkType));
+			variantStream.applyOverlays(new VariantSpan(span.spanStart(), span.spanWidth()), Sets.newHashSet(linkType));
 		} catch (MalformedSpanException | IOException e) {
 			e.printStackTrace();
 		}
@@ -258,7 +258,7 @@ public class DocumentArea
 		}
 		try {
 			long start = position + 1;
-			variantStream.put(new OverlaySpan(start, (long) text.length(), homeDocument.toExternalForm()));
+			variantStream.put(start, new OverlayElement((long) text.length(), homeDocument));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -283,7 +283,7 @@ public class DocumentArea
 			long width = change.getInserted().length();
 			if (width > 0) {
 				long start = change.getInsertionEnd() - width + 1;
-				variantStream.put(new OverlaySpan(start, width, homeDocument.toExternalForm()));
+				variantStream.put(start, new OverlayElement(width, homeDocument));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

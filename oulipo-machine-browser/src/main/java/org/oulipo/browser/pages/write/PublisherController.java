@@ -54,14 +54,13 @@ import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
-import org.oulipo.streams.OverlaySpan;
-import org.oulipo.streams.Span;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
 import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.impl.RopeVariantStream;
 import org.oulipo.streams.opcodes.DeleteOp;
 import org.oulipo.streams.opcodes.InsertTextOp;
+import org.oulipo.streams.types.OverlayElement;
 import org.reactfx.SuspendableNo;
 import org.reactfx.util.Either;
 
@@ -99,7 +98,7 @@ public final class PublisherController extends BaseController {
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
-	private VariantStream variantStream;
+	private VariantStream<OverlayElement> variantStream;
 
 	private Button createMaterialButton(String resource, Runnable action, String toolTip) {
 		Image image = new Image(getClass().getResourceAsStream("/images/ic_" + resource + "_black_24dp_1x.png"));
@@ -214,7 +213,7 @@ public final class PublisherController extends BaseController {
 						for (TumblerAddress span : spans) {
 							System.out.println("Apply span: " + span + ", " + linkType);
 							area.applyStyle(span, linkType);
-							
+
 						}
 					}
 				});
@@ -318,7 +317,7 @@ public final class PublisherController extends BaseController {
 		System.out.println("------------------------------");
 
 		try {
-			for (Span span : variantStream.getSpans().getSpans()) {
+			for (OverlayElement span : variantStream.getStreamElements()) {
 				System.out.println(span);
 			}
 		} catch (MalformedSpanException e1) {
@@ -378,10 +377,12 @@ public final class PublisherController extends BaseController {
 		Link italicLink = LinkFactory.italic(address);
 
 		try {
-			for (OverlaySpan overlaySpan : variantStream.getOverlaySpans()) {
+			int position = 1;
+			for (OverlayElement overlaySpan : variantStream.getStreamElements()) {
 				try {
 					TumblerAddress s = TumblerAddress
-							.create(address.toExternalForm() + ".0.1." + overlaySpan.start + "~1." + overlaySpan.width);
+							.create(address.toExternalForm() + ".0.1." + position + "~1." + overlaySpan.getWidth());
+					position += overlaySpan.getWidth();
 
 					if (overlaySpan.hasLinkType(TumblerAddress.BOLD)) {
 						System.out.println("Add bold: " + overlaySpan);
@@ -389,7 +390,6 @@ public final class PublisherController extends BaseController {
 					}
 					if (overlaySpan.hasLinkType(TumblerAddress.ITALIC)) {
 						System.out.println("Add italic: " + overlaySpan);
-
 						italicLink.fromVSpans.add(s);
 					}
 					if (overlaySpan.hasLinkType(TumblerAddress.UNDERLINE)) {
@@ -412,30 +412,28 @@ public final class PublisherController extends BaseController {
 	}
 
 	private void setLink(Link link) {
-	//	if (!link.fromVSpans.isEmpty()) {
-			System.out.println("Set link: " + link);
-			try {
-				tumblerService.createOrUpdateLink(link, new Callback<Link>() {
+		System.out.println("Set link: " + link);
+		try {
+			tumblerService.createOrUpdateLink(link, new Callback<Link>() {
 
-					@Override
-					public void onFailure(Call<Link> arg0, Throwable arg1) {
-						arg1.printStackTrace();
-						ctx.showMessage("Failed to sync link changes with Oulipo Server: " + arg1.getMessage());
-					}
+				@Override
+				public void onFailure(Call<Link> arg0, Throwable arg1) {
+					arg1.printStackTrace();
+					ctx.showMessage("Failed to sync link changes with Oulipo Server: " + arg1.getMessage());
+				}
 
-					@Override
-					public void onResponse(Call<Link> arg0, Response<Link> arg1) {
-						Link link = arg1.body();
-						ctx.showMessage("Synced link changes with Oulipo Server: " + link.resourceId);
-						System.out.println(link);
-					}
+				@Override
+				public void onResponse(Call<Link> arg0, Response<Link> arg1) {
+					Link link = arg1.body();
+					ctx.showMessage("Synced link changes with Oulipo Server: " + link.resourceId);
+					System.out.println(link);
+				}
 
-				});
-			} catch (IOException e) {
-				ctx.showMessage("Failed to sync link changes with Oulipo Server: " + e.getMessage());
-				e.printStackTrace();
-			}
-	//	}
+			});
+		} catch (IOException e) {
+			ctx.showMessage("Failed to sync link changes with Oulipo Server: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	@Override

@@ -25,14 +25,7 @@ import org.oulipo.net.TumblerAddress;
  * and can be different after user edits.
  *
  */
-public final class VariantSpan extends Span {
-
-	private VariantSpan() {
-	}
-
-	public VariantSpan(long start, long width) throws MalformedSpanException {
-		super(start, width, "");
-	}
+public final class VariantSpan  {
 
 	/**
 	 * Constructs a <code>VariantSpan</code> starting at the specified start
@@ -47,16 +40,91 @@ public final class VariantSpan extends Span {
 	 * @throws MalformedSpanException
 	 *             if the start or width is an illegal value
 	 */	
-	public VariantSpan(long start, long width, String homeDocument) throws MalformedSpanException {
-		super(start, width, homeDocument);
+
+	public String homeDocument;
+
+	/**
+	 * Start byte position
+	 */
+	public long start;
+
+
+	/**
+	 * Number of characters in the span
+	 */
+	public long width;
+
+	private VariantSpan() {
 	}
 
-	public VariantSpan(TumblerAddress tumbler) throws MalformedSpanException {
-		super(tumbler.spanStart(), tumbler.spanWidth(), "");
+	public VariantSpan(long start, long width) throws MalformedSpanException {
+		this(start, width, "");
+	}
+
+
+	/**
+	 * Creates span
+	 * 
+	 * @param start
+	 *            start byte position of span
+	 * @param width
+	 *            number of characters in span
+	 * @param homeDocument
+	 *            the home document of the span
+	 * @throws MalformedSpanException
+	 *             if start < 1 || width < 1
+	 */
+	public VariantSpan(long start, long width, String homeDocument) throws MalformedSpanException {
+		this.start = start;
+		this.width = width;
+		if (start < 1) {
+			throw new MalformedSpanException("Start position must be greater than 0");
+		}
+		if (width < 1) {
+			throw new MalformedSpanException("Width must be greater than 0");
+		}
+			this.homeDocument = homeDocument;
+	}
+	
+	public VariantSpan(long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
+		this(start, width, homeDocument.value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		VariantSpan other = (VariantSpan) obj;
+		if (homeDocument == null) {
+			if (other.homeDocument != null)
+				return false;
+		} else if (!homeDocument.equals(other.homeDocument))
+			return false;
+		if (start != other.start)
+			return false;
+		if (width != other.width)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
+		result = prime * result + (int) (start ^ (start >>> 32));
+		result = prime * result + (int) (width ^ (width >>> 32));
+		return result;
 	}
 
 	@Override
 	public String toString() {
 		return "VariantSpan [homeDocument=" + homeDocument + ", start=" + start + ", width=" + width + "]";
 	}
+	
+	
 }

@@ -24,16 +24,17 @@ import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.VariantSpan;
+import org.oulipo.streams.types.SpanElement;
 
 public final class VariantUtils {
 
-	public static List<TumblerAddress> fromInvariantToVariant(IRI iri, OulipoMachine om)
+	public static List<TumblerAddress> fromInvariantToVariant(IRI iri, OulipoMachine<SpanElement> om)
 			throws MalformedTumblerException, MalformedSpanException {
 		return fromInvariantToVariant(TumblerAddress.create(iri.value), om);
 	}
 
-	public static List<TumblerAddress> fromInvariantToVariant(List<TumblerAddress> invariantSpans, OulipoMachine om)
-			throws MalformedSpanException, MalformedTumblerException {
+	public static List<TumblerAddress> fromInvariantToVariant(List<TumblerAddress> invariantSpans,
+			OulipoMachine<SpanElement> om) throws MalformedSpanException, MalformedTumblerException {
 		List<TumblerAddress> variantSpans = new ArrayList<>();
 		for (TumblerAddress ispanAddress : invariantSpans) {
 			variantSpans.addAll(fromInvariantToVariant(ispanAddress, om));
@@ -41,10 +42,10 @@ public final class VariantUtils {
 		return variantSpans;
 	}
 
-	public static List<TumblerAddress> fromInvariantToVariant(TumblerAddress ispanAddress, OulipoMachine om)
-			throws MalformedTumblerException, MalformedSpanException {
+	public static List<TumblerAddress> fromInvariantToVariant(TumblerAddress ispanAddress,
+			OulipoMachine<SpanElement> om) throws MalformedTumblerException, MalformedSpanException {
 		List<TumblerAddress> variantSpans = new ArrayList<>();
-		org.oulipo.streams.Span invariantSpan = new org.oulipo.streams.Span(ispanAddress.spanStart(),
+		SpanElement invariantSpan = new SpanElement(ispanAddress.spanStart(),
 				ispanAddress.spanWidth(), ispanAddress);
 		List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
 		for (VariantSpan vspan : vspans) {
@@ -59,23 +60,27 @@ public final class VariantUtils {
 		return fromVariantToInvariant(TumblerAddress.create(iri.value));
 	}
 
-	public static List<TumblerAddress> fromVariantToInvariant(List<TumblerAddress> variantSpans, OulipoMachine om)
-			throws MalformedSpanException, MalformedTumblerException {
+	public static List<TumblerAddress> fromVariantToInvariant(List<TumblerAddress> variantSpans,
+			OulipoMachine<SpanElement> om) throws MalformedSpanException, MalformedTumblerException {
 		List<TumblerAddress> invariantSpans = new ArrayList<>();
 
 		for (TumblerAddress vspan : variantSpans) {
 			VariantSpan variantSpan = new VariantSpan(vspan.spanStart(), vspan.spanWidth());
-			List<org.oulipo.streams.Span> ispans = om.getSpans(variantSpan).getSpans();
-			for (org.oulipo.streams.Span ispan : ispans) {
-				TumblerAddress invariantSpanAddress = TumblerAddress
-						.create(ispan.homeDocument + ".0.3." + ispan.start + "~3." + ispan.width);
-				invariantSpans.add(invariantSpanAddress);
+			List<SpanElement> ispans = om.getStreamElements(variantSpan);
+			for (SpanElement iSpan : ispans) {
+				try {
+					TumblerAddress invariantSpanAddress = TumblerAddress
+							.create(iSpan.getHomeDocument().value + ".0.3." + iSpan.getStart() + "~3." + iSpan.getWidth());
+					invariantSpans.add(invariantSpanAddress);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return invariantSpans;
 	}
 
-	public static List<TumblerAddress> fromVariantToInvariant(String[] variantSpans, OulipoMachine om)
+	public static List<TumblerAddress> fromVariantToInvariant(String[] variantSpans, OulipoMachine<SpanElement> om)
 			throws MalformedSpanException, MalformedTumblerException {
 		List<TumblerAddress> tumblers = new ArrayList<>();
 		for (String vs : variantSpans) {

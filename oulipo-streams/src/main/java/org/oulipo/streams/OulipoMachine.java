@@ -26,8 +26,7 @@ import java.util.List;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.opcodes.Op;
-
-import com.google.common.base.Strings;
+import org.oulipo.streams.types.SpanElement;
 
 /**
  * Provides services for loading and pushing Oulipo OP codes.
@@ -39,7 +38,7 @@ import com.google.common.base.Strings;
  * will read these OP codes and build the document, storing the relevant bits
  * within the underlying variant and invariant streams.
  */
-public interface OulipoMachine extends VariantStream, InvariantStream {
+public interface OulipoMachine<T extends SpanElement> extends VariantStream<T>, InvariantStream {
 
 	void flush();
 
@@ -50,6 +49,7 @@ public interface OulipoMachine extends VariantStream, InvariantStream {
 	 * 
 	 * @return
 	 */
+	@Override
 	TumblerAddress getHomeDocument();
 
 	/**
@@ -63,20 +63,15 @@ public interface OulipoMachine extends VariantStream, InvariantStream {
 	 */
 	default List<VirtualContent> getVirtualContent() throws IOException, MalformedSpanException {
 		List<VirtualContent> virtuals = new ArrayList<>();
-		List<Span> it = getSpans().getSpans();
+		List<T> streamElements = getStreamElements();
 		int order = 0;
-		for (Span span : it) {
+		for (SpanElement streamElement : streamElements) {
 			VirtualContent vc = new VirtualContent();
-			vc.invariantSpan = span;
+			vc.invariantSpan = streamElement;
 
 			vc.order = order++;
-			if (Strings.isNullOrEmpty(span.homeDocument)) {
-				vc.homeDocument = getHomeDocument();
-			} else {
-				vc.homeDocument = TumblerAddress.create(span.homeDocument);
-			}
-			vc.content = getText(span);
-
+			vc.homeDocument = getHomeDocument();
+			vc.content = getText(vc.invariantSpan);
 
 			virtuals.add(vc);
 		}

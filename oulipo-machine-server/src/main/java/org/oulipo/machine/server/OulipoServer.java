@@ -44,6 +44,7 @@ import org.oulipo.services.responses.ErrorResponse;
 import org.oulipo.storage.StorageService;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.impl.DefaultStreamLoader;
+import org.oulipo.streams.types.SpanElement;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,7 +102,7 @@ public class OulipoServer {
 		JsonTransformer transformer = new JsonTransformer();
 
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
-		StreamLoader streamLoader = new DefaultStreamLoader(new File("streams"), spec);
+		StreamLoader<SpanElement> streamLoader = new DefaultStreamLoader<>(new File("streams"), spec);
 
 		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
 		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader);

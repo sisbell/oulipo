@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.OpCodeReader;
-import org.oulipo.streams.Span;
 import org.oulipo.streams.opcodes.Op;
+import org.oulipo.streams.types.SpanElement;
 
 import com.google.common.io.BaseEncoding;
 
@@ -28,40 +28,24 @@ public class StreamOulipoMachineTest {
 		dir.delete();
 	}
 
-	private DefaultStreamLoader streamLoader;
+	private DefaultStreamLoader<SpanElement> streamLoader;
 
 	private File testDir;
 
 	@Test
-	public void pushCode() throws Exception {
-		String base64Body = "";
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
-
-		StreamOulipoMachine om = StreamOulipoMachine.create(streamLoader, homeDocument, false);
-		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);
-		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
-		Iterator<Op<?>> codes = reader.iterator();
-		while (codes.hasNext()) {
-			om.push(codes.next());
-		}
-		om.flush();
-		reader.close();
-	}
-	
-	@Test
 	public void append() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
 
-		StreamOulipoMachine som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
-		Span span = som.append("Hello");
-		assertEquals(span.start, 1);
-		assertEquals(span.width, 5);
+		StreamOulipoMachine<SpanElement> som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
+		SpanElement span = som.append("Hello");
+		assertEquals(span.getStart(), 1);
+		assertEquals(span.getWidth(), 5);
 
 		span = som.append("World");
-		assertEquals(span.start, 6);
-		assertEquals(span.width, 5);
+		assertEquals(span.getStart(), 6);
+		assertEquals(span.getWidth(), 5);
 	}
-
+	
 	@After
 	public void cleanup() {
 		deleteDir(new File("target/test-streams"));
@@ -71,11 +55,27 @@ public class StreamOulipoMachineTest {
 	public void getText() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1925.1.1");
 
-		StreamOulipoMachine som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
+		StreamOulipoMachine<SpanElement> som = StreamOulipoMachine.create(streamLoader, homeDocument, false);
 		som.append("Hello");
 		som.append("World");
-		String result = som.getText(new Span(5, 5, homeDocument));
+		String result = som.getText(new SpanElement(5, 5, homeDocument));
 		assertEquals("oWorl", result);
+	}
+
+	@Test
+	public void pushCode() throws Exception {
+		String base64Body = "";
+		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
+
+		StreamOulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, homeDocument, false);
+		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);
+		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
+		Iterator<Op<?>> codes = reader.iterator();
+		while (codes.hasNext()) {
+			om.push(codes.next());
+		}
+		om.flush();
+		reader.close();
 	}
 
 	@Before
@@ -83,6 +83,6 @@ public class StreamOulipoMachineTest {
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
 		testDir = new File("target/test-streams");
 		System.out.println(testDir.getAbsolutePath());
-		streamLoader = new DefaultStreamLoader(testDir, spec);
+		streamLoader = new DefaultStreamLoader<>(testDir, spec);
 	}
 }

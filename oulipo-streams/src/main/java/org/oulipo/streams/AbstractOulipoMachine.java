@@ -24,6 +24,7 @@ import org.oulipo.streams.opcodes.InsertTextOp;
 import org.oulipo.streams.opcodes.MoveOp;
 import org.oulipo.streams.opcodes.PutOp;
 import org.oulipo.streams.opcodes.SwapOp;
+import org.oulipo.streams.types.StreamElement;
 
 import com.google.common.base.Strings;
 
@@ -39,7 +40,7 @@ public abstract class AbstractOulipoMachine implements OulipoMachine {
 		}
 	}
 
-	private static void assertSpanNotNull(Span span) {
+	private static void assertSpanNotNull(Object span) {
 		if (span == null) {
 			throw new IllegalArgumentException("span is null");
 		}
@@ -81,10 +82,10 @@ public abstract class AbstractOulipoMachine implements OulipoMachine {
 	}
 
 	@Override
-	public void put(long to, Span invariantSpan) throws MalformedSpanException, IOException {
+	public void put(long to, StreamElement streamElement) throws MalformedSpanException, IOException {
 		assertGreaterThanZero(to);
-		assertSpanNotNull(invariantSpan);
-		push(writeOp(new PutOp(to, invariantSpan)));
+		assertSpanNotNull(streamElement);
+		push(writeOp(new PutOp(to, streamElement)));
 	}
 
 	@Override

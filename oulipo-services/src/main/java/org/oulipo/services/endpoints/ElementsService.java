@@ -45,17 +45,18 @@ import org.oulipo.services.ResourceSessionManager;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.impl.StreamOulipoMachine;
+import org.oulipo.streams.types.SpanElement;
 
 public class ElementsService {
 
 	private final ResourceSessionManager sessionManager;
 
-	private final StreamLoader streamLoader;
+	private final StreamLoader<SpanElement> streamLoader;
 
 	private final ThingRepository thingRepo;
 
 	public ElementsService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
-			StreamLoader streamLoader) {
+			StreamLoader<SpanElement> streamLoader) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
@@ -101,7 +102,7 @@ public class ElementsService {
 		invariantLink.updatedDate = new Date();
 		invariantLink.linkTypes = link.linkTypes;
 
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
 
 		invariantLink.fromInvariantSpans.clear();
 		invariantLink.toInvariantSpans.clear();
@@ -149,7 +150,7 @@ public class ElementsService {
 			link.updatedDate = invariantLink.updatedDate;
 			link.linkTypes = invariantLink.linkTypes;
 
-			OulipoMachine om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
+			OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
 
 			link.fromVSpans.addAll(fromInvariantToVariant(invariantLink.fromInvariantSpans, om));
 			link.toVSpans.addAll(fromInvariantToVariant(invariantLink.toInvariantSpans, om));

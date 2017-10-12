@@ -19,28 +19,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.oulipo.streams.Span;
+import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.StreamElement;
 
-public final class PutOp extends Op<PutOp.Data> {
+public final class PutOp<T extends StreamElement> extends Op<PutOp.Data<T>> {
 
-	public static class Data {
+	public static class Data<T> {
 
-		public final Span invariantSpan;
+		public final T streamElement;
 
 		public final long to;
 
-		public Data(long to, Span invariantSpan) {
+		public Data(long to, T streamElement) {
 			this.to = to;
-			this.invariantSpan = invariantSpan;
+			this.streamElement = streamElement;
 		}
 	}
 
-	public PutOp(Data data) {
+	public PutOp(Data<T> data) {
 		super(Op.PUT, data);
 	}
 
-	public PutOp(long to, Span invariantSpan) {
-		this(new Data(to, invariantSpan));
+	public PutOp(long to, T span) {
+		this(new Data<T>(to, span));
 	}
 
 	@Override
@@ -49,8 +50,13 @@ public final class PutOp extends Op<PutOp.Data> {
 		try (DataOutputStream dos = new DataOutputStream(os)) {
 			dos.writeByte(Op.PUT);
 			dos.writeLong(getData().to);
-			dos.writeLong(getData().invariantSpan.start);
-			dos.writeLong(getData().invariantSpan.width);
+			if(getData().streamElement instanceof SpanElement) {
+				SpanElement invariant = (SpanElement) getData().streamElement;
+				dos.writeLong(invariant.getStart());
+			} else {
+				dos.writeLong(-1);
+			}
+			dos.writeLong(getData().streamElement.getWidth());
 		}
 		os.flush();
 		return os.toByteArray();

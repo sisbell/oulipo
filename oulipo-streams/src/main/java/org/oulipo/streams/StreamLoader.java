@@ -19,11 +19,12 @@ import java.io.IOException;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.types.StreamElement;
 
 /**
  * Provides services for loading variant and invariant streams
  */
-public interface StreamLoader {
+public interface StreamLoader<T extends StreamElement> {
 
 	/**
 	 * Flushes the cache
@@ -52,7 +53,7 @@ public interface StreamLoader {
 	 * @throws IOException
 	 * @throws MalformedSpanException
 	 */
-	VariantStream openVariantStream(TumblerAddress homeDocument) throws IOException, MalformedSpanException;
+	VariantStream<T> openVariantStream(TumblerAddress homeDocument) throws IOException, MalformedSpanException;
 
 	/**
 	 * Writes an op code to an underlying stream. Op codes handle basic editing
