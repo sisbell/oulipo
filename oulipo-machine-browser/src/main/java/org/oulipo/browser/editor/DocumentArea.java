@@ -33,15 +33,15 @@ import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.editor.remote.RemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImageOps;
-import org.oulipo.client.services.RemoteFileManager;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ops.HyperOperation;
 import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.resources.ops.HyperRegion;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
-import org.oulipo.streams.types.OverlayElement;
+import org.oulipo.streams.types.Overlay;
 import org.reactfx.EventStream;
 import org.reactfx.util.Either;
 
@@ -95,16 +95,35 @@ public class DocumentArea
 		 * @return
 		 */
 		public Optional<HyperOperation> insert(TumblerAddress tumblerAddress, PlainTextChange change) {
-			System.out.println(change.getInsertionEnd() + ":" + change.getInserted().length());
 			int width = change.getInserted().length();
 			if (width > 0) {
 				HyperRegion region = new HyperRegion(change.getInsertionEnd() - width, width);
-				HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.INSERT, change.getInserted());
+				HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.INSERT_TEXT,
+						change.getInserted());
 				return Optional.of(op);
 			} else {
 				return Optional.empty();
 			}
 		}
+	}
+
+	/**
+	 * Manages overlaying of text and media
+	 */
+	public static class Overlayer {
+
+		public HyperOperation on(TumblerAddress tumblerAddress, IndexRange range) {
+		//	int width = change.getRemoved().length();
+		//	HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
+		//	HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.DELETE, change.getRemoved());
+		//	return op;
+			return null;
+		}
+
+		public HyperOperation toggle(TumblerAddress tumblerAddress, IndexRange range) {
+			return null;
+		}
+
 	}
 
 	private static Node createNode(TextOps<StyledText<LinkType>, LinkType> styledTextOps,
@@ -126,7 +145,7 @@ public class DocumentArea
 	 * @throws IllegalTumblerException
 	 */
 	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx,
-			VariantStream<OverlayElement> variantStream) {
+			VariantStream<Overlay> variantStream) {
 		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
 		RemoteImageOps<LinkType> linkedImageOps = new RemoteImageOps<>();
 		RemoteFileManager fileManager = ctx.getApplicationContext().getRemoteFileManager();
@@ -149,14 +168,14 @@ public class DocumentArea
 
 	private final ArrayList<HyperOperation> operations = new ArrayList<>();
 
-	private VariantStream<OverlayElement> variantStream;
+	private VariantStream<Overlay> variantStream;
 
 	private boolean writeOps;
 
 	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
 			TextOps<Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> segmentOps,
 			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory,
-			VariantStream<OverlayElement> variantStream) {
+			VariantStream<Overlay> variantStream) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
@@ -220,6 +239,12 @@ public class DocumentArea
 			setStyleSpans(styleStart, newStyles);
 		}
 
+		// HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
+
+		// HyperOperation op = new HyperOperation(tumblerAddress, region,
+		// OpCode.OVERLAY_ON, change.getRemoved());
+
+		// operations.add(e)
 		try {
 			variantStream.applyOverlays(new VariantSpan(span.spanStart(), span.spanWidth()), Sets.newHashSet(linkType));
 		} catch (MalformedSpanException | IOException e) {
@@ -254,11 +279,11 @@ public class DocumentArea
 
 		if (writeOps) {
 			HyperRegion region = new HyperRegion(position, text.length());
-			operations.add(new HyperOperation(homeDocument, region, OpCode.INSERT, text));
+			operations.add(new HyperOperation(homeDocument, region, OpCode.INSERT_TEXT, text));
 		}
 		try {
 			long start = position + 1;
-			variantStream.put(start, new OverlayElement((long) text.length(), homeDocument));
+			variantStream.put(start, new Overlay((long) text.length(), homeDocument));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -283,7 +308,7 @@ public class DocumentArea
 			long width = change.getInserted().length();
 			if (width > 0) {
 				long start = change.getInsertionEnd() - width + 1;
-				variantStream.put(start, new OverlayElement(width, homeDocument));
+				variantStream.put(start, new Overlay(width, homeDocument));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -346,6 +371,7 @@ public class DocumentArea
 	private void updateStyleInSelection(TumblerAddress linkType, Function<StyleSpans<LinkType>, LinkType> mixinGetter) {
 		IndexRange selection = getSelection();
 		if (selection.getLength() != 0) {
+			
 			try {
 				variantStream.toggleOverlay(new VariantSpan(selection.getStart() + 1, selection.getLength()), linkType);
 			} catch (MalformedSpanException | IOException e) {

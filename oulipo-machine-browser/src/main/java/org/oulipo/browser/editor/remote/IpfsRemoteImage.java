@@ -3,7 +3,7 @@ package org.oulipo.browser.editor.remote;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.oulipo.client.services.RemoteFileManager;
+import org.oulipo.streams.RemoteFileManager;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -22,11 +22,6 @@ public class IpfsRemoteImage<S> implements RemoteImage<S> {
 	}
 
 	@Override
-	public String getHash() {
-		return hash;
-	}
-
-	@Override
 	public Node createNode(RemoteFileManager fileManager) {
 		byte[] image;
 		try {
@@ -36,6 +31,11 @@ public class IpfsRemoteImage<S> implements RemoteImage<S> {
 			return new Label("Image not found");
 		}
 		return new ImageView(new Image(new ByteArrayInputStream(image), 64, 64, false, false));
+	}
+
+	@Override
+	public String getHash() {
+		return hash;
 	}
 
 	@Override

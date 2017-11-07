@@ -1,19 +1,19 @@
 package org.oulipo.browser.editor.remote;
 
-import org.oulipo.client.services.RemoteFileManager;
+import org.oulipo.streams.RemoteFileManager;
 
 import javafx.scene.Node;
 
 public class EmptyRemoteImage<S> implements RemoteImage<S> {
 
 	@Override
-	public String getHash() {
-		return "";
+	public Node createNode(RemoteFileManager fileManager) {
+		throw new AssertionError("Unreachable code");
 	}
 
 	@Override
-	public Node createNode(RemoteFileManager fileManager) {
-		throw new AssertionError("Unreachable code");
+	public String getHash() {
+		return "";
 	}
 
 	@Override

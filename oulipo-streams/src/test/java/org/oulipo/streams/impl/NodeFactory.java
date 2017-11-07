@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -17,26 +17,25 @@ package org.oulipo.streams.impl;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.impl.RopeVariantStream.Node;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
 
-final class NodeFactory {
+public final class NodeFactory {
 
 	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
 
-	private static Node<SpanElement> createTestNode() throws MalformedSpanException {
-		Node<SpanElement> A = new Node<>(22);
-		Node<SpanElement> B = new Node<>(9);
-		Node<SpanElement> C = new Node<>(6);
-		Node<SpanElement> D = new Node<>(6);
-		Node<SpanElement> E = new Node<>(6, new SpanElement(100, 6, homeDocument));
-		Node<SpanElement> F = new Node<>(3, new SpanElement(200, 3, homeDocument));
-		Node<SpanElement> G = new Node<>(2);
-		Node<SpanElement> H = new Node<>(1);
-		Node<SpanElement> J = new Node<>(2, new SpanElement(250, 2, homeDocument));
-		Node<SpanElement> K = new Node<>(4, new SpanElement(300, 4, homeDocument));
-		Node<SpanElement> M = new Node<>(1, new SpanElement(350, 1, homeDocument));
-		Node<SpanElement> N = new Node<>(6, new SpanElement(360, 6, homeDocument));
+	private static Node<InvariantSpan> createTestNode() throws MalformedSpanException {
+		Node<InvariantSpan> A = new Node<>(22);
+		Node<InvariantSpan> B = new Node<>(9);
+		Node<InvariantSpan> C = new Node<>(6);
+		Node<InvariantSpan> D = new Node<>(6);
+		Node<InvariantSpan> E = new Node<>(new InvariantSpan(100, 6, homeDocument));
+		Node<InvariantSpan> F = new Node<>(new InvariantSpan(200, 3, homeDocument));
+		Node<InvariantSpan> G = new Node<>(2);
+		Node<InvariantSpan> H = new Node<>(1);
+		Node<InvariantSpan> J = new Node<>(new InvariantSpan(250, 2, homeDocument));
+		Node<InvariantSpan> K = new Node<>(new InvariantSpan(300, 4, homeDocument));
+		Node<InvariantSpan> M = new Node<>(new InvariantSpan(350, 1, homeDocument));
+		Node<InvariantSpan> N = new Node<>(new InvariantSpan(360, 6, homeDocument));
 
 		A.tag = "A";
 		B.tag = "B";
@@ -76,12 +75,12 @@ final class NodeFactory {
 		return A;
 	}
 
-	public static Node<SpanElement> createTestNode2() throws MalformedSpanException {
-		Node<SpanElement> A = new Node<>(3);
-		Node<SpanElement> B = new Node<>(3, new SpanElement(200, 3, homeDocument));
-		Node<SpanElement> C = new Node<>(6);
-		Node<SpanElement> G = getG();
-		Node<SpanElement> H = getH();
+	public static Node<InvariantSpan> createTestNode2() throws MalformedSpanException {
+		Node<InvariantSpan> A = new Node<>(3);
+		Node<InvariantSpan> B = new Node<>(new InvariantSpan(200, 3, homeDocument));
+		Node<InvariantSpan> C = new Node<>(6);
+		Node<InvariantSpan> G = getG();
+		Node<InvariantSpan> H = getH();
 
 		A.tag = "A";
 		B.tag = "B";
@@ -99,31 +98,31 @@ final class NodeFactory {
 		return A;
 	}
 
-	static Node<SpanElement> getA() throws MalformedSpanException {
+	public static Node<InvariantSpan> getA() throws MalformedSpanException {
 		return createTestNode();
 	}
 
-	static Node<SpanElement> getB() throws MalformedSpanException {
+	public static Node<InvariantSpan> getB() throws MalformedSpanException {
 		return createTestNode().left;
 	}
 
-	static Node<SpanElement> getE() throws MalformedSpanException {
+	public static Node<InvariantSpan> getE() throws MalformedSpanException {
 		return createTestNode().left.left.left;
 	}
 
-	static Node<SpanElement> getF() throws MalformedSpanException {
+	public static Node<InvariantSpan> getF() throws MalformedSpanException {
 		return createTestNode().left.left.right;
 	}
 
-	static Node<SpanElement> getG() throws MalformedSpanException {
+	public static Node<InvariantSpan> getG() throws MalformedSpanException {
 		return createTestNode().left.right.left;
 	}
 
-	static Node<SpanElement> getH() throws MalformedSpanException {
+	public static Node<InvariantSpan> getH() throws MalformedSpanException {
 		return createTestNode().left.right.right;
 	}
 
-	static Node<SpanElement> getK() throws MalformedSpanException {
+	public static Node<InvariantSpan> getK() throws MalformedSpanException {
 		return createTestNode().left.right.left.right;
 	}
 

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.browser.api.storage;
 
-import org.oulipo.client.services.RemoteFileManager;
+import org.oulipo.streams.RemoteFileManager;
 
 public interface RemoteStorage extends RemoteFileManager {
 

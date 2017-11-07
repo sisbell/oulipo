@@ -43,23 +43,26 @@ import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
 import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
-import org.oulipo.streams.impl.StreamOulipoMachine;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.impl.DefaultOulipoMachine;
 
 public class ElementsService {
 
+	private final RemoteFileManager remoteFileManager;
+
 	private final ResourceSessionManager sessionManager;
 
-	private final StreamLoader<SpanElement> streamLoader;
+	private final StreamLoader streamLoader;
 
-	private final ThingRepository thingRepo;
+	private final ThingRepository thingRepo; 
 
 	public ElementsService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
-			StreamLoader<SpanElement> streamLoader) {
+			StreamLoader streamLoader, RemoteFileManager remoteFileManager) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
+		this.remoteFileManager = remoteFileManager;
 	}
 
 	/**
@@ -102,7 +105,7 @@ public class ElementsService {
 		invariantLink.updatedDate = new Date();
 		invariantLink.linkTypes = link.linkTypes;
 
-		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
 
 		invariantLink.fromInvariantSpans.clear();
 		invariantLink.toInvariantSpans.clear();
@@ -150,7 +153,8 @@ public class ElementsService {
 			link.updatedDate = invariantLink.updatedDate;
 			link.linkTypes = invariantLink.linkTypes;
 
-			OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
+			OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager,
+					oulipoRequest.getDocumentAddress());
 
 			link.fromVSpans.addAll(fromInvariantToVariant(invariantLink.fromInvariantSpans, om));
 			link.toVSpans.addAll(fromInvariantToVariant(invariantLink.toInvariantSpans, om));

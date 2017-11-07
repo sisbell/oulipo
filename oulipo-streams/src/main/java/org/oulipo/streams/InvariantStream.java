@@ -18,7 +18,7 @@ package org.oulipo.streams;
 import java.io.IOException;
 
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
 
 /**
  * An <code>InvariantStream</code> handles adding and getting text from an
@@ -42,7 +42,7 @@ public interface InvariantStream {
 	 * @throws MalformedSpanException
 	 *             if the invariant span is malformed
 	 */
-	SpanElement append(String text) throws IOException, MalformedSpanException;
+	InvariantSpan append(String text) throws IOException, MalformedSpanException;
 
 	/**
 	 * Gets the text bounded by the specified invariantSpan. The text is pulled from
@@ -54,5 +54,5 @@ public interface InvariantStream {
 	 * @return the String bounded by the specified invariantSpan
 	 * @throws IOException
 	 */
-	String getText(SpanElement invariantSpan) throws IOException;
+	String getText(InvariantSpan invariantSpan) throws IOException;
 }

@@ -21,13 +21,6 @@
 
 	<name>oulipo-client</name>
 
-	<repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -44,11 +37,6 @@
 			<version>2.3.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.ipfs</groupId>
-			<artifactId>api</artifactId>
-			<version>v1.1.0</version>
-		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>oulipo-streams</artifactId>

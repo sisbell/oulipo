@@ -15,18 +15,19 @@
  *******************************************************************************/
 package org.oulipo.streams;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.SignatureException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.opcodes.Op;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.Invariant;
+import org.oulipo.streams.types.InvariantMedia;
+import org.oulipo.streams.types.InvariantSpan;
+import org.oulipo.streams.types.Overlay;
 
 /**
  * Provides services for loading and pushing Oulipo OP codes.
@@ -38,10 +39,17 @@ import org.oulipo.streams.types.SpanElement;
  * will read these OP codes and build the document, storing the relevant bits
  * within the underlying variant and invariant streams.
  */
-public interface OulipoMachine<T extends SpanElement> extends VariantStream<T>, InvariantStream {
+public interface OulipoMachine extends InvariantStream {
 
+	void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
+			throws MalformedSpanException, IOException;
+
+	void copyVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
+	
+	void deleteVariant(VariantSpan variantSpan) throws MalformedSpanException, IOException;
+	
 	void flush();
-
+	
 	/**
 	 * Returns the home address of invariant spans within the invariant stream. The
 	 * invariant stream may have a home document different from the one specified
@@ -49,8 +57,21 @@ public interface OulipoMachine<T extends SpanElement> extends VariantStream<T>, 
 	 * 
 	 * @return
 	 */
-	@Override
 	TumblerAddress getHomeDocument();
+	
+	List<Invariant> getInvariants() throws MalformedSpanException;
+
+	List<Invariant> getInvariants(VariantSpan variantSpan) throws MalformedSpanException;
+	
+	/**
+	 * Gets all variant spans that intersect the specified span element. If the
+	 * VariantStream instance contains no span elements, returns an empty list.
+	 * 
+	 * @param spanElement
+	 * @return
+	 * @throws MalformedSpanException
+	 */
+	List<VariantSpan> getVariantSpans(InvariantSpan spanElement) throws MalformedSpanException;
 
 	/**
 	 * Gets the virtual content collection of the homeDocument. The virtual content
@@ -63,22 +84,35 @@ public interface OulipoMachine<T extends SpanElement> extends VariantStream<T>, 
 	 */
 	default List<VirtualContent> getVirtualContent() throws IOException, MalformedSpanException {
 		List<VirtualContent> virtuals = new ArrayList<>();
-		List<T> streamElements = getStreamElements();
+		List<Invariant> invariants = getInvariants();
 		int order = 0;
-		for (SpanElement streamElement : streamElements) {
+		for (Invariant invariant : invariants) {
 			VirtualContent vc = new VirtualContent();
-			vc.invariantSpan = streamElement;
+			vc.invariant = invariant;
 
 			vc.order = order++;
 			vc.homeDocument = getHomeDocument();
-			vc.content = getText(vc.invariantSpan);
+			if(invariant instanceof InvariantSpan) {
+				vc.content = getText( (InvariantSpan) invariant);
+			} else if(invariant instanceof InvariantMedia) {
+				
+			}
 
 			virtuals.add(vc);
 		}
 
 		return virtuals;
 	}
-
+	
+	/**
+	 * Returns the <code>Span<code> at the specified character position, or null if
+	 * none exists at that position
+	 * 
+	 * @param characterPosition
+	 * @return
+	 */
+	Invariant index(long characterPosition);
+	
 	/**
 	 * Inserts the specified text at the specified (variant) character position. The
 	 * text will be appended to the end of the invariant stream but its variant
@@ -92,56 +126,29 @@ public interface OulipoMachine<T extends SpanElement> extends VariantStream<T>, 
 	 * @throws MalformedSpanException
 	 */
 	void insert(long characterPosition, String text) throws IOException, MalformedSpanException;
+	
+	void loadDocument(String hash)
+			throws MalformedTumblerException, MalformedSpanException, IOException, SignatureException;
+	
+	void moveVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
+	
+	void putInvariant(long to, Invariant invariant) throws MalformedSpanException, IOException;
+	void putOverlay(long to, Overlay overlay) throws MalformedSpanException, IOException;
 
+	void swapVariants(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
+	
 	/**
-	 * Loads op codes from the specified input stream and pushes them into the
-	 * <code>OulipoMachine</code> for processing
+	 * Toggle the overlay. If any of the overlays in the specified variantSpan do
+	 * not have the link type, then add the link type to every overlay, otherwise
+	 * remove it from every overlay.
 	 * 
-	 * @param input
-	 *            the input stream for stored OP codes
-	 * 
-	 * @throws IOException
-	 * @throws MalformedSpanException
-	 */
-	default void loadOpCodes(DataInputStream input) throws IOException, MalformedSpanException {
-		OpCodeReader reader = new OpCodeReader(input);
-		Iterator<Op<?>> opCodes = reader.iterator();
-		while (opCodes.hasNext()) {
-			push(opCodes.next());
-		}
-		reader.close();
-	}
-
-	/**
-	 * Loads op codes from the specified file and pushes them into the
-	 * <code>OulipoMachine</code> for processing
-	 * 
-	 * @param file
-	 *            the file for stored OP codes
-	 * @throws IOException
-	 * @throws MalformedSpanException
-	 */
-	default void loadOpCodes(File file) throws IOException, MalformedSpanException {
-		loadOpCodes(new DataInputStream(new FileInputStream(file)));
-	}
-
-	/**
-	 * Pushes op codes into the machine. This method is responsible for modifying
-	 * the IStream and VStreams based on the op code.
-	 * 
-	 * @param op
-	 *            the operation code to push
+	 * @param variantSpan
+	 * @param link
+	 *            the link type of the overlay
 	 * @throws MalformedSpanException
 	 * @throws IOException
 	 */
-	void push(Op<?> op) throws MalformedSpanException, IOException;
+	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
 
-	/**
-	 * Writes OP code to an underlying datasource
-	 * 
-	 * @param op
-	 *            the op code to write
-	 * @return the same op code specified in the params
-	 */
-	Op<?> writeOp(Op<?> op);
+
 }

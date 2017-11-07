@@ -10,6 +10,12 @@
 	</parent>
 	<artifactId>oulipo-services</artifactId>
 	<name>oulipo-services</name>
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -21,6 +27,11 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<dependency>
+			<groupId>io.ipfs</groupId>
+			<artifactId>api</artifactId>
+			<version>v1.1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>oulipo-resources</artifactId>

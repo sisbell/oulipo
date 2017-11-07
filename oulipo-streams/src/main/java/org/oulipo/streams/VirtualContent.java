@@ -16,7 +16,7 @@
 package org.oulipo.streams;
 
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.Invariant;
 
 public final class VirtualContent {
 
@@ -31,13 +31,21 @@ public final class VirtualContent {
 	public TumblerAddress homeDocument;
 
 	/**
-	 * The invariant span. This maps to the immutable text to of the homeDocument.
+	 * The invariant. This maps to the immutable text or media of the homeDocument.
 	 */
-	public SpanElement invariantSpan;
+	public Invariant invariant;
 
 	/**
 	 * Positional order of this content within the document
 	 */
 	public int order;
+
+	@Override
+	public String toString() {
+		return "VirtualContent [content=" + content + ", homeDocument=" + homeDocument + ", invariant=" + invariant
+				+ ", order=" + order + "]";
+	}
+	
+	
 
 }

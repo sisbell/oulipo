@@ -35,10 +35,10 @@ import org.oulipo.services.ResourceSessionManager;
 import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
 import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantSpan;
-import org.oulipo.streams.impl.StreamOulipoMachine;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.impl.DefaultOulipoMachine;
 
 /**
  * Groups from and to VSpans by link type
@@ -48,24 +48,28 @@ public class EndsetsService {
 	private static final TumblerAddress BLANK_LINK_TYPE = TumblerAddress
 			.createWithNoException("ted://1.1.0.1.0.1.1.1.0.2.628");
 
+	private final RemoteFileManager remoteFileManager;
+
 	private final ResourceSessionManager sessionManager;
 
-	private StreamLoader<SpanElement> streamLoader;
+	private final StreamLoader streamLoader;
 
 	private final ThingRepository thingRepo;
 
-	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader<SpanElement> streamLoader) {
+	public EndsetsService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader streamLoader,
+			RemoteFileManager remoteFileManager) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
+		this.remoteFileManager = remoteFileManager;
 	}
 
-	private TumblerAddress[] filter(List<TumblerAddress> ispans, TumblerAddress address, OulipoMachine<SpanElement> om)
+	private TumblerAddress[] filter(List<TumblerAddress> ispans, TumblerAddress address, OulipoMachine om)
 			throws MalformedSpanException, MalformedTumblerException {
 		Set<TumblerAddress> set = new HashSet<>();
 		for (TumblerAddress ispanAddress : ispans) {
 			if (ispanAddress.value.startsWith(address.value)) {
-				SpanElement invariantSpan = new SpanElement(
+				org.oulipo.streams.types.InvariantSpan invariantSpan = new org.oulipo.streams.types.InvariantSpan(
 						ispanAddress.spanStart(), ispanAddress.spanWidth(), ispanAddress);
 				List<VariantSpan> vspans = om.getVariantSpans(invariantSpan);
 				for (VariantSpan vspan : vspans) {
@@ -82,7 +86,7 @@ public class EndsetsService {
 		sessionManager.getDocumentForReadAccess(oulipoRequest);
 
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
 
 		Collection<Thing> ispans = thingRepo.findEndsetsOfDoc(documentAddress);
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -15,86 +15,76 @@
  *******************************************************************************/
 package org.oulipo.streams.opcodes;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public final class InsertTextOp extends Op<InsertTextOp.Data> {
+public final class InsertTextOp extends Op {
 
-	public static class Data {
+	public final String text;
 
-		public final String text;
+	public final long to;
 
-		public final long to;
-
-		public Data(long to, String text) {
-			this.to = to;
-			this.text = text;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Data other = (Data) obj;
-			if (text == null) {
-				if (other.text != null)
-					return false;
-			} else if (!text.equals(other.text))
-				return false;
-			if (to != other.to)
-				return false;
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((text == null) ? 0 : text.hashCode());
-			result = prime * result + (int) (to ^ (to >>> 32));
-			return result;
-		}
-
-		@Override
-		public String toString() {
-			return "Data [text=" + text + ", to=" + to + "]";
-		}
+	public InsertTextOp(DataInputStream dis) throws IOException {
+		this(dis.readLong(), dis.readUTF());
 	}
 
-	public static InsertTextOp read(byte[] message) throws IOException {
-		return read(new DataInputStream(new ByteArrayInputStream(message)));
-	}
-
-	public static InsertTextOp read(DataInputStream dis) throws IOException {
-		long to = dis.readLong();
-		return new InsertTextOp(new Data(to, dis.readUTF()));
-	}
-
-	public InsertTextOp(Data data) {
-		super(Op.INSERT_TEXT, data);
-	}
-
+	/**
+	 * Constructs an <code>InsertTextOp</code>
+	 * 
+	 * @param to variant insertion point
+	 * @param text the text to insert
+	 */
 	public InsertTextOp(long to, String text) {
-		this(new Data(to, text));
+		super(Op.INSERT_TEXT);
+		this.to = to;
+		this.text = text;
 	}
 
 	@Override
-	public byte[] toBytes() throws IOException {
+	public byte[] encode() throws IOException {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try (DataOutputStream dos = new DataOutputStream(os)) {
 			dos.writeByte(Op.INSERT_TEXT);
-			dos.writeLong(getData().to);
-			dos.writeUTF(getData().text);
+			dos.writeLong(to);
+			dos.writeUTF(text);//TODO: needs reference to textArea
 		}
 		os.flush();
 		return os.toByteArray();
-
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InsertTextOp other = (InsertTextOp) obj;
+		if (text == null) {
+			if (other.text != null)
+				return false;
+		} else if (!text.equals(other.text))
+			return false;
+		if (to != other.to)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((text == null) ? 0 : text.hashCode());
+		result = prime * result + (int) (to ^ (to >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "InsertTextOp [text=" + text + ", to=" + to + "]";
+	}
+	
 }

@@ -43,7 +43,6 @@ import org.oulipo.browser.editor.remote.IpfsRemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImage;
 import org.oulipo.browser.pages.BaseController;
 import org.oulipo.browser.tables.ButtonsCreator;
-import org.oulipo.client.services.RemoteFileManager;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.MalformedTumblerException;
 import org.oulipo.net.TumblerAddress;
@@ -51,16 +50,13 @@ import org.oulipo.resources.model.Document;
 import org.oulipo.resources.model.Link;
 import org.oulipo.resources.model.Virtual;
 import org.oulipo.resources.ops.HyperOperation;
-import org.oulipo.resources.ops.HyperOperation.OpCode;
 import org.oulipo.services.responses.Endset;
 import org.oulipo.services.responses.EndsetByType;
-import org.oulipo.streams.VariantSpan;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.VariantStream;
 import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.impl.RopeVariantStream;
-import org.oulipo.streams.opcodes.DeleteOp;
-import org.oulipo.streams.opcodes.InsertTextOp;
-import org.oulipo.streams.types.OverlayElement;
+import org.oulipo.streams.types.Overlay;
 import org.reactfx.SuspendableNo;
 import org.reactfx.util.Either;
 
@@ -98,7 +94,7 @@ public final class PublisherController extends BaseController {
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
-	private VariantStream<OverlayElement> variantStream;
+	private VariantStream<Overlay> variantStream;
 
 	private Button createMaterialButton(String resource, Runnable action, String toolTip) {
 		Image image = new Image(getClass().getResourceAsStream("/images/ic_" + resource + "_black_24dp_1x.png"));
@@ -317,7 +313,7 @@ public final class PublisherController extends BaseController {
 		System.out.println("------------------------------");
 
 		try {
-			for (OverlayElement span : variantStream.getStreamElements()) {
+			for (Overlay span : variantStream.getStreamElements()) {
 				System.out.println(span);
 			}
 		} catch (MalformedSpanException e1) {
@@ -326,19 +322,21 @@ public final class PublisherController extends BaseController {
 
 		for (HyperOperation hop : hops) {
 			System.out.println("SAVE:" + hop);
-			if (hop.getOperation().equals(OpCode.INSERT)) {
+			//TODO: these will be replaced by either DocumentFile.Builder or an OulipoMachone
+			/*
+			if (hop.getOperation().equals(OpCode.INSERT_TEXT)) {
 				InsertTextOp op = new InsertTextOp(hop.getDocumentRegion().getStart() + 1, hop.getText());
 				try {
-					operations.write(op.toBytes());
+					operations.write(op.encode());
 				} catch (IOException e) {
 					ctx.showMessage("Failed to write operation: " + e.getMessage());
 					e.printStackTrace();
 				}
 			} else if (hop.getOperation().equals(OpCode.DELETE)) {
 				try {
-					DeleteOp op = new DeleteOp(new VariantSpan((long) hop.getDocumentRegion().getStart() + 1,
+					DeleteVariantOp op = new DeleteVariantOp(new VariantSpan((long) hop.getDocumentRegion().getStart() + 1,
 							(long) hop.getText().length()));
-					operations.write(op.toBytes());
+					operations.write(op.encode());
 				} catch (IOException e) {
 					ctx.showMessage("Failed to write operation: " + e.getMessage());
 					e.printStackTrace();
@@ -346,6 +344,7 @@ public final class PublisherController extends BaseController {
 					e.printStackTrace();
 				}
 			}
+			*/
 		}
 		hops.clear();
 
@@ -378,7 +377,7 @@ public final class PublisherController extends BaseController {
 
 		try {
 			int position = 1;
-			for (OverlayElement overlaySpan : variantStream.getStreamElements()) {
+			for (Overlay overlaySpan : variantStream.getStreamElements()) {
 				try {
 					TumblerAddress s = TumblerAddress
 							.create(address.toExternalForm() + ".0.1." + position + "~1." + overlaySpan.getWidth());
@@ -442,7 +441,7 @@ public final class PublisherController extends BaseController {
 
 		// controller.getContext().getAccountManager().getActiveAccount().publicKey
 		// controller.getContext().getApplicationContext().getStage(id)
-		variantStream = new RopeVariantStream(address);
+		variantStream = new RopeVariantStream<Overlay>(address);
 		this.area = DocumentArea.newInstance(address, ctx, variantStream);
 		this.renderPane = new VirtualizedScrollPane<>(area);
 		area.setMaxWidth(500);
@@ -491,6 +490,9 @@ public final class PublisherController extends BaseController {
 			}
 		});
 
+		//We could get this locally by pulling out chain of hashes
+		//and building through OulipoMachine. Then call getVariants().
+		//If user doesn't own document then can't chain edits.
 		tumblerService.getVirtual(address.toTumblerAuthority(), null, new retrofit2.Callback<Virtual>() {
 
 			@Override
@@ -508,7 +510,9 @@ public final class PublisherController extends BaseController {
 						// TODO: apply links
 						area.writeOpsOff();
 						for (VirtualContent vc : virtual.content) {
-							// TODO: if transclusion, apply style
+							if(!vc.homeDocument.equals(address)) {
+								//TODO: transclusion add to overlay style
+							}
 							area.appendText(vc.content);
 						}
 						area.writeOpsOn();

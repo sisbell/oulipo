@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.fxmisc.richtext.model.Codec;
-import org.oulipo.client.services.RemoteFileManager;
+import org.oulipo.streams.RemoteFileManager;
 
 import javafx.scene.Node;
 

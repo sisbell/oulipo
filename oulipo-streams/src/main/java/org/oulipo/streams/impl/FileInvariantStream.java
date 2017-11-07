@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.InvariantStream;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
 
 import com.google.common.base.Strings;
 
@@ -61,14 +61,14 @@ public class FileInvariantStream implements InvariantStream {
 	}
 
 	@Override
-	public SpanElement append(String text) throws IOException, MalformedSpanException {
+	public InvariantSpan append(String text) throws IOException, MalformedSpanException {
 		if (Strings.isNullOrEmpty(text)) {
 			throw new MalformedSpanException("No text - span length is 0");
 		}
 
 		FileLock lock = channel.lock();
 		try {
-			SpanElement span = new SpanElement(channel.position() + 1, text.length(),
+			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length(),
 					homeDocument);
 
 			buffer.clear();
@@ -86,15 +86,15 @@ public class FileInvariantStream implements InvariantStream {
 		}
 	}
 
+	@Override
+	public String getText(InvariantSpan ispan) throws IOException {
+		return getText(ispan.getStart(), ispan.getWidth());
+	}
+
 	private String getText(long position, long width) throws IOException {
 		ByteBuffer buf = ByteBuffer.allocate((int) width);
 		channel.read(buf, position - 1);
 		buf.rewind();
 		return Charset.forName("UTF-8").decode(buf).toString();
-	}
-
-	@Override
-	public String getText(SpanElement ispan) throws IOException {
-		return getText(ispan.getStart(), ispan.getWidth());
 	}
 }

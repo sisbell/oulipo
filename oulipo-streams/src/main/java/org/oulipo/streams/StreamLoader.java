@@ -19,18 +19,26 @@ import java.io.IOException;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.types.StreamElement;
+import org.oulipo.streams.types.Invariant;
+import org.oulipo.streams.types.Overlay;
 
 /**
  * Provides services for loading variant and invariant streams
  */
-public interface StreamLoader<T extends StreamElement> {
+public interface StreamLoader {
 
 	/**
 	 * Flushes the cache
 	 */
 	void flushVariantCache();
 
+	/**
+	 * Returns most recent hash for document
+	 * 
+	 * @return most recent hash
+	 */
+	String getHash();
+	
 	/**
 	 * Opens the <code>InvariantStream<code> for the specified document. If the
 	 * invariant stream does not exist, then one is created.
@@ -53,20 +61,13 @@ public interface StreamLoader<T extends StreamElement> {
 	 * @throws IOException
 	 * @throws MalformedSpanException
 	 */
-	VariantStream<T> openVariantStream(TumblerAddress homeDocument) throws IOException, MalformedSpanException;
+	VariantStream<Invariant> openInvariantVariantStream(TumblerAddress homeDocument)
+			throws IOException, MalformedSpanException;
+	
+	VariantStream<Overlay> openOverlayVariantStream(TumblerAddress homeDocument)
+			throws IOException, MalformedSpanException;
+	
+	void setHash(String hash);
 
-	/**
-	 * Writes an op code to an underlying stream. Op codes handle basic editing
-	 * operations like inserting and deleting text. This will be called by an
-	 * instance of an <code>OulipoMachine</code> prior to modifying the
-	 * <code>VariantStream</code>
-	 * 
-	 * @see org.oulipo.machine.stream.opcodes.Op
-	 * 
-	 * @param op
-	 *            the op code to write
-	 * @return true if writing op code was successful
-	 */
-	boolean writeOp(byte[] op);
 
 }

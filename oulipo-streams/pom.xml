@@ -38,6 +38,12 @@
 	</build>
 
 	<dependencies>
+		<!-- Bitcoin -->
+		<dependency>
+			<groupId>org.bitcoinj</groupId>
+			<artifactId>bitcoinj-core</artifactId>
+		</dependency>
+	
 		<!-- Support Libraries -->
 		<dependency>
 			<groupId>com.google.guava</groupId>

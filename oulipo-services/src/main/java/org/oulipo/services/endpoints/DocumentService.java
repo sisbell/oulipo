@@ -47,8 +47,9 @@ import org.oulipo.services.ResourceSessionManager;
 import org.oulipo.services.VariantUtils;
 import org.oulipo.services.responses.LinkAddresses;
 import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
-import org.oulipo.streams.impl.StreamOulipoMachine;
+import org.oulipo.streams.impl.DefaultOulipoMachine;
 
 public class DocumentService {
 
@@ -61,6 +62,8 @@ public class DocumentService {
 		return false;
 	}
 
+	private final RemoteFileManager remoteFileManager;
+
 	private final ResourceSessionManager sessionManager;
 
 	private final StreamLoader streamLoader;
@@ -68,10 +71,11 @@ public class DocumentService {
 	private final ThingRepository thingRepo;
 
 	public DocumentService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
-			StreamLoader streamLoader) {
+			StreamLoader streamLoader, RemoteFileManager remoteFileManager) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
+		this.remoteFileManager = remoteFileManager;
 	}
 
 	public Document createDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
@@ -120,7 +124,8 @@ public class DocumentService {
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
 		Document document = sessionManager.getDocumentForReadAccess(oulipoRequest);
 
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), false);
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager,
+				oulipoRequest.getDocumentAddress());
 
 		Map<String, String> queryParams = oulipoRequest.queryParams();
 
@@ -202,7 +207,7 @@ public class DocumentService {
 
 		Document document = sessionManager.getDocumentForReadAccess(oulipoRequest);
 		TumblerAddress documentAddress = (TumblerAddress) document.resourceId;
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
 
 		Virtual virtual = new Virtual();
 		virtual.resourceId = documentAddress;
@@ -253,7 +258,6 @@ public class DocumentService {
 
 		thingRepo.add(newDocument);
 		return newDocument;
-
 	}
 
 }

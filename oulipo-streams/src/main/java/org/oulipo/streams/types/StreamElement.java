@@ -1,86 +1,49 @@
+/*******************************************************************************
+ * OulipoMachine licenses this file to you under the Apache License, Version 2.0
+ * (the "License");  you may not use this file except in compliance with the License.  
+ *
+ * You may obtain a copy of the License at
+ *   
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *    
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. See the NOTICE file distributed with this work for 
+ * additional information regarding copyright ownership. 
+ *******************************************************************************/
 package org.oulipo.streams.types;
 
 import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.StreamElementPartition;
 
-import com.google.common.base.Strings;
+public interface StreamElement {
 
-public abstract class StreamElement {
+	public static final int OVERLAY = 0x1;
 
-	TumblerAddress homeDocument;
+	public static final int OVERLAY_MEDIA = 0x3;
+
+	public static final int SPAN = 0x0;
+
+	public static final int SPAN_MEDIA = 0x2;
+
+	StreamElement copy() throws MalformedSpanException;
+
+	long getWidth();
+
+	void setWidth(long width);
 
 	/**
-	 * Number of characters in the element
+	 * Partitions this StreamElement into a left and right half. 
+	 * 
+	 * If the cutPoint is on the left boundary, then an IndexOutOfBoundsException will be thrown. If the cutPoint 
+	 * is on the right boundary, then it will be the only element in the right partition.
+	 * 
+	 * @param leftPartitionWidth required width of left part of the partition
+	 * @return
+	 * @throws MalformedSpanException
 	 */
-	protected long width;
-	
-	protected StreamElement() { }
+	StreamElementPartition<? extends StreamElement> split(long leftPartitionWidth) throws MalformedSpanException;
 
-	public StreamElement(long width, String homeDocument) throws MalformedSpanException, MalformedTumblerException {
-		this(width, Strings.isNullOrEmpty(homeDocument) ? null : TumblerAddress.create(homeDocument));
-	}
-
-	public StreamElement(long width, TumblerAddress homeDocument) throws MalformedSpanException {
-		if (width < 1) {
-			throw new MalformedSpanException("Width must be greater than 0");
-		}
-		this.width = width;
-		this.homeDocument = homeDocument;
-	}
-
-	public abstract <T extends StreamElement> T copy() throws MalformedSpanException;
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		StreamElement other = (StreamElement) obj;
-		if (homeDocument == null) {
-			if (other.homeDocument != null)
-				return false;
-		} else if (!homeDocument.equals(other.homeDocument))
-			return false;
-		if (width != other.width)
-			return false;
-		return true;
-	}
-
-	public TumblerAddress getHomeDocument() {
-		return homeDocument;
-	}
-
-	public long getWidth() {
-		return width;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
-		result = prime * result + (int) (width ^ (width >>> 32));
-		return result;
-	}
-
-	public void setHomeDocument(TumblerAddress homeDocument) {
-		this.homeDocument = homeDocument;
-	}
-
-	public void setWidth(long width) {
-		this.width = width;
-	}
-
-	public <T extends StreamElement> StreamElementPartition<T> split(long cutPoint) throws MalformedSpanException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public String toString() {
-		return "StreamElement [width=" + width + ", homeDocument=" + homeDocument + "]";
-	}
 }

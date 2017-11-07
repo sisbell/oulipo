@@ -31,25 +31,29 @@ public final class HyperOperation {
 	// swap -> ????
 
 	public enum OpCode {
-		ADD_SPACE((byte) 0), COPY((byte) 2), CUT((byte) 3), DELETE((byte) 1), INSERT((byte) 4), PASTE((byte) 5), RETURN(
-				(byte) 6), UNKNOWN((byte) -1);
+		COPY((byte) 1), CUT((byte) 2), DELETE((byte) 3), INSERT_MEDIA((byte) 4), INSERT_TEXT((byte) 5), OVERLAY_OFF((byte) 7), OVERLAY_ON(
+						(byte) 6), OVERLAY_TOGGLE((byte) 8), PASTE((byte) 9), UNKNOWN((byte) -1);
 
 		public static OpCode valueOf(byte value) {
 			switch (value) {
-			case 0:
-				return ADD_SPACE;
 			case 1:
-				return DELETE;
-			case 2:
 				return COPY;
-			case 3:
+			case 2:
 				return CUT;
+			case 3:
+				return DELETE;
 			case 4:
-				return INSERT;
+				return INSERT_MEDIA;
 			case 5:
-				return PASTE;
+				return INSERT_TEXT;
 			case 6:
-				return RETURN;
+				return OVERLAY_ON;
+			case 7:
+				return OVERLAY_OFF;
+			case 8:
+				return OVERLAY_TOGGLE;
+			case 9:
+				return PASTE;
 			default:
 				return UNKNOWN;
 			}

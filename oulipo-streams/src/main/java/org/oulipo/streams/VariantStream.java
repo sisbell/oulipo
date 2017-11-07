@@ -21,22 +21,28 @@ import java.util.Set;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.types.OverlayElement;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
+import org.oulipo.streams.types.Overlay;
 import org.oulipo.streams.types.StreamElement;
 
+/**
+ * A stream of elements that are linearly spanning a document.
+ *
+ * @param <T>
+ *            the stream element type contained in this stream
+ */
 public interface VariantStream<T extends StreamElement> {
 
 	default void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
 			throws MalformedSpanException, IOException {
 		List<T> elements = getStreamElements(variantSpan);
-		
-		if (!elements.isEmpty() && !(elements.get(0) instanceof OverlayElement)) {
+
+		if (!elements.isEmpty() && !(elements.get(0) instanceof Overlay)) {
 			throw new UnsupportedOperationException("Can only apply overlays to OverlayElements");
 		}
-		
+
 		for (T element : elements) {
-			OverlayElement overlay = (OverlayElement) element;
+			Overlay overlay = (Overlay) element;
 			overlay.addLinkTypes(links);
 		}
 		delete(variantSpan);
@@ -53,6 +59,13 @@ public interface VariantStream<T extends StreamElement> {
 
 	void copy(long characterPosition, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
+	/**
+	 * Deletes stream elements within the specified variant span
+	 * 
+	 * @param variantSpan
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
 	void delete(VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
 	/**
@@ -75,7 +88,7 @@ public interface VariantStream<T extends StreamElement> {
 	 * @return
 	 * @throws MalformedSpanException
 	 */
-	List<VariantSpan> getVariantSpans(SpanElement spanElement) throws MalformedSpanException;
+	List<VariantSpan> getVariantSpans(InvariantSpan spanElement) throws MalformedSpanException;
 
 	/**
 	 * Returns the <code>Span<code> at the specified character position, or null if
@@ -87,7 +100,7 @@ public interface VariantStream<T extends StreamElement> {
 	T index(long characterPosition);
 
 	default void load(List<T> elements) throws MalformedSpanException, IOException {
-		 putElements(1, elements);
+		putElements(1, elements);
 	}
 
 	/**
@@ -102,9 +115,35 @@ public interface VariantStream<T extends StreamElement> {
 	 */
 	void move(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
+	/**
+	 * Puts the stream value at the specified character position
+	 * 
+	 * @param characterPosition
+	 *            the position to insert the stream element
+	 * @param streamElement
+	 *            the element value to insert
+	 * @throws MalformedSpanException
+	 *             if the stream element has a width less than 1
+	 * @throws IndexOutOfBounds
+	 *             if characterPosition < 1 or greater (by 2) than the total number
+	 *             of characters in stream
+	 * @throws IllegalArgumentException
+	 *             if the stream element is null OR if the stream is empty and the
+	 *             characterPosition is greater than 1
+	 * @throws IOException
+	 */
 	void put(long characterPosition, T streamElement) throws MalformedSpanException, IOException;
 
-	default void putElements(long characterPosition, List<T> streamElements) throws MalformedSpanException, IOException {
+	/**
+	 * Puts list of stream elements in order, starting at the specified characterPosition
+	 * 
+	 * @param characterPosition
+	 * @param streamElements
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
+	default void putElements(long characterPosition, List<T> streamElements)
+			throws MalformedSpanException, IOException {
 		long start = characterPosition;
 		for (int i = 0; i < streamElements.size(); i++) {
 			T element = streamElements.get(i);
@@ -113,8 +152,10 @@ public interface VariantStream<T extends StreamElement> {
 		}
 	}
 
-	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
+	void rebalance() throws MalformedSpanException;
 
+	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
+	
 	/**
 	 * Toggle the overlay. If any of the overlays in the specified variantSpan do
 	 * not have the link type, then add the link type to every overlay, otherwise
@@ -127,4 +168,5 @@ public interface VariantStream<T extends StreamElement> {
 	 * @throws IOException
 	 */
 	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
+	
 }

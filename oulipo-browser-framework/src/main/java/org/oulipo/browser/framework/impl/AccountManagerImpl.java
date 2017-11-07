@@ -31,13 +31,13 @@ import org.oulipo.browser.api.people.UserSession;
 import org.oulipo.browser.api.storage.SessionStorage;
 import org.oulipo.browser.api.storage.SessionStorage.Property;
 import org.oulipo.client.services.AuthServiceBuilder;
-import org.oulipo.client.services.RemoteFileManager;
 import org.oulipo.security.auth.SessionResponse;
 import org.oulipo.security.auth.TempTokenResponse;
 import org.oulipo.security.auth.XanAuthUri;
 import org.oulipo.security.keystore.FileStorage;
 import org.oulipo.storage.StorageException;
 import org.oulipo.storage.StorageService;
+import org.oulipo.streams.RemoteFileManager;
 
 import com.google.common.base.Strings;
 

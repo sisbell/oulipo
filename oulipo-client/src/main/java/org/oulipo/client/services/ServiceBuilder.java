@@ -62,35 +62,6 @@ public final class ServiceBuilder {
 	}
 
 	/**
-	 * Sets the session token for the user. This will be added as a request header:
-	 * x-oulipo-token
-	 * 
-	 * A session token grants access to the user's resource for the life of the
-	 * token
-	 * 
-	 * @param sessionToken
-	 *            the session token for the user
-	 * @return this ServiceBuilder
-	 */
-	public ServiceBuilder sessionToken(String sessionToken) {
-		this.sessionToken = sessionToken;
-		return this;
-	}
-
-	/**
-	 * Sets the public key of the user.This will be added as a request header:
-	 * x-oulipo-user
-	 * 
-	 * @param publicKey
-	 *            the public key of the user
-	 * @return this ServiceBuilder
-	 */
-	public ServiceBuilder publicKey(String publicKey) {
-		this.publicKey = publicKey;
-		return this;
-	}
-
-	/**
 	 * Builds the Retrofit service
 	 * 
 	 * @param service
@@ -120,5 +91,34 @@ public final class ServiceBuilder {
 				.addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
 
 		return retrofit.create(service);
+	}
+
+	/**
+	 * Sets the public key of the user.This will be added as a request header:
+	 * x-oulipo-user
+	 * 
+	 * @param publicKey
+	 *            the public key of the user
+	 * @return this ServiceBuilder
+	 */
+	public ServiceBuilder publicKey(String publicKey) {
+		this.publicKey = publicKey;
+		return this;
+	}
+
+	/**
+	 * Sets the session token for the user. This will be added as a request header:
+	 * x-oulipo-token
+	 * 
+	 * A session token grants access to the user's resource for the life of the
+	 * token
+	 * 
+	 * @param sessionToken
+	 *            the session token for the user
+	 * @return this ServiceBuilder
+	 */
+	public ServiceBuilder sessionToken(String sessionToken) {
+		this.sessionToken = sessionToken;
+		return this;
 	}
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -15,21 +15,35 @@
  *******************************************************************************/
 package org.oulipo.streams;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Test;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 import org.oulipo.net.MalformedSpanException;
+import org.oulipo.net.TumblerAddress;
 
-@RunWith(JUnitPlatform.class)
 public class VariantSpanTest {
+
+	@Test
+	public void homeNoMatch() throws Exception {
+		assertFalse(new VariantSpan(1, 9, TumblerAddress.create("1.1.0.2.0.2.1.1")).equals(new VariantSpan(1, 10)));
+	}
 
 	@Test
 	public void illegalStart() throws Exception {
 		assertThrows(MalformedSpanException.class, () -> {
 			new VariantSpan(0, 100);
 		});
+	}
+
+	@Test
+	public void startNoMatch() throws MalformedSpanException {
+		assertFalse(new VariantSpan(1, 10).equals(new VariantSpan(2, 10)));
+	}
+
+	@Test
+	public void widthNoMatch() throws MalformedSpanException {
+		assertFalse(new VariantSpan(1, 9).equals(new VariantSpan(1, 10)));
 	}
 
 	@Test

@@ -41,11 +41,6 @@ public class RequestsMapper {
 		this.thingRepo = thingRepo;
 	}
 
-	public Route copyContent() {
-		return (request, response) -> {
-			return service.copyContent(createOulipoRequest(request));
-		};
-	}
 
 	public Route createDocument() {
 		return (request, response) -> {
@@ -82,12 +77,6 @@ public class RequestsMapper {
 			headers.put(key, value);
 		}
 		return new OulipoRequest(sessionManager, headers, request.params(), request.bodyAsBytes());
-	};
-
-	public Route deleteContent() {
-		return (request, response) -> {
-			return service.deleteContent(createOulipoRequest(request));
-		};
 	};
 
 	public Route getDocument() {
@@ -204,12 +193,6 @@ public class RequestsMapper {
 		};
 	}
 
-	public Route insertContent() {
-		return (request, response) -> {
-			return service.insertContent(createOulipoRequest(request));
-		};
-	}
-
 	public Route loadOperation() {
 		return (request, response) -> {
 			return service.loadOperations(createOulipoRequest(request));
@@ -241,12 +224,6 @@ public class RequestsMapper {
 		return (request, response) -> {
 			response.header("content-type", "application/json");
 			return service.newVersion(createOulipoRequest(request));
-		};
-	}
-
-	public Route swapContent() {
-		return (request, response) -> {
-			return service.swap(createOulipoRequest(request));
 		};
 	}
 }

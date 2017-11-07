@@ -33,24 +33,6 @@ import javafx.scene.control.MenuItem;
 
 public final class BookmarkManagerImpl implements BookmarkManager {
 
-	private MenuItem createMenuItemFrom(Bookmark bookmark) {
-		MenuItem item = new MenuItem();
-		if(Strings.isNullOrEmpty(bookmark.title)) {
-			item.setText(bookmark.url);
-		} else {
-			item.setText(bookmark.title);
-		}
-		item.setUserData(bookmark);
-		item.setOnAction(e-> {
-			try {
-				tabManager.addTabWithAddressBar(bookmark.url, bookmark.title);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		});
-		return item;
-	}
-
 	private final Menu menu;
 
 	private final StorageService storageService;
@@ -77,6 +59,24 @@ public final class BookmarkManagerImpl implements BookmarkManager {
 	@Override
 	public void add(BookmarkCategory category) throws StorageException {
 		storageService.save(category);
+	}
+
+	private MenuItem createMenuItemFrom(Bookmark bookmark) {
+		MenuItem item = new MenuItem();
+		if(Strings.isNullOrEmpty(bookmark.title)) {
+			item.setText(bookmark.url);
+		} else {
+			item.setText(bookmark.title);
+		}
+		item.setUserData(bookmark);
+		item.setOnAction(e-> {
+			try {
+				tabManager.addTabWithAddressBar(bookmark.url, bookmark.title);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+		return item;
 	}
 
 	@Override

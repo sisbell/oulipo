@@ -15,145 +15,50 @@
  *******************************************************************************/
 package org.oulipo.services.endpoints;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import java.security.SignatureException;
 
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.UnauthorizedException;
-import org.oulipo.services.EditResourceException;
-import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
-import org.oulipo.streams.OpCodeReader;
 import org.oulipo.streams.OulipoMachine;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
-import org.oulipo.streams.VariantSpan;
-import org.oulipo.streams.VirtualContent;
-import org.oulipo.streams.impl.StreamOulipoMachine;
-import org.oulipo.streams.opcodes.InsertTextOp;
-import org.oulipo.streams.opcodes.Op;
-import org.oulipo.streams.types.SpanElement;
-
-import com.google.common.io.BaseEncoding;
+import org.oulipo.streams.impl.DefaultOulipoMachine;
 
 public class ContentService {
 
+	private final RemoteFileManager remoteFileManager;
+
 	private final ResourceSessionManager sessionManager;
 
-	private final StreamLoader<SpanElement> streamLoader;
+	private final StreamLoader streamLoader;
 
-	public ContentService(ResourceSessionManager sessionManager, StreamLoader<SpanElement> streamLoader) {
+	public ContentService(ResourceSessionManager sessionManager, StreamLoader streamLoader,
+			RemoteFileManager remoteFileManager) {
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
-	}
-
-	public String copyContent(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress elementAddress = oulipoRequest.getElementAddress();
-
-		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, oulipoRequest.getDocumentAddress(), true);
-
-		if (!elementAddress.isBytesElement()) {
-			throw new EditResourceException(elementAddress, "Attempting to copy content outside of byte space");
-		}
-
-		List<VariantSpan> vspans = oulipoRequest.getVariantSpans();
-		om.copy(elementAddress.getElement().get(1), vspans);
-		om.flush();
-		return "{}";
-
-	}
-
-	public String deleteContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress elementAddress = oulipoRequest.getElementAddress();
-
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, elementAddress, true);
-
-		if (elementAddress.hasSpan()) {
-			//TODO:
-			//om.delete(new VariantSpan(elementAddress));
-			return "{}";// OK: Response
-		} else {
-			throw new EditResourceException(elementAddress, "Attempting to delete content without specifying a span");
-		}
-	}
-
-	public VirtualContent insertContent(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException {
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress elementAddress = oulipoRequest.getElementAddress();
-
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, elementAddress, true);
-
-		if (elementAddress.getElement().get(0) != 1) {
-			throw new EditResourceException(elementAddress, "Attempting to insert content outside of byte space");
-		}
-
-		om.push(new InsertTextOp(new InsertTextOp.Data(elementAddress.getElement().get(1), oulipoRequest.getBody())));
-		om.flush();
-
-		VirtualContent vc = new VirtualContent();
-		vc.content = oulipoRequest.getBody();
-		return vc;
+		this.remoteFileManager = remoteFileManager;
 	}
 
 	public void loadOperations(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException {
+			ResourceNotFoundException, IOException, MalformedSpanException, SignatureException {
 		oulipoRequest.authenticate();
 		oulipoRequest.authorize();
 
 		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		OulipoMachine<SpanElement> om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
 
-		String body = oulipoRequest.getBody();
-		System.out.println("Load Data: " + body);
-		loadOperations(om, body);
+		String hash = oulipoRequest.getBody();
+		System.out.println("Load Data: " + hash);
+		om.loadDocument(hash);
 	}
-	
-	public static void loadOperations(OulipoMachine<SpanElement> om, String base64Body) throws MalformedSpanException, IOException {
-		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);
+/**
+ * 		byte[] bodyBytes = BaseEncoding.base64Url().decode(base64Body);	
 		OpCodeReader reader = new OpCodeReader(new DataInputStream(new ByteArrayInputStream(bodyBytes)));
-		Iterator<Op<?>> codes = reader.iterator();
-		while (codes.hasNext()) {
-			om.push(codes.next());
-		}
-		om.flush();
-		reader.close();
-	}
-
-	public String swap(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-
-		OulipoMachine om = StreamOulipoMachine.create(streamLoader, documentAddress, true);
-		String spanField = oulipoRequest.getSpans();
-		String[] spans = spanField.split("[,]");
-		String[] span1 = spans[0].split("~");
-		String[] span2 = spans[1].split("~");
-		om.swap(new VariantSpan(Integer.parseInt(span1[0]), Integer.parseInt(span1[1])),
-				new VariantSpan(Integer.parseInt(span2[0]), Integer.parseInt(span2[1])));
-		return "{}";
-
-	}
+ */
 }

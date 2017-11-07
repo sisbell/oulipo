@@ -16,6 +16,7 @@
 package org.oulipo.services;
 
 import java.io.IOException;
+import java.security.SignatureException;
 import java.util.Collection;
 
 import org.oulipo.net.MalformedSpanException;
@@ -41,14 +42,11 @@ import org.oulipo.services.endpoints.UserService;
 import org.oulipo.services.responses.EndsetByType;
 import org.oulipo.services.responses.LinkAddresses;
 import org.oulipo.services.responses.Network;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
-import org.oulipo.streams.VirtualContent;
 
 /**
  * Main service for making Oulipo requests.
- * 
- * @author sisbell
- *
  */
 public class OulipoRequestService {
 
@@ -69,22 +67,15 @@ public class OulipoRequestService {
 	private UserService userService;
 
 	public OulipoRequestService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
-			StreamLoader streamLoader) {
+			StreamLoader streamLoader, RemoteFileManager remoteFileManager) {
 		this.thingRepo = thingRepo;
 		userService = new UserService(thingRepo);
 		networkService = new NetworkService();
 		nodeService = new NodeService(thingRepo);
-		contentService = new ContentService(sessionManager, streamLoader);
-		documentService = new DocumentService(thingRepo, sessionManager, streamLoader);
-		elementsService = new ElementsService(thingRepo, sessionManager, streamLoader);
-		endsetsService = new EndsetsService(thingRepo, sessionManager, streamLoader);
-
-	}
-
-	public String copyContent(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		return contentService.copyContent(oulipoRequest);
+		contentService = new ContentService(sessionManager, streamLoader, remoteFileManager);
+		documentService = new DocumentService(thingRepo, sessionManager, streamLoader, remoteFileManager);
+		elementsService = new ElementsService(thingRepo, sessionManager, streamLoader, remoteFileManager);
+		endsetsService = new EndsetsService(thingRepo, sessionManager, streamLoader, remoteFileManager);
 	}
 
 	public Document createDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
@@ -103,11 +94,6 @@ public class OulipoRequestService {
 
 	public User createOrUpdateUser(OulipoRequest oulipoRequest) throws Exception {
 		return userService.createOrUpdateUser(oulipoRequest);
-	}
-
-	public String deleteContent(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException, EditResourceException {
-		return contentService.deleteContent(oulipoRequest);
 	}
 
 	public Collection<Thing> getAllDocuments(int network, OulipoRequest request) {
@@ -215,14 +201,8 @@ public class OulipoRequestService {
 		return documentService.getVirtual(oulipoRequest);
 	}
 
-	public VirtualContent insertContent(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException {
-		return contentService.insertContent(oulipoRequest);
-	}
-
 	public String loadOperations(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, IOException, MalformedSpanException {
+			ResourceNotFoundException, IOException, MalformedSpanException, SignatureException {
 		contentService.loadOperations(oulipoRequest);
 		return "{}";
 	}
@@ -244,12 +224,6 @@ public class OulipoRequestService {
 	public Document newVersion(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
 			AuthenticationException, UnauthorizedException, ResourceFoundException {
 		return documentService.newVersion(oulipoRequest);
-	}
-
-	public String swap(OulipoRequest oulipoRequest)
-			throws AuthenticationException, UnauthorizedException, ResourceNotFoundException, IOException,
-			MalformedSpanException, EditResourceException, MissingBodyException {
-		return contentService.swap(oulipoRequest);
 	}
 
 }

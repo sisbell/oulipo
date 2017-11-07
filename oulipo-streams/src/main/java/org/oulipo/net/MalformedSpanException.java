@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.net;
 
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
 
 /**
  * Thrown to indicate that a malformed span has occurred. This can occur if the
@@ -28,30 +28,30 @@ public class MalformedSpanException extends Exception {
 	 */
 	private static final long serialVersionUID = -1820892557728771392L;
 
-	private SpanElement span;
+	private InvariantSpan span;
 
-	public MalformedSpanException(SpanElement span) {
+	public MalformedSpanException(InvariantSpan span) {
 		super();
 		this.span = span;
 	}
 
-	public MalformedSpanException(SpanElement span, String message) {
+	public MalformedSpanException(InvariantSpan span, String message) {
 		super(message);
 		this.span = span;
 	}
 
-	public MalformedSpanException(SpanElement span, String message, Throwable cause) {
+	public MalformedSpanException(InvariantSpan span, String message, Throwable cause) {
 		super(message, cause);
 		this.span = span;
 	}
 
-	public MalformedSpanException(SpanElement span, String message, Throwable cause, boolean enableSuppression,
+	public MalformedSpanException(InvariantSpan span, String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		this.span = span;
 	}
 
-	public MalformedSpanException(SpanElement span, Throwable cause) {
+	public MalformedSpanException(InvariantSpan span, Throwable cause) {
 		super(cause);
 		this.span = span;
 	}
@@ -66,7 +66,7 @@ public class MalformedSpanException extends Exception {
 		super(message);
 	}
 
-	public SpanElement getSpan() {
+	public InvariantSpan getSpan() {
 		return span;
 	}
 

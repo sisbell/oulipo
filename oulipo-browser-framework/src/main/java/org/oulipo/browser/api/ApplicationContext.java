@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.oulipo.browser.framework.ExtensionLoader;
-import org.oulipo.client.services.IpfsFileManager;
-import org.oulipo.client.services.RemoteFileManager;
+import org.oulipo.services.IpfsFileManager;
+import org.oulipo.streams.RemoteFileManager;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;

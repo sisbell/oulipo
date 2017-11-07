@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.oulipo.machine.server;
 
-import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -42,9 +41,9 @@ import org.oulipo.services.OulipoRequestService;
 import org.oulipo.services.ResourceSessionManager;
 import org.oulipo.services.responses.ErrorResponse;
 import org.oulipo.storage.StorageService;
+import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.impl.DefaultStreamLoader;
-import org.oulipo.streams.types.SpanElement;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,10 +101,13 @@ public class OulipoServer {
 		JsonTransformer transformer = new JsonTransformer();
 
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
-		StreamLoader<SpanElement> streamLoader = new DefaultStreamLoader<>(new File("streams"), spec);
+		StreamLoader streamLoader = new DefaultStreamLoader(new File("streams"), spec);
 
 		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
-		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader);
+		RemoteFileManager remoteFileManager  = new org.oulipo.services.IpfsFileManager();
+
+		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader,
+				remoteFileManager);
 		RequestsMapper req = new RequestsMapper(serviceRequest, sessionManager, thingRepo);
 
 		get("/auth", JSON, AuthApi.temporyAuthToken(authResource), transformer);
@@ -146,13 +148,6 @@ public class OulipoServer {
 
 		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/image", JSON, req.createOrUpdateLink(), transformer);
 		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", JSON, req.createOrUpdateLink(), transformer);
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/insert", req.insertContent(), transformer);
-
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/copy", JSON, req.copyContent(), transformer);
-
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/swap/:spans", JSON, req.swapContent(), transformer);
-
-		delete("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", req.deleteContent(), transformer);
 
 		exception(MalformedTumblerException.class, (exception, request, response) -> {
 			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.BAD_TUMBLER_ADDRESS, exception.getMessage(),

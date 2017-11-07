@@ -47,6 +47,10 @@ public final class TedRouter {
 
 	private TumblerService service;
 
+	public TedRouter(DocuverseService docuverseService) {
+		this(new TumblerService(docuverseService));
+	}
+
 	/**
 	 * Constructs a router with the specified <code>TumblerService</code>
 	 * 
@@ -55,10 +59,6 @@ public final class TedRouter {
 	 */
 	public TedRouter(TumblerService service) {
 		this.service = service;
-	}
-
-	public TedRouter(DocuverseService docuverseService) {
-		this(new TumblerService(docuverseService));
 	}
 
 	public void deleteRequest(String address, TumblerSuccess callback) {

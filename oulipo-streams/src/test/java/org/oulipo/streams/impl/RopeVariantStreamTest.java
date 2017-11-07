@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -22,14 +22,15 @@ import static org.junit.Assert.assertTrue;
 import static org.oulipo.streams.impl.NodeFactory.getA;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
-import org.oulipo.streams.types.OverlayElement;
-import org.oulipo.streams.types.SpanElement;
+import org.oulipo.streams.types.InvariantSpan;
+import org.oulipo.streams.types.Overlay;
 
 import com.google.common.collect.Sets;
 
@@ -43,12 +44,13 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void applyOverlays() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(10, homeDocument));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(10));
 
 		stream.applyOverlays(new VariantSpan(1, 5), Sets.newHashSet(TumblerAddress.BOLD));
 
-		List<OverlayElement> results = stream.getStreamElements();
+		List<Overlay> results = stream.getStreamElements();
+
 		assertEquals(2, results.size());
 		
 		assertTrue(results.get(0).hasLinkType(TumblerAddress.BOLD));
@@ -57,13 +59,13 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void boldAndItalicOverlap() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(10, homeDocument));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(10));
 		
 		stream.applyOverlays(new VariantSpan(1, 5), Sets.newHashSet(TumblerAddress.BOLD));
 		stream.applyOverlays(new VariantSpan(1, 5), Sets.newHashSet(TumblerAddress.ITALIC));
 
-		List<OverlayElement> results = stream.getStreamElements();
+		List<Overlay> results = stream.getStreamElements();
 		
 		assertEquals(2, results.size());
 		assertTrue(results.get(0).hasLinkType(TumblerAddress.BOLD));
@@ -75,19 +77,16 @@ public class RopeVariantStreamTest {
 	
 	@Test
 	public void boldAndItalicPartition() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(10, homeDocument));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(10));
 
 		stream.applyOverlays(new VariantSpan(1, 5), Sets.newHashSet(TumblerAddress.BOLD));
-		List<OverlayElement> results2 = stream.getStreamElements();
-		System.out.println(results2);
-
 		stream.applyOverlays(new VariantSpan(2, 9), Sets.newHashSet(TumblerAddress.ITALIC));
 
-		List<OverlayElement> results = stream.getStreamElements();
+		List<Overlay> results = stream.getStreamElements();
 	
 		assertEquals(3, results.size());
-		System.out.println(results);
+
 		assertEquals(1, results.get(0).linkCount());
 		assertTrue(results.get(0).hasLinkType(TumblerAddress.BOLD));
 		assertEquals(1, results.get(0).getWidth());
@@ -104,313 +103,385 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void boldItalicSmallPartitions() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(1, homeDocument));
-		stream.put(2, new OverlayElement(1, homeDocument));
-		stream.put(3, new OverlayElement(1, homeDocument));
-		stream.put(4, new OverlayElement(1, homeDocument));
-		stream.put(5, new OverlayElement(1, homeDocument));
-		stream.put(6, new OverlayElement(1, homeDocument));
-		stream.put(7, new OverlayElement(1, homeDocument));
-		stream.put(8, new OverlayElement(1, homeDocument));
-		
-		stream.applyOverlays(new VariantSpan(3, 4), Sets.newHashSet(TumblerAddress.BOLD));
-		stream.applyOverlays(new VariantSpan(4, 2), Sets.newHashSet(TumblerAddress.ITALIC));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(1, "a"));
+		stream.put(2, new Overlay(1, "b"));
+		stream.put(3, new Overlay(1, "c"));
+		stream.put(4, new Overlay(1, "d"));
+		stream.put(5, new Overlay(1, "e"));
+		stream.put(6, new Overlay(1, "f"));
+		stream.put(7, new Overlay(1, "g"));
+		stream.put(8, new Overlay(1, "h"));
 
-		for (OverlayElement seg : stream.getStreamElements()) {
-			System.out.println(seg);
-		}
+		stream.applyOverlays(new VariantSpan(3, 4), Sets.newHashSet(TumblerAddress.BOLD));//3,4,5,6
+		
+		List<Overlay> overlays = stream.getStreamElements();
+		assertEquals(TumblerAddress.BOLD, overlays.get(2).linkTypes.iterator().next());
+		assertEquals(TumblerAddress.BOLD, overlays.get(3).linkTypes.iterator().next());
+		assertEquals(TumblerAddress.BOLD, overlays.get(4).linkTypes.iterator().next());
+		assertEquals(TumblerAddress.BOLD, overlays.get(5).linkTypes.iterator().next());
+
+		stream.applyOverlays(new VariantSpan(4, 2), Sets.newHashSet(TumblerAddress.ITALIC));//4,5
+		overlays = stream.getStreamElements();
+
+		assertEquals(TumblerAddress.BOLD, overlays.get(2).linkTypes.iterator().next());
+		assertEquals(2, overlays.get(3).linkTypes.size());
+		assertEquals(2, overlays.get(4).linkTypes.size());
+		assertEquals(TumblerAddress.BOLD, overlays.get(5).linkTypes.iterator().next());
+	}
+	
+	@Test
+	public void boldItalicSmallPartitionsSimple() throws Exception {
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(1, "a"));
+		stream.put(2, new Overlay(1, "b"));
+
+		stream.applyOverlays(new VariantSpan(2, 1), Sets.newHashSet(TumblerAddress.BOLD));
+		List<Overlay> overlays = stream.getStreamElements();
+
+		assertEquals(0, overlays.iterator().next().linkTypes.size());
+		
+		Iterator<Overlay> it = overlays.iterator();
+		it.next();
+		assertEquals(TumblerAddress.BOLD, it.next() .linkTypes.iterator().next());
 	}
 
 	@Test
 	public void copy() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		//Expected: 100, 300, 301, 302, 101, 102, 103, 104, 105, 200, 201, 202, 250, 251, 303, 350, 360], 361....
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.copy(2, new VariantSpan(12, 3));
-		List<SpanElement> spans = stream.getStreamElements();
-		System.out.println(spans);
-	}
+		List<InvariantSpan> spans = stream.getStreamElements();
 
+		assertEquals(new InvariantSpan(100, 1, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(301, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(5));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(6));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(7));
+	
+	}
 	
 	@Test
 	public void delete() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(12, 4));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(3));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(4));
 
 		assertEquals(5, spans.size());
 	}
 	
 	@Test
 	public void delete2() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(12, 5));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(3));
 		assertEquals(4, spans.size());
 	}
 
 	@Test
 	public void delete3() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(1, 11, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 11, homeDocument));
 		stream.putElements(1, spans);
 
 		stream.delete(new VariantSpan(1, 5));
 
-		List<SpanElement> results = stream.getStreamElements();
-		assertEquals(new SpanElement(6, 6, homeDocument), results.get(0));
-
+		List<InvariantSpan> results = stream.getStreamElements();
+		assertEquals(new InvariantSpan(6, 6, homeDocument), results.get(0));
 	}
-
+	
 	@Test
 	public void delete6To19() throws Exception {// 6, 19
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(6, 19));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(100, 5, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(100, 5, homeDocument), spans.get(0));
 		assertEquals(1, spans.size());
 	}
 
 	@Test
 	public void deleteAll() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(1, 22));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 		assertEquals(0, spans.size());
 	}
 
 	@Test
 	public void deleteBeyondRangeOk() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(12, 100));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
 		assertEquals(3, spans.size());
 	}
 
 	@Test
-	public void deleteLastCharacter() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(1, 4, homeDocument));
+	public void deleteFirstCharacter() throws Exception {
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 4, homeDocument));
 		stream.putElements(1, spans);
 
-		stream.delete(new VariantSpan(3, 1));
+		stream.delete(new VariantSpan(1, 1));
 
-		List<SpanElement> results = stream.getStreamElements();
-		assertEquals(new SpanElement(1, 3, homeDocument), results.get(0));
+		List<InvariantSpan> results = stream.getStreamElements();
+		assertEquals(new InvariantSpan(2, 3, homeDocument), results.get(0));
 	}
 
 	@Test
-	public void deleteOneByte() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		stream.delete(new VariantSpan(12, 1));
-		List<SpanElement> spans = stream.getStreamElements();
+	public void deleteLastCharacter() throws Exception {
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 4, homeDocument));
+		stream.putElements(1, spans);
 
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(301, 3, homeDocument), spans.get(3));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(4));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(5));
+		stream.delete(new VariantSpan(4, 1));
+
+		List<InvariantSpan> results = stream.getStreamElements();
+		assertEquals(new InvariantSpan(1, 3, homeDocument), results.get(0));
+	}
+	
+	@Test
+	public void deleteMiddle() throws Exception { 
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 4, homeDocument));
+		stream.putElements(1, spans);
+
+		stream.delete(new VariantSpan(2, 1));
+		
+		List<InvariantSpan> results = stream.getStreamElements();
+
+		assertEquals(new InvariantSpan(1, 1, homeDocument), results.get(0));
+		assertEquals(new InvariantSpan(3, 2, homeDocument), results.get(1));
+	}
+
+
+	@Test
+	public void deleteOneByte() throws Exception {
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		//100, 101, 102, 103, 104, 105, 200, 201, 202, 250, 251, [300], 301, 302] 303
+
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		stream.delete(new VariantSpan(12, 1));
+		List<InvariantSpan> spans = stream.getStreamElements();
+		
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(301, 3, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(5));
 
 		assertEquals(6, spans.size());
 	}
 
 	@Test
 	public void deleteOneByteInFirstElement() throws Exception {// 6, 19
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		stream.delete(new VariantSpan(6, 1));
-		List<SpanElement> spans = stream.getStreamElements();
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		//100, 101, 102, 103, 104, [105] 200, 201, 202, 250, 251, 300, 301, 302] 303
 
-		assertEquals(new SpanElement(100, 5, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(300, 4, homeDocument), spans.get(3));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(4));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(5));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		stream.delete(new VariantSpan(6, 1));
+		List<InvariantSpan> spans = stream.getStreamElements();
+
+		assertEquals(new InvariantSpan(100, 5, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(5));
 
 		assertEquals(6, spans.size());
 	}
 
 	@Test
 	public void deleteOverlay() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.BOLD)));
-		stream.put(2, new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.ITALIC)));
-		stream.put(3, new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.STRIKE_THROUGH)));
-		stream.put(4, new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.UNDERLINE)));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(1, Sets.newHashSet(TumblerAddress.BOLD)));
+		stream.put(2, new Overlay(1, Sets.newHashSet(TumblerAddress.ITALIC)));
+		stream.put(3, new Overlay(1, Sets.newHashSet(TumblerAddress.STRIKE_THROUGH)));
+		stream.put(4, new Overlay(1, Sets.newHashSet(TumblerAddress.UNDERLINE)));
 
 		stream.delete(new VariantSpan(2, 2));
 	
-		List<OverlayElement> results = stream.getStreamElements();
+		List<Overlay> results = stream.getStreamElements();
 	
 		assertEquals(2, results.size());
 
-		assertEquals(results.get(0), new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.BOLD)));
-		assertEquals(results.get(1), new OverlayElement(1, homeDocument, Sets.newHashSet(TumblerAddress.UNDERLINE)));
+		assertEquals(results.get(0), new Overlay(1, Sets.newHashSet(TumblerAddress.BOLD)));
+		assertEquals(results.get(1), new Overlay(1, Sets.newHashSet(TumblerAddress.UNDERLINE)));
 	}
 
 	@Test
 	public void deleteSomeBytes() throws Exception {
 		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		//Expected: 100, 101, 102, 103, 104, 105, 200, [201, 202, 250, 251, 300, 301, 302] 303
+		//Actual: 100, 101, 102, 103, 104, 105, [200, 201, 202, 250, 251, 300, 301], 302, 303...
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(8, 7));
-		List<SpanElement> spans = stream.getStreamElements();
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 1, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(303, 1, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(3));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(4));
+		List<InvariantSpan> spans = stream.getStreamElements();
+
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 1, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(303, 1, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(4));
 
 		assertEquals(5, spans.size());
 	}
 
 	@Test
 	public void deleteSpan() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new SpanElement(1, 1, homeDocument));
-		stream.put(2, new SpanElement(2, 1, homeDocument));
-		stream.put(3, new SpanElement(3, 1, homeDocument));
-		stream.put(4, new SpanElement(4, 1, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new InvariantSpan(1, 1, homeDocument));
+		stream.put(2, new InvariantSpan(2, 1, homeDocument));
+		stream.put(3, new InvariantSpan(3, 1, homeDocument));
+		stream.put(4, new InvariantSpan(4, 1, homeDocument));
 
 		stream.delete(new VariantSpan(2, 2));
 	
-		List<SpanElement> results = stream.getStreamElements();
-	
+		List<InvariantSpan> results = stream.getStreamElements();
+
 		assertEquals(2, results.size());
-		assertTrue(results.contains(new SpanElement(1, 1, homeDocument)));
-		assertTrue(results.contains(new SpanElement(4, 1, homeDocument)));
+		assertTrue(results.contains(new InvariantSpan(1, 1, homeDocument)));
+		assertTrue(results.contains(new InvariantSpan(4, 1, homeDocument)));
 	}
 
 	@Test
 	public void deleteWithSplit() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		//Expected: 100, 101, 102, 103, 104, 105, 200, 201, 202, 250, 251 [300, 301, 302, 303, 350, 360], 361....
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.delete(new VariantSpan(12, 6));
-		List<SpanElement> spans = stream.getStreamElements();
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(361, 5, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(361, 5, homeDocument), spans.get(3));
+		
 		assertEquals(4, spans.size());
 	}
 
 	@Test
 	public void getInvariantSpan() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(1, 11, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(1, 11, homeDocument));
 		stream.putElements(1, spans);
 
-		List<SpanElement> results = stream.getStreamElements(new VariantSpan(5, 6));
+		List<InvariantSpan> results = stream.getStreamElements(new VariantSpan(5, 6));
 
-		assertEquals(new SpanElement(6, 6, homeDocument), results.get(0));
+		assertEquals(new InvariantSpan(6, 6, homeDocument), results.get(0));
 	}
 
 	@Test
 	public void getInvariantSpansBeyondWidthOk() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(10, 700));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(300, 4, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(3));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(10, 700));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(3));
 	}
 
 	@Test
 	public void getInvariantSpansMiddle() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(10, 7));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(10, 7));
 
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(300, 4, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(2));
 	}
 
 	@Test
 	public void getInvariantSpansMiddle2() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(10, 6, homeDocument));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(300, 4, homeDocument), spans.get(1));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(10, 6, homeDocument));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(1));
 	}
 
 	@Test
 	public void getInvariantSpansRangeEdgeLeft() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(1, 14));
-		assertEquals(new SpanElement(100, 6, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(300, 3, homeDocument), spans.get(3));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(1, 14));
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(300, 3, homeDocument), spans.get(3));
 		assertEquals(4, spans.size());
 	}
 
 	@Test
 	public void getInvariantSpansSmallWidthLeft() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(1, 1));
-		assertEquals(new SpanElement(100, 1, homeDocument), spans.get(0));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(1, 1));
+		assertEquals(new InvariantSpan(100, 1, homeDocument), spans.get(0));
 	}
 
 	@Test
 	public void getInvariantSpansSmallWidthRight() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(21, 1));
-		assertEquals(new SpanElement(365, 1, homeDocument), spans.get(0));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(21, 1));
+		assertEquals(new InvariantSpan(365, 1, homeDocument), spans.get(0));
 	}
 
 	@Test
 	public void getVariantSpansSingle() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(7, 5, homeDocument), new SpanElement(4, 3, homeDocument),
-				new SpanElement(1, 3, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(7, 5, homeDocument), new InvariantSpan(4, 3, homeDocument),
+				new InvariantSpan(1, 3, homeDocument));
 		stream.putElements(1, spans);
-		List<VariantSpan> result = stream.getVariantSpans(new SpanElement(7, 5, homeDocument));
+		List<VariantSpan> result = stream.getVariantSpans(new InvariantSpan(7, 5, homeDocument));
 		assertEquals(result.get(0), new VariantSpan(1, 5, homeDocument.toExternalForm()));
 
-		SpanElement invariantSpan = stream.getStreamElements(new VariantSpan(1, 5)).get(0);
-		assertEquals(new SpanElement(7, 5, homeDocument), invariantSpan);
+		InvariantSpan invariantSpan = stream.getStreamElements(new VariantSpan(1, 5)).get(0);
+		assertEquals(new InvariantSpan(7, 5, homeDocument), invariantSpan);
 	}
 
 	@Test
 	public void getVariantSpansTwo() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(7, 5, homeDocument), new SpanElement(4, 3, homeDocument),
-				new SpanElement(1, 3, homeDocument));
+		//[7,5]. [4,3], [1,3]
+		//7, 8, 9, 10, 11, [4, 5, 6, 1, 2, 3]
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(7, 5, homeDocument), new InvariantSpan(4, 3, homeDocument),
+				new InvariantSpan(1, 3, homeDocument));
 		stream.putElements(1, spans);
-		List<VariantSpan> result = stream.getVariantSpans(new SpanElement(1, 6, homeDocument));
+		List<VariantSpan> result = stream.getVariantSpans(new InvariantSpan(1, 6, homeDocument));
 		assertEquals(2, result.size());
 		assertEquals(new VariantSpan(6, 3, homeDocument), result.get(0));
 		assertEquals(new VariantSpan(9, 3, homeDocument), result.get(1));
 
-		System.out.println("Actual:" + result);
-		System.out.println("Expected:" + new VariantSpan(6, 6));
-
-		List<SpanElement> invariantSpans = stream.getStreamElements(new VariantSpan(6, 6));
-		System.out.println(invariantSpans);
+		List<InvariantSpan> invariantSpans = stream.getStreamElements(new VariantSpan(6, 6));
+		assertEquals(new InvariantSpan(4, 3, homeDocument), invariantSpans.get(0));
+		assertEquals(new InvariantSpan(1, 3, homeDocument), invariantSpans.get(1));
 	}
 
 	@Test
 	public void getVariantSpansTwoIntersect() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(7, 5, homeDocument), new SpanElement(4, 3, homeDocument),
-				new SpanElement(1, 3, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(7, 5, homeDocument), new InvariantSpan(4, 3, homeDocument),
+				new InvariantSpan(1, 3, homeDocument));
 		stream.putElements(1, spans);
-		List<VariantSpan> result = stream.getVariantSpans(new SpanElement(2, 5, homeDocument));
+		List<VariantSpan> result = stream.getVariantSpans(new InvariantSpan(2, 5, homeDocument));
 		assertEquals(2, result.size());
 		assertEquals(new VariantSpan(6, 3, homeDocument), result.get(0));
 		assertEquals(new VariantSpan(10, 2, homeDocument), result.get(1));
@@ -418,11 +489,11 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void getVariantSpansTwoIntersect2() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(7, 5, homeDocument), new SpanElement(4, 3, homeDocument),
-				new SpanElement(1, 3, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(7, 5, homeDocument), new InvariantSpan(4, 3, homeDocument),
+				new InvariantSpan(1, 3, homeDocument));
 		stream.putElements(1, spans);
-		List<VariantSpan> result = stream.getVariantSpans(new SpanElement(1, 4, homeDocument));
+		List<VariantSpan> result = stream.getVariantSpans(new InvariantSpan(1, 4, homeDocument));
 		assertEquals(2, result.size());
 		assertEquals(new VariantSpan(6, 1, homeDocument), result.get(0));
 		assertEquals(new VariantSpan(9, 3, homeDocument), result.get(1));
@@ -430,34 +501,43 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void index() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		SpanElement span = stream.index(12);
-		assertEquals(new SpanElement(300, 4, homeDocument), span);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		InvariantSpan span = stream.index(12);
+		assertEquals(new InvariantSpan(300, 4, homeDocument), span);
 	}
 
 	@Test
 	public void index11() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		SpanElement span = stream.index(11);
-		assertEquals(new SpanElement(250, 2, homeDocument), span);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		InvariantSpan span = stream.index(11);
+		assertEquals(new InvariantSpan(250, 2, homeDocument), span);
 		span = stream.index(10);
-		assertEquals(new SpanElement(250, 2, homeDocument), span);
+		assertEquals(new InvariantSpan(250, 2, homeDocument), span);
 
 	}
 
-	@Test
+	@Test(expected = IndexOutOfBoundsException.class)
 	public void indexNull() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		SpanElement span = stream.index(100);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		InvariantSpan span = stream.index(100);
 		assertNull(span);
 	}
 
 	@Test
-	public void indexStart() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+	public void moveSpan() throws Exception {
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		//Expected: 100, 300, 301, 302, 101, 102, 103, 104, 105, 200, 201, 202, 250, 251, 303, 350, 360], 361....
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.move(2, new VariantSpan(12, 3));
-		List<SpanElement> spans = stream.getStreamElements();
-		System.out.println(spans);
+		List<InvariantSpan> spans = stream.getStreamElements();
+		assertEquals(new InvariantSpan(100, 1, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(300, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(101, 5, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(303, 1, homeDocument), spans.get(5));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(6));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(7));
 	}
 /*
 	@Test
@@ -544,51 +624,59 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void put() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		stream.put(12, new SpanElement(500, 34, homeDocument));
-		List<SpanElement> spans = stream.getStreamElements();
-		System.out.println(spans);
+		// * [100, 6], [200,3], [250, 2], [300, 4], [350, 1], [360, 6]
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		stream.put(12, new InvariantSpan(500, 34, homeDocument));
+		List<InvariantSpan> spans = stream.getStreamElements();
+
+		assertEquals(new InvariantSpan(100, 6, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(500, 34, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(5));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(6));	
 	}
 
 	@Test
-	public void putSmallParitions() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new SpanElement(1, 1, homeDocument));
-		stream.put(2, new SpanElement(2, 1, homeDocument));
-		stream.put(3, new SpanElement(3, 1, homeDocument));
-		stream.put(4, new SpanElement(4, 1, homeDocument));
-		stream.put(5, new SpanElement(5, 1, homeDocument));
-		stream.put(6, new SpanElement(6, 1, homeDocument));
-		stream.put(7, new SpanElement(7, 1, homeDocument));
-		stream.put(8, new SpanElement(8, 1, homeDocument));
+	public void putSmallPartitions() throws Exception {
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new InvariantSpan(1, 1, homeDocument));
+		stream.put(2, new InvariantSpan(2, 1, homeDocument));
+		stream.put(3, new InvariantSpan(3, 1, homeDocument));
+		stream.put(4, new InvariantSpan(4, 1, homeDocument));
+		stream.put(5, new InvariantSpan(5, 1, homeDocument));
+		stream.put(6, new InvariantSpan(6, 1, homeDocument));
+		stream.put(7, new InvariantSpan(7, 1, homeDocument));
+		stream.put(8, new InvariantSpan(8, 1, homeDocument));
 
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(3, 4));
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(3, 4));
 
-		assertEquals(new SpanElement(3, 1, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(4, 1, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(5, 1, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(6, 1, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(3, 1, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(4, 1, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(5, 1, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(6, 1, homeDocument), spans.get(3));
 
 		assertEquals(4, spans.size());
 
 	}
 
 	@Test
-	public void putSmallParitions2() throws Exception {
-		RopeVariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new SpanElement(1, 1, homeDocument));
-		stream.put(2, new SpanElement(2, 1, homeDocument));
-		stream.put(3, new SpanElement(3, 1, homeDocument));
-		stream.put(4, new SpanElement(4, 1, homeDocument));
-		stream.put(5, new SpanElement(5, 1, homeDocument));
-		stream.put(6, new SpanElement(6, 1, homeDocument));
-		stream.put(7, new SpanElement(7, 1, homeDocument));
-		stream.put(8, new SpanElement(8, 1, homeDocument));
+	public void putSmallPartitions2() throws Exception {
+		RopeVariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new InvariantSpan(1, 1, homeDocument));
+		stream.put(2, new InvariantSpan(2, 1, homeDocument));
+		stream.put(3, new InvariantSpan(3, 1, homeDocument));
+		stream.put(4, new InvariantSpan(4, 1, homeDocument));
+		stream.put(5, new InvariantSpan(5, 1, homeDocument));
+		stream.put(6, new InvariantSpan(6, 1, homeDocument));
+		stream.put(7, new InvariantSpan(7, 1, homeDocument));
+		stream.put(8, new InvariantSpan(8, 1, homeDocument));
 
-		List<SpanElement> spans = stream.getStreamElements(new VariantSpan(4, 2));
+		List<InvariantSpan> spans = stream.getStreamElements(new VariantSpan(4, 2));
 
-		assertEquals(new SpanElement(4, 1, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(5, 1, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(4, 1, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(5, 1, homeDocument), spans.get(1));
 
 		assertEquals(2, spans.size());
 
@@ -596,13 +684,12 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void putSpans() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
-		List<SpanElement> spans = Arrays.asList(new SpanElement(7, 5, homeDocument), new SpanElement(4, 3, homeDocument),
-				new SpanElement(1, 3, homeDocument));
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
+		List<InvariantSpan> spans = Arrays.asList(new InvariantSpan(7, 5, homeDocument), new InvariantSpan(4, 3, homeDocument),
+				new InvariantSpan(1, 3, homeDocument));
 		
 		stream.putElements(1, spans);
-		List<SpanElement> results = stream.getStreamElements();
-		System.out.println(stream.getStreamElements());
+		List<InvariantSpan> results = stream.getStreamElements();
 
 		assertEquals(results.get(0), spans.get(0));
 		assertEquals(results.get(1), spans.get(1));
@@ -611,61 +698,68 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void putSpansSequence() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
 
-		stream.put(1, new SpanElement(1, 1, homeDocument));
-		stream.put(2, new SpanElement(2, 1, homeDocument));
-		stream.put(3, new SpanElement(3, 1, homeDocument));
+		stream.put(1, new InvariantSpan(1, 1, homeDocument));
+		stream.put(2, new InvariantSpan(2, 1, homeDocument));
+		stream.put(3, new InvariantSpan(3, 1, homeDocument));
 
-		List<SpanElement> results = stream.getStreamElements();
+		List<InvariantSpan> results = stream.getStreamElements();
 
-		assertEquals(results.get(0), new SpanElement(1, 1, homeDocument));
-		assertEquals(results.get(1), new SpanElement(2, 1, homeDocument));
-		assertEquals(results.get(2), new SpanElement(3, 1, homeDocument));
+		assertEquals(results.get(0), new InvariantSpan(1, 1, homeDocument));
+		assertEquals(results.get(1), new InvariantSpan(2, 1, homeDocument));
+		assertEquals(results.get(2), new InvariantSpan(3, 1, homeDocument));
 	}
 
 	@Test
 	public void putSpansSequence2() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument);
 
-		stream.put(1, new SpanElement(1, 1, homeDocument));
-		stream.put(2, new SpanElement(2, 1, homeDocument));
-		stream.put(1, new SpanElement(3, 1, homeDocument));
+		stream.put(1, new InvariantSpan(1, 1, homeDocument));
+		stream.put(2, new InvariantSpan(2, 1, homeDocument));
+		stream.put(1, new InvariantSpan(3, 1, homeDocument));
 
-		stream.put(2, new SpanElement(4, 1, homeDocument));
+		stream.put(2, new InvariantSpan(4, 1, homeDocument));
 
-		List<SpanElement> results = stream.getStreamElements();
+		List<InvariantSpan> results = stream.getStreamElements();
 
-		assertEquals(results.get(0), new SpanElement(3, 1, homeDocument));// 3
-		assertEquals(results.get(1), new SpanElement(4, 1, homeDocument));// 1
-		assertEquals(results.get(2), new SpanElement(1, 1, homeDocument));// 4
-		assertEquals(results.get(3), new SpanElement(2, 1, homeDocument));// 2
+		assertEquals(results.get(0), new InvariantSpan(3, 1, homeDocument));// 3
+		assertEquals(results.get(1), new InvariantSpan(4, 1, homeDocument));// 1
+		assertEquals(results.get(2), new InvariantSpan(1, 1, homeDocument));// 4
+		assertEquals(results.get(3), new InvariantSpan(2, 1, homeDocument));// 2
 
 	}
 
 	@Test
 	public void putWithSplit() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
-		stream.put(5, new SpanElement(500, 34, homeDocument));
-		List<SpanElement> spans = stream.getStreamElements();
-		System.out.println(spans);
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
+		stream.put(5, new InvariantSpan(500, 34, homeDocument));
+		List<InvariantSpan> spans = stream.getStreamElements();
+		
+		assertEquals(new InvariantSpan(100, 4, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(500, 34, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(104, 2, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(300, 4, homeDocument), spans.get(5));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(6));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(7));	
 	}
 
 	@Test
 	public void swap() throws Exception {
-		VariantStream<SpanElement> stream = new RopeVariantStream<>(homeDocument, getA());
+		VariantStream<InvariantSpan> stream = new RopeVariantStream<>(homeDocument, getA());
 		stream.swap(new VariantSpan(1, 3), new VariantSpan(12, 3));
-		List<SpanElement> spans = stream.getStreamElements();
-		System.out.println(spans);
+		List<InvariantSpan> spans = stream.getStreamElements();
 
-		assertEquals(new SpanElement(300, 3, homeDocument), spans.get(0));
-		assertEquals(new SpanElement(103, 3, homeDocument), spans.get(1));
-		assertEquals(new SpanElement(200, 3, homeDocument), spans.get(2));
-		assertEquals(new SpanElement(250, 2, homeDocument), spans.get(3));
-		assertEquals(new SpanElement(100, 3, homeDocument), spans.get(4));
-		assertEquals(new SpanElement(303, 1, homeDocument), spans.get(5));
-		assertEquals(new SpanElement(350, 1, homeDocument), spans.get(6));
-		assertEquals(new SpanElement(360, 6, homeDocument), spans.get(7));
+		assertEquals(new InvariantSpan(300, 3, homeDocument), spans.get(0));
+		assertEquals(new InvariantSpan(103, 3, homeDocument), spans.get(1));
+		assertEquals(new InvariantSpan(200, 3, homeDocument), spans.get(2));
+		assertEquals(new InvariantSpan(250, 2, homeDocument), spans.get(3));
+		assertEquals(new InvariantSpan(100, 3, homeDocument), spans.get(4));
+		assertEquals(new InvariantSpan(303, 1, homeDocument), spans.get(5));
+		assertEquals(new InvariantSpan(350, 1, homeDocument), spans.get(6));
+		assertEquals(new InvariantSpan(360, 6, homeDocument), spans.get(7));
 
 		assertEquals(8, spans.size());
 
@@ -679,19 +773,19 @@ public class RopeVariantStreamTest {
 
 	@Test
 	public void toggleOnOff() throws Exception {
-		VariantStream<OverlayElement> stream = new RopeVariantStream<>(homeDocument);
-		stream.put(1, new OverlayElement(1, homeDocument));
-		stream.put(2, new OverlayElement(1, homeDocument));
-		stream.put(3, new OverlayElement(1, homeDocument));
-		stream.put(4, new OverlayElement(1, homeDocument));
+		VariantStream<Overlay> stream = new RopeVariantStream<>(homeDocument);
+		stream.put(1, new Overlay(1));
+		stream.put(2, new Overlay(1));
+		stream.put(3, new Overlay(1));
+		stream.put(4, new Overlay(1));
 
 		stream.toggleOverlay(new VariantSpan(2, 2), TumblerAddress.BOLD);
 		stream.toggleOverlay(new VariantSpan(2, 2), TumblerAddress.BOLD);
 
-		List<OverlayElement> results = stream.getStreamElements();
+		List<Overlay> results = stream.getStreamElements();
 		assertEquals(4, results.size());
 		
-		for (OverlayElement seg : results) {
+		for (Overlay seg : results) {
 			assertFalse(seg.hasLinks());
 		}
 	}

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.  
  *
  * You may obtain a copy of the License at
  *   
@@ -17,29 +17,79 @@ package org.oulipo.streams.opcodes;
 
 import java.io.IOException;
 
-public abstract class Op<Data> {
+/**
+ * Base operations class
+ */
+public abstract class Op {
 
+	public static final byte APPLY_OVERLAY = 0x10;
+
+	/**
+	 * Copies text and media of a region to another region
+	 */
 	public static final byte COPY = 0x2;
 
+	/**
+	 * Operation for deleting text and media
+	 */
 	public static final byte DELETE = 0x3;
 
-	public static final byte INSERT_TEXT = 0x4;
+	public static final byte INSERT_TEXT = 0x5;
 
-	public static final byte MOVE = 0x5;
+	/**
+	 * Operation for moving text and media from one document region to another region
+	 */
+	public static final byte MOVE = 0x7;
+	
+	/**
+	 * Operation for putting a media object into a stream
+	 */
+	public static final byte PUT_INVARIANT_MEDIA = 0x6;
 
-	public static final byte PUT = 0x1;
-
+	/**
+	 * Operation for putting an invariant span of text into a stream
+	 */
+	public static final byte PUT_INVARIANT_SPAN = 0x1;
+	
+	/**
+	 * Operation for putting an overlay onto a region of a stream
+	 */
+	public static final byte PUT_OVERLAY = 0x12;
+	
+	/**
+	 * Operation for putting an overlay on a media object
+	 */
+	public static final byte PUT_OVERLAY_MEDIA = 0x13;
+	
+	/**
+	 * Operation for swapping text and media
+	 */
 	public static final byte SWAP = 0x0;
 
-	private final int code;
+	public static final byte TOGGLE_OVERLAY = 0x11;
 
-	private final Data data;
+	/**
+	 * Operation code or type
+	 */
+	private final byte code;
 
-	public Op(int code, Data data) {
-		this.data = data;
+	/**
+	 * Constructs an Op with specific type
+	 * 
+	 * @param code the op type
+	 */
+	public Op(byte code) {
 		this.code = code;
 	}
 
+	/**
+	 * Encodes the operation as byte array
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public abstract byte[] encode() throws IOException;
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -51,20 +101,16 @@ public abstract class Op<Data> {
 		Op other = (Op) obj;
 		if (code != other.code)
 			return false;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
-			return false;
 		return true;
 	}
 
+	/**
+	 * Gets op type
+	 * 
+	 * @return op type
+	 */
 	public int getCode() {
 		return code;
-	}
-
-	public Data getData() {
-		return data;
 	}
 
 	@Override
@@ -72,15 +118,11 @@ public abstract class Op<Data> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + code;
-		result = prime * result + ((data == null) ? 0 : data.hashCode());
 		return result;
 	}
 
-	public abstract byte[] toBytes() throws IOException;
-
 	@Override
 	public String toString() {
-		return "Op [code=" + code + ", data=" + data + "]";
+		return "Op [code=" + code +  "]";
 	}
-
 }

@@ -114,16 +114,16 @@ public class LinkType {
 		return "rgb(" + red + ", " + green + ", " + blue + ")";
 	}
 
-	public static LinkType image(String hash) {
-		return EMPTY.updateImage(hash);
-	}
-
 	public static LinkType fontFamily(String family) {
 		return EMPTY.updateFontFamily(family);
 	}
 
 	public static LinkType fontSize(int fontSize) {
 		return EMPTY.updateFontSize(fontSize);
+	}
+
+	public static LinkType image(String hash) {
+		return EMPTY.updateImage(hash);
 	}
 
 	public static LinkType italic(boolean italic) {
@@ -283,14 +283,14 @@ public class LinkType {
 				backgroundColor, image);
 	}
 	
-	public LinkType updateImage(String image) {
-		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
-				backgroundColor, Optional.of(image));
-	}
-
 	public LinkType updateFontSize(int fontSize) {
 		return new LinkType(bold, italic, underline, strikethrough, Optional.of(fontSize), fontFamily, textColor,
 				backgroundColor, image);
+	}
+
+	public LinkType updateImage(String image) {
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
+				backgroundColor, Optional.of(image));
 	}
 
 	public LinkType updateItalic(boolean italic) {
