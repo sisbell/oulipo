@@ -47,10 +47,10 @@ public final class InvariantMedia implements Invariant {
 	}
 
 	public InvariantMedia(String hash, TumblerAddress mediaAddress) throws MalformedSpanException {
-		if(Strings.isNullOrEmpty(hash)) {
+		if (Strings.isNullOrEmpty(hash)) {
 			throw new IllegalArgumentException("hash is empty");
 		}
-		if(mediaAddress == null) {
+		if (mediaAddress == null) {
 			throw new IllegalArgumentException("media address is null");
 		}
 		this.hash = hash;

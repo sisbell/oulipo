@@ -27,14 +27,14 @@ import org.oulipo.streams.StreamElementPartition;
 public class Overlay implements StreamElement {
 
 	public Set<TumblerAddress> linkTypes;
-	
+
 	public String tag;
 
 	protected long width;
 
 	protected Overlay() {
 	}
-	
+
 	/**
 	 * Constructs an overlay with unspecified link types
 	 * 
@@ -48,7 +48,6 @@ public class Overlay implements StreamElement {
 		this.width = width;
 		this.linkTypes = new HashSet<>();
 	}
-
 
 	/**
 	 * Constructs an overlay with the specified link types

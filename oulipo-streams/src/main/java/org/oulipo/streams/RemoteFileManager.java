@@ -26,7 +26,8 @@ public interface RemoteFileManager {
 	/**
 	 * Adds a file to remote location
 	 * 
-	 * @param file the file to add
+	 * @param file
+	 *            the file to add
 	 * @return the hash of the file
 	 * @throws IOException
 	 */
@@ -35,7 +36,8 @@ public interface RemoteFileManager {
 	/**
 	 * Gets the bytes of the content associated with the specified hash
 	 * 
-	 * @param hash the hash of the content
+	 * @param hash
+	 *            the hash of the content
 	 * @return content bytes
 	 * @throws IOException
 	 */

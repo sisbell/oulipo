@@ -78,11 +78,11 @@ public final class PutInvariantSpanOp extends Op {
 		if (to < 1) {
 			throw new IndexOutOfBoundsException("to position must be greater than 0");
 		}
-		
+
 		if (invariantStart < 1) {
 			throw new IndexOutOfBoundsException("invariantStart must be greater than 0");
 		}
-		
+
 		if (width < 1) {
 			throw new IndexOutOfBoundsException("Width must be greater than 0");
 		}

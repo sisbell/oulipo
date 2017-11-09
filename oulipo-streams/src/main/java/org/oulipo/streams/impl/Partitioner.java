@@ -116,8 +116,8 @@ public class Partitioner {
 			long displacement) {
 		if (indexNode.isRightNode()) {
 			if (indexNode.parent.parent != null) {
-				//leftPartitionWidth -= indexNode.weight;
-				if (indexNode.parent.left != null) { 
+				// leftPartitionWidth -= indexNode.weight;
+				if (indexNode.parent.left != null) {
 					displacement -= indexNode.parent.left.weight;
 					indexNode.parent.parent.isRed = false;
 				}
@@ -147,34 +147,34 @@ public class Partitioner {
 	 * @return list of nodes to the right that have been pruned from the specified
 	 *         node
 	 */
-	
+
 	private static <S extends StreamElement> List<Node<S>> pruneTree(Node<S> x, long orphanedWidth, long leftWidth,
 			long disp, boolean isChildRightLeaningNode) {
 		if (x == null) {
-			 return new ArrayList<>();
+			return new ArrayList<>();
 		}
-		
+
 		if (!isChildRightLeaningNode) {
 			x.weight -= orphanedWidth;
-		}	
-		
-		if(x.isRed) {
+		}
+
+		if (x.isRed) {
 			x.isRed = false;
 
-			if(disp != 0) {
+			if (disp != 0) {
 				disp -= x.weight;
-				if(disp < 0) {
-					throw new IllegalStateException("disp must be non-negative: " + disp +", Node = " + x);
-				}	
+				if (disp < 0) {
+					throw new IllegalStateException("disp must be non-negative: " + disp + ", Node = " + x);
+				}
 			}
 		}
-	
+
 		List<Node<S>> orphans = new ArrayList<>();
 		if (x.right != null && x.weight + disp >= leftWidth) {
 			orphanedWidth += x.right.characterCount();
 			RopeUtils.cutRightNode(x, orphans);
 		}
-		
+
 		orphans.addAll(pruneTree(x.parent, orphanedWidth, leftWidth, disp, x.isRightNode()));
 		return orphans;
 	}

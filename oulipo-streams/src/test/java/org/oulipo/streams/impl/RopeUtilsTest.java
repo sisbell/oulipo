@@ -20,9 +20,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.impl.Node;
-import org.oulipo.streams.impl.NodeIndex;
-import org.oulipo.streams.impl.RopeUtils;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class RopeUtilsTest {
@@ -34,11 +31,11 @@ public class RopeUtilsTest {
 		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 10, homeDocument));
 		Node<InvariantSpan> right2 = new Node<>(new InvariantSpan(1, 20, homeDocument));
 		right.right = right2;
-		
+
 		Node<InvariantSpan> x = new Node.Builder<InvariantSpan>(0).right(right).build();
 		assertEquals(30, RopeUtils.addWeightsOfRightLeaningChildNodes(x));
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningChildNodesLeftOnly() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
@@ -46,13 +43,13 @@ public class RopeUtilsTest {
 
 		assertEquals(0, RopeUtils.addWeightsOfRightLeaningChildNodes(x));
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningChildNodesNoChildren() throws Exception {
 		Node<InvariantSpan> x = new Node<>(new InvariantSpan(1, 1, homeDocument));
 		assertEquals(0, RopeUtils.addWeightsOfRightLeaningChildNodes(x));
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningChildNodesNullNode() throws Exception {
 		assertEquals(0, RopeUtils.addWeightsOfRightLeaningChildNodes(null));
@@ -65,27 +62,27 @@ public class RopeUtilsTest {
 
 		assertEquals(10, RopeUtils.addWeightsOfRightLeaningChildNodes(x));
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningParentNodesChainedRight() throws Exception {
 		Node<InvariantSpan> right2 = new Node<>(new InvariantSpan(1, 3, homeDocument));
-		Node<InvariantSpan> right  = new Node.Builder<InvariantSpan>(1).right(right2).build();
+		Node<InvariantSpan> right = new Node.Builder<InvariantSpan>(1).right(right2).build();
 		new Node.Builder<InvariantSpan>(1).right(right).build();
 		assertEquals(2, RopeUtils.addWeightsOfRightLeaningParentNodes(right2));
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningParentNodesLeftNodeChild() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
 		new Node.Builder<InvariantSpan>(1).left(left).build();
 		assertEquals(0, RopeUtils.addWeightsOfRightLeaningParentNodes(left));
 	}
-	
+
 	@Test(expected = IllegalStateException.class)
 	public void addWeightsOfRightLeaningParentNodesNull() throws Exception {
 		RopeUtils.addWeightsOfRightLeaningParentNodes(null);
 	}
-	
+
 	@Test
 	public void addWeightsOfRightLeaningParentNodesNullParent() throws Exception {
 		Node<InvariantSpan> x = new Node<>(new InvariantSpan(1, 1, homeDocument));
@@ -98,56 +95,56 @@ public class RopeUtilsTest {
 		new Node.Builder<InvariantSpan>(1).right(right).build();
 		assertEquals(1, RopeUtils.addWeightsOfRightLeaningParentNodes(right));
 	}
-	
+
 	@Test
 	public void characterCount() throws Exception {
 		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 10, homeDocument));
 		Node<InvariantSpan> right2 = new Node<>(new InvariantSpan(1, 20, homeDocument));
 		right.right = right2;
-		
+
 		Node<InvariantSpan> x = new Node.Builder<InvariantSpan>(10).right(right).build();
-	
+
 		assertEquals(40, RopeUtils.characterCount(x));
 	}
-	
+
 	@Test
 	public void characterCountLeafNode() throws Exception {
 		assertEquals(3, RopeUtils.characterCount(new Node<>(new InvariantSpan(1, 3, homeDocument))));
 	}
-	
+
 	@Test
 	public void characterCountNullNode() throws Exception {
 		assertEquals(0, RopeUtils.characterCount(null));
 	}
-	
+
 	@Test
 	public void concatLeft() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
 		Node<InvariantSpan> parent = RopeUtils.concat(left, null);
-		
+
 		assertEquals(10, parent.weight);
 		assertNotNull(left.parent);
 	}
-	
+
 	@Test
 	public void concatNullLeftNullRight() throws Exception {
 		assertEquals(0, RopeUtils.concat(null, null).weight);
 	}
-	
+
 	@Test
 	public void concatRight() throws Exception {
 		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 10, homeDocument));
-		Node<InvariantSpan> parent = RopeUtils.concat(null, right);	
+		Node<InvariantSpan> parent = RopeUtils.concat(null, right);
 		assertEquals(0, parent.weight);
 		assertNotNull(right.parent);
 
 	}
-	
+
 	@Test
 	public void findSearchNode() throws Exception {
-		//RopeUtils.findSearchNode(x, weight, root)
+		// RopeUtils.findSearchNode(x, weight, root)
 	}
-	
+
 	@Test
 	public void indexDisplacement() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
@@ -158,7 +155,7 @@ public class RopeUtilsTest {
 
 		assertEquals(1, index.displacement);
 	}
-	
+
 	@Test
 	public void indexLeft() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
@@ -167,7 +164,7 @@ public class RopeUtilsTest {
 		assertEquals(new InvariantSpan(1, 10, homeDocument), index.node.value);
 		assertEquals(0, index.displacement);
 	}
-	
+
 	@Test
 	public void indexLeftLeftChain() throws Exception {
 		Node<InvariantSpan> left2 = new Node<>(new InvariantSpan(100, 10, homeDocument));
@@ -180,7 +177,7 @@ public class RopeUtilsTest {
 		assertEquals(new InvariantSpan(100, 10, homeDocument), index.node.value);
 		assertEquals(0, index.displacement);
 	}
-	
+
 	@Test
 	public void indexLeftLower() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
@@ -190,7 +187,7 @@ public class RopeUtilsTest {
 		assertEquals(new InvariantSpan(1, 10, homeDocument), index.node.value);
 		assertEquals(0, index.displacement);
 	}
-	
+
 	@Test
 	public void indexLeftRightChain() throws Exception {
 		Node<InvariantSpan> left2 = new Node<>(new InvariantSpan(100, 10, homeDocument));
@@ -203,7 +200,7 @@ public class RopeUtilsTest {
 		assertEquals(new InvariantSpan(200, 5, homeDocument), index.node.value);
 		assertEquals(10, index.displacement);
 	}
-	
+
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void indexLeftTooHigh() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
@@ -211,14 +208,13 @@ public class RopeUtilsTest {
 		RopeUtils.index(11, root, 0);
 	}
 
-
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void indexLeftTooLow() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
 		Node<InvariantSpan> root = new Node.Builder<InvariantSpan>(10).left(left).build();
 		RopeUtils.index(0, root, 0);
 	}
-	
+
 	@Test
 	public void indexLeftUpper() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
@@ -239,7 +235,7 @@ public class RopeUtilsTest {
 		Node<InvariantSpan> root = new Node.Builder<InvariantSpan>(15).left(left1).build();
 		RopeUtils.index(20, root, 0);
 	}
-	
+
 	@Test
 	public void indexRight() throws Exception {
 		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
@@ -251,7 +247,5 @@ public class RopeUtilsTest {
 		assertEquals(new InvariantSpan(1, 20, homeDocument), index.node.value);
 		assertEquals(10, index.displacement);
 	}
-	
-	
-	
+
 }

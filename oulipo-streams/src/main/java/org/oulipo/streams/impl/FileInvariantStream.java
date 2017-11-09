@@ -68,8 +68,7 @@ public class FileInvariantStream implements InvariantStream {
 
 		FileLock lock = channel.lock();
 		try {
-			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length(),
-					homeDocument);
+			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length(), homeDocument);
 
 			buffer.clear();
 			buffer.put(text.getBytes());

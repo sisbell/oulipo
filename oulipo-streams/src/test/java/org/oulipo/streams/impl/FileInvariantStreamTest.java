@@ -32,6 +32,5 @@ public class FileInvariantStreamTest {
 		stream.append("Hello");
 		stream.append("Xanadu");
 
-
 	}
 }

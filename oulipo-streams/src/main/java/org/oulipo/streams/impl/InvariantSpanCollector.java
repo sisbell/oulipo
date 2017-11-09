@@ -92,7 +92,7 @@ public final class InvariantSpanCollector<S extends StreamElement> {
 		collect(x.left, lo, hi);
 		collect(x.right, lo, hi);
 	}
-	
+
 	private boolean intersects(long start, long end, long lo, long hi) {
 		return end >= lo && hi >= start;
 	}

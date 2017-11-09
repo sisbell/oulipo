@@ -35,12 +35,14 @@ public interface StreamElement {
 	void setWidth(long width);
 
 	/**
-	 * Partitions this StreamElement into a left and right half. 
+	 * Partitions this StreamElement into a left and right half.
 	 * 
-	 * If the cutPoint is on the left boundary, then an IndexOutOfBoundsException will be thrown. If the cutPoint 
-	 * is on the right boundary, then it will be the only element in the right partition.
+	 * If the cutPoint is on the left boundary, then an IndexOutOfBoundsException
+	 * will be thrown. If the cutPoint is on the right boundary, then it will be the
+	 * only element in the right partition.
 	 * 
-	 * @param leftPartitionWidth required width of left part of the partition
+	 * @param leftPartitionWidth
+	 *            required width of left part of the partition
 	 * @return
 	 * @throws MalformedSpanException
 	 */

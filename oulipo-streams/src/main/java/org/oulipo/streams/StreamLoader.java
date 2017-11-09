@@ -38,7 +38,7 @@ public interface StreamLoader {
 	 * @return most recent hash
 	 */
 	String getHash();
-	
+
 	/**
 	 * Opens the <code>InvariantStream<code> for the specified document. If the
 	 * invariant stream does not exist, then one is created.
@@ -63,11 +63,10 @@ public interface StreamLoader {
 	 */
 	VariantStream<Invariant> openInvariantVariantStream(TumblerAddress homeDocument)
 			throws IOException, MalformedSpanException;
-	
+
 	VariantStream<Overlay> openOverlayVariantStream(TumblerAddress homeDocument)
 			throws IOException, MalformedSpanException;
-	
-	void setHash(String hash);
 
+	void setHash(String hash);
 
 }

@@ -23,6 +23,7 @@ import java.security.SignatureException;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.params.MainNetParams;
 import org.junit.Test;
+import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.opcodes.CopyVariantOp;
 import org.oulipo.streams.opcodes.DeleteVariantOp;
@@ -32,6 +33,8 @@ import com.google.common.collect.Sets;
 
 public class DocumentFileTest {
 
+	private static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("1.2.0.12.0.3.2.1");
+
 	@Test
 	public void addText() throws Exception {
 		DocumentFile.Builder builder = new DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
@@ -39,7 +42,7 @@ public class DocumentFileTest {
 		builder.appendText("Green");
 
 		DocumentFile file = builder.build();
-		assertEquals("XanaduGreen", file.getInvariantStringArea());
+		assertEquals("XanaduGreen", file.getInvariantStream());
 	}
 
 	@Test
@@ -52,7 +55,7 @@ public class DocumentFileTest {
 		String compiledDocument = file.compile(new ECKey());
 
 		DocumentFile result = DocumentFile.read(compiledDocument.getBytes());
-		assertEquals("XanaduGreen", result.getInvariantStringArea());
+		assertEquals("XanaduGreen", result.getInvariantStream());
 	}
 
 	@Test(expected = SignatureException.class)
@@ -65,16 +68,14 @@ public class DocumentFileTest {
 		DocumentFile.read(compiledDocument.subSequence(0, compiledDocument.length() - 1).toString().getBytes());
 	}
 	/*
-	@Test(expected = IOException.class)
-	public void badMagic() throws Exception {
-		DocumentFile.Builder builder = new DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
-
-		DocumentFile file = builder.build();
-		byte[] compiledDocument = file.compile(new ECKey()).getBytes();
-		compiledDocument[0] = 100;
-		DocumentFile.read(compiledDocument);
-	}
-*/
+	 * @Test(expected = IOException.class) public void badMagic() throws Exception {
+	 * DocumentFile.Builder builder = new
+	 * DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
+	 * 
+	 * DocumentFile file = builder.build(); byte[] compiledDocument =
+	 * file.compile(new ECKey()).getBytes(); compiledDocument[0] = 100;
+	 * DocumentFile.read(compiledDocument); }
+	 */
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildNoDocument() throws Exception {
@@ -96,7 +97,7 @@ public class DocumentFileTest {
 		String publicKeyHash = key.toAddress(MainNetParams.get()).toString();
 		assertEquals(publicKeyHash, URLDecoder.decode(tokens[1], "UTF-8"));
 	}
-	
+
 	@Test
 	public void copyVariant() throws Exception {
 		DocumentFile.Builder builder = new DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
@@ -105,7 +106,7 @@ public class DocumentFileTest {
 		DocumentFile file = builder.build();
 		assertEquals(new CopyVariantOp(100, new VariantSpan(200, 10)), file.getOps().get(0));
 	}
-	
+
 	@Test
 	public void copyVariantCompile() throws Exception {
 		DocumentFile.Builder builder = new DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
@@ -160,7 +161,7 @@ public class DocumentFileTest {
 
 		assertEquals("sadasdsad", result.getHashPreviousBlock());
 	}
-	
+
 	@Test
 	public void homeDocumentInTumblerPool() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.2.0.12.0.3.2.1");
@@ -172,7 +173,15 @@ public class DocumentFileTest {
 		assertEquals(1, file.getTumblerPool().size());
 		assertEquals("ted://1.2.0.12.0.3.2.1", file.getTumblerPool().get(0));
 	}
-	
+
+	@Test(expected = MalformedSpanException.class)
+	public void malformedMediaAddress() throws Exception {
+		TumblerAddress mediaAddress = TumblerAddress.create("1.2.0.12.0.3.2.1");
+
+		DocumentFile.Builder builder = new DocumentFile.Builder(homeDocument);
+		builder.putInvariantMediaOp(1, "fakehash", mediaAddress);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void nullCompileKey() throws Exception {
 		DocumentFile.Builder builder = new DocumentFile.Builder(TumblerAddress.create("1.2.0.12.0.3.2.1"));
@@ -188,8 +197,24 @@ public class DocumentFileTest {
 
 		DocumentFile file = builder.build();
 		assertEquals(Op.PUT_INVARIANT_MEDIA, file.getOps().get(0).getCode());
-		
+
 		assertEquals("fakehash", file.getMediaHash(0));
+	}
+
+	@Test
+	public void putInvariantMediaOp() throws Exception {
+		TumblerAddress mediaAddress = TumblerAddress.create("1.2.0.12.0.3.2.1.0.3.4");
+
+		DocumentFile.Builder builder = new DocumentFile.Builder(homeDocument);
+		builder.putInvariantMediaOp(1, "fakehash", mediaAddress);
+		DocumentFile file = builder.build();
+
+		String compiledDocument = file.compile(new ECKey());
+
+		DocumentFile result = DocumentFile.read(compiledDocument.getBytes());
+		assertEquals("fakehash", result.getMediaHash(0));
+		assertEquals(mediaAddress, result.getTumblerAddress(1));
+
 	}
 
 	@Test
@@ -199,7 +224,8 @@ public class DocumentFileTest {
 
 		DocumentFile file = builder.build();
 		assertEquals(Op.PUT_OVERLAY, file.getOps().get(0).getCode());
-		
+
 		assertEquals(TumblerAddress.BOLD, file.getTumblerAddress(1));
 	}
+
 }

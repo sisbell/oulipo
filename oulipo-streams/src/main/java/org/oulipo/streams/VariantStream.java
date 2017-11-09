@@ -135,7 +135,8 @@ public interface VariantStream<T extends StreamElement> {
 	void put(long characterPosition, T streamElement) throws MalformedSpanException, IOException;
 
 	/**
-	 * Puts list of stream elements in order, starting at the specified characterPosition
+	 * Puts list of stream elements in order, starting at the specified
+	 * characterPosition
 	 * 
 	 * @param characterPosition
 	 * @param streamElements
@@ -155,7 +156,7 @@ public interface VariantStream<T extends StreamElement> {
 	void rebalance() throws MalformedSpanException;
 
 	void swap(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
-	
+
 	/**
 	 * Toggle the overlay. If any of the overlays in the specified variantSpan do
 	 * not have the link type, then add the link type to every overlay, otherwise
@@ -168,5 +169,5 @@ public interface VariantStream<T extends StreamElement> {
 	 * @throws IOException
 	 */
 	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
-	
+
 }

@@ -45,7 +45,5 @@ public final class VirtualContent {
 		return "VirtualContent [content=" + content + ", homeDocument=" + homeDocument + ", invariant=" + invariant
 				+ ", order=" + order + "]";
 	}
-	
-	
 
 }

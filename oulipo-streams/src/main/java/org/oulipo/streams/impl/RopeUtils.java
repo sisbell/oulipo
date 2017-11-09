@@ -40,7 +40,7 @@ public final class RopeUtils {
 		}
 		return x.right.weight + addWeightsOfRightLeaningChildNodes(x.right);
 	}
-	
+
 	/**
 	 * Adds the parent weights of right leaning children. If a child node is not
 	 * right leaning its parent weight will not be added.
@@ -70,12 +70,12 @@ public final class RopeUtils {
 	}
 
 	public static <T extends StreamElement> void adjustWeightOfLeftLeaningParents(Node<T> startNode, long weight) {
-		if(startNode == null) {
+		if (startNode == null) {
 			return;
 		}
-		if(!startNode.isRightNode()) {
+		if (!startNode.isRightNode()) {
 			startNode.weight -= weight;
-			if(startNode.weight < 0) {
+			if (startNode.weight < 0) {
 				throw new IllegalStateException("Can't adjust negative node weight" + startNode);
 			}
 		}
@@ -122,14 +122,15 @@ public final class RopeUtils {
 
 	public static <T extends StreamElement> Node<T> concat(List<Node<T>> orphans) {
 		Iterator<Node<T>> it = orphans.iterator();
-		//TODO: concat balanced list
+		// TODO: concat balanced list
 		Node<T> orphan = it.next();
 		while (it.hasNext()) {
 			orphan = RopeUtils.concat(orphan, it.next());
 		}
 		return orphan;
-		
+
 	}
+
 	/**
 	 * Creates a parent node that attaches the left and right nodes. The
 	 * parent.weight is equivalent to the number of characters under the left node
@@ -163,13 +164,13 @@ public final class RopeUtils {
 	 * @param orphans
 	 */
 	public static <T extends StreamElement> void cutLeftNode(Node<T> x, List<Node<T>> orphans) {
-		if(x.left != null) {		
+		if (x.left != null) {
 			orphans.add(x.left);
 			x.left.parent = null;
 			x.left = null;
 		}
 	}
-	
+
 	/**
 	 * Cuts the right branch of specified node, if it exists, and adds it to the
 	 * orphans list
@@ -181,13 +182,12 @@ public final class RopeUtils {
 		if (x.right != null) {
 			orphans.add(x.right);
 			x.right.parent = null;
-			x.right = null;		
+			x.right = null;
 		}
 	}
 
-	
 	public static <T extends StreamElement> Node<T> findRoot(Node<T> child) {
-		while(child.parent != null) {
+		while (child.parent != null) {
 			return findRoot(child.parent);
 		}
 		return child;
@@ -268,18 +268,16 @@ public final class RopeUtils {
 
 		if (x.weight < characterPosition) {
 			if (x.right == null) {
-				throw new IndexOutOfBoundsException(
-						"Can't find node at position =  " + (characterPosition + disp));
+				throw new IndexOutOfBoundsException("Can't find node at position =  " + (characterPosition + disp));
 			}
-			if(x.weight > 0) {
+			if (x.weight > 0) {
 				disp += x.weight;
 				x.isRed = true;
 			}
 			return index(characterPosition - x.weight, x.right, disp);
 		} else {
 			if (x.left == null) {
-				throw new IndexOutOfBoundsException(
-						"Can't find node at position =  " + (characterPosition + disp));
+				throw new IndexOutOfBoundsException("Can't find node at position =  " + (characterPosition + disp));
 			}
 			return index(characterPosition, x.left, disp);
 		}
@@ -288,26 +286,26 @@ public final class RopeUtils {
 	public static boolean intersects(long start, long end, long start2, long end2) {
 		return end > start2 && end2 > start;
 	}
-	
+
 	public static <T extends StreamElement> Node<T> rebalance(Node<T> x) {
 		Queue<Node<T>> output = new ArrayDeque<Node<T>>();
 		Queue<Node<T>> input = new ArrayDeque<Node<T>>();
 		collectLeafNodes(x, input);
-		
-		while(output.size() != 1) {
-			while(true) {
+
+		while (output.size() != 1) {
+			while (true) {
 				Node<T> n1 = input.poll();
-				if(n1 == null) {
+				if (n1 == null) {
 					break;
 				}
 				Node<T> n2 = input.poll();
-				output.add(RopeUtils.concat(n1, n2));		
-				if(n2 == null) {
+				output.add(RopeUtils.concat(n1, n2));
+				if (n2 == null) {
 					break;
 				}
 			}
 			input = output;
 		}
-		return output.remove(); 
+		return output.remove();
 	}
 }

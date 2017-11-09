@@ -89,15 +89,15 @@ public final class PutOverlayMediaOp extends Op {
 		if (to < 1) {
 			throw new IndexOutOfBoundsException("to position must be greater than 0");
 		}
-		
+
 		if (hash < 0) {
 			throw new IndexOutOfBoundsException("hash index must be non-negative");
 		}
-	
+
 		if (mediaTumblerIndex < 0) {
 			throw new IndexOutOfBoundsException("mediaTumblerIndex position must be non-negative");
 		}
-		
+
 		if (linkTypes == null) {
 			throw new IllegalArgumentException("linkTypes is null");
 		}

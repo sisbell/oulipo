@@ -110,7 +110,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	 */
 	private Node<T> deleteRange(VariantSpan variantSpan) throws MalformedSpanException {
 		NodePartition<T> partI = null;
-		
+
 		if (variantSpan.start == RopeUtils.characterCount(root)) {
 			partI = Partitioner.createNodePartition(variantSpan.start - 1, root);
 			root = partI.left;
@@ -125,7 +125,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 		if (partI.right == null) {
 			return null;
 		}
-		
+
 		NodePartition<T> partJ = Partitioner.createNodePartition(variantSpan.width, partI.right);
 
 		if (partI.left == null && partJ.right == null) {
@@ -174,7 +174,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 
 	@Override
 	public List<T> getStreamElements(VariantSpan variantSpan) throws MalformedSpanException {
-		if(root == null) {
+		if (root == null) {
 			throw new IllegalStateException("Stream is empty");
 		}
 		Node<T> loNode = RopeUtils.index(variantSpan.start, root, 0).node;
@@ -229,7 +229,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 
 	@Override
 	public T index(long characterPosition) {
-		if(root == null) {
+		if (root == null) {
 			throw new IllegalStateException("Stream is empty");
 		}
 		return RopeUtils.index(characterPosition, root, 0).node.value;
@@ -256,7 +256,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	 *             1 OR x.value == null
 	 */
 	private void insert(long i, Node<T> x) throws MalformedSpanException {
-		if(x == null) {
+		if (x == null) {
 			throw new IllegalStateException("Inserting a null node");
 		}
 		long charCount = RopeUtils.characterCount(root);
@@ -288,7 +288,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	@Override
 	public void move(long to, VariantSpan v1) throws MalformedSpanException {
 		Node<T> deletedRange = deleteRange(v1);
-		if(v1.start < to) {
+		if (v1.start < to) {
 			to -= v1.width;
 		}
 		insert(to, deletedRange);
@@ -335,7 +335,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 		insert(v1.start, to);
 		insert(v2.start, from);
 	}
-	
+
 	@Override
 	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress linkType)
 			throws MalformedSpanException, IOException {

@@ -97,16 +97,15 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 		if (stream == null) {
 			throw new IllegalArgumentException("streamLoader is null");
 		}
-		
-		if(remoteFileManager == null) {
+
+		if (remoteFileManager == null) {
 			throw new IllegalArgumentException("remoteFileManager is null");
 		}
-		
-		if(homeDocument == null) {
+
+		if (homeDocument == null) {
 			throw new IllegalArgumentException("homeDocument is null");
 		}
-	
-		
+
 		this.stream = stream;
 		this.remoteFileManager = remoteFileManager;
 
@@ -176,7 +175,7 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 				break;
 			case Op.PUT_OVERLAY_MEDIA:
 				PutOverlayMediaOp pmo = (PutOverlayMediaOp) op;
-				putOverlay(pmo.to, new OverlayMedia(document.getTumblerAddress(pmo.mediaAddress),
+				putOverlay(pmo.to, new OverlayMedia(document.getTumblerAddress(pmo.mediaTumblerIndex),
 						document.getMediaHash(pmo.hash), document.getTumblerAddresses(pmo.linkTypes)));
 				break;
 			case Op.PUT_INVARIANT_MEDIA:
@@ -191,8 +190,8 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 				break;
 			case Op.PUT_INVARIANT_SPAN:
 				PutInvariantSpanOp pso = (PutInvariantSpanOp) op;
-				putInvariant(pso.to,
-						new InvariantSpan(pso.invariantStart, pso.width, document.getTumblerAddress(pso.homeDocumentIndex)));
+				putInvariant(pso.to, new InvariantSpan(pso.invariantStart, pso.width,
+						document.getTumblerAddress(pso.homeDocumentIndex)));
 				break;
 			case Op.SWAP:
 				SwapVariantOp svo = (SwapVariantOp) op;
@@ -200,7 +199,7 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 				break;
 			case Op.APPLY_OVERLAY:
 				ApplyOverlayOp aoo = (ApplyOverlayOp) op;
-				applyOverlays(aoo.variantSpan, document.getTumblerAddresses(aoo.linkTypeIndicies));
+				applyOverlays(aoo.variantSpan, document.getTumblerAddresses(aoo.linkTypes));
 				break;
 			case Op.TOGGLE_OVERLAY:
 				ToggleOverlayOp too = (ToggleOverlayOp) op;
@@ -263,9 +262,9 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	@Override
 	public void loadDocument(String hash)
 			throws MalformedTumblerException, MalformedSpanException, IOException, SignatureException {
-		if(Strings.isNullOrEmpty(hash)) {
+		if (Strings.isNullOrEmpty(hash)) {
 			throw new IllegalArgumentException("hash is null");
-		}		
+		}
 		List<DocumentFile> documents = processFiles(hash);
 		Collections.reverse(documents);
 		for (DocumentFile document : documents) {
@@ -300,14 +299,14 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	public void putInvariant(long to, Invariant invariant) throws MalformedSpanException, IOException {
 		assertGreaterThanZero(to);
 		assertSpanNotNull(invariant);
-		
-		if(invariant instanceof InvariantSpan) {
+
+		if (invariant instanceof InvariantSpan) {
 			InvariantSpan is = (InvariantSpan) invariant;
-			insert(is.getStart(), "");//GET TEXT from text area
+			insert(is.getStart(), "");// GET TEXT from text area
 			if (writeDocFile) {
-				documentBuilder.putInvariantSpan(to, is.getStart() , is.getWidth(), homeDocument);
+				documentBuilder.putInvariantSpan(to, is.getStart(), is.getWidth(), homeDocument);
 			}
-		} else if(invariant instanceof InvariantMedia) {
+		} else if (invariant instanceof InvariantMedia) {
 			InvariantMedia im = (InvariantMedia) invariant;
 			vStream.put(to, im);
 			if (writeDocFile) {
@@ -322,9 +321,9 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 		oStream.put(to, overlay);
 
 		if (writeDocFile) {
-			if(overlay instanceof Overlay) {
+			if (overlay instanceof Overlay) {
 				documentBuilder.putOverlayOp(new VariantSpan(to, overlay.getWidth()), overlay.linkTypes);
-			} else if(overlay instanceof OverlayMedia) {
+			} else if (overlay instanceof OverlayMedia) {
 				OverlayMedia om = (OverlayMedia) overlay;
 				documentBuilder.putOverlayMediaOp(to, om.hash, om.mediaAddress, om.linkTypes);
 			}

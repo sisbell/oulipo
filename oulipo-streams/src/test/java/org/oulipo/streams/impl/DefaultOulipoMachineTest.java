@@ -61,13 +61,12 @@ public class DefaultOulipoMachineTest {
 		assertEquals(span.getStart(), 6);
 		assertEquals(span.getWidth(), 5);
 	}
-	
+
 	@After
 	public void cleanup() {
 		deleteDir(new File("target/test-streams"));
 	}
 
-	
 	@Test
 	public void deleteRange() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
@@ -75,13 +74,13 @@ public class DefaultOulipoMachineTest {
 		DefaultOulipoMachine som = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
 				homeDocument);
 		som.insert(1, "My first document");
-		som.putOverlay(1,  new Overlay(17));
-		
+		som.putOverlay(1, new Overlay(17));
+
 		som.deleteVariant(new VariantSpan(4, 6));
-				
+
 		assertEquals("My document", getText(som));
 	}
-	
+
 	@Test
 	public void getText() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1925.1.1");
@@ -97,7 +96,7 @@ public class DefaultOulipoMachineTest {
 	private String getText(OulipoMachine om) throws IOException, MalformedSpanException {
 		StringBuilder sb = new StringBuilder();
 		List<VirtualContent> virtual = om.getVirtualContent();
-		for(VirtualContent vc : virtual) {
+		for (VirtualContent vc : virtual) {
 			sb.append(vc.content);
 		}
 		return sb.toString();
@@ -117,18 +116,18 @@ public class DefaultOulipoMachineTest {
 	public void mixTest() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.3.1");
 
-		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader,
+				new MockRemoteFileManager(), homeDocument);
 		machine.insert(1, "Hello my name is Simon");
 		assertEquals("Hello my name is Simon", getText(machine));
 
 		machine.deleteVariant(new VariantSpan(18, 5));
-		machine.insert(18, "Shane");		
+		machine.insert(18, "Shane");
 		assertEquals("Hello my name is Shane", getText(machine));
-		
-		machine.insert(17, " not");		
+
+		machine.insert(17, " not");
 		assertEquals("Hello my name is not Shane", getText(machine));
-		
+
 		machine.deleteVariant(new VariantSpan(22, 5));
 		assertEquals("Hello my name is not ", getText(machine));
 
@@ -136,18 +135,18 @@ public class DefaultOulipoMachineTest {
 		assertEquals("my name is not Hello ", getText(machine));
 
 	}
-	
+
 	@Test
 	public void moveVariant() throws Exception {
 		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.3.1");
 
-		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader,
+				new MockRemoteFileManager(), homeDocument);
 		machine.insert(1, "My first document");
 		assertEquals("My first document", getText(machine));
 
 		machine.moveVariant(1, new VariantSpan(4, 6));
-				
+
 		assertEquals("first My document", getText(machine));
 	}
 

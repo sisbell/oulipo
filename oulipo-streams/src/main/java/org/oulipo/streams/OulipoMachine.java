@@ -41,15 +41,14 @@ import org.oulipo.streams.types.Overlay;
  */
 public interface OulipoMachine extends InvariantStream {
 
-	void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
-			throws MalformedSpanException, IOException;
+	void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links) throws MalformedSpanException, IOException;
 
 	void copyVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
-	
+
 	void deleteVariant(VariantSpan variantSpan) throws MalformedSpanException, IOException;
-	
+
 	void flush();
-	
+
 	/**
 	 * Returns the home address of invariant spans within the invariant stream. The
 	 * invariant stream may have a home document different from the one specified
@@ -58,11 +57,11 @@ public interface OulipoMachine extends InvariantStream {
 	 * @return
 	 */
 	TumblerAddress getHomeDocument();
-	
+
 	List<Invariant> getInvariants() throws MalformedSpanException;
 
 	List<Invariant> getInvariants(VariantSpan variantSpan) throws MalformedSpanException;
-	
+
 	/**
 	 * Gets all variant spans that intersect the specified span element. If the
 	 * VariantStream instance contains no span elements, returns an empty list.
@@ -92,10 +91,10 @@ public interface OulipoMachine extends InvariantStream {
 
 			vc.order = order++;
 			vc.homeDocument = getHomeDocument();
-			if(invariant instanceof InvariantSpan) {
-				vc.content = getText( (InvariantSpan) invariant);
-			} else if(invariant instanceof InvariantMedia) {
-				
+			if (invariant instanceof InvariantSpan) {
+				vc.content = getText((InvariantSpan) invariant);
+			} else if (invariant instanceof InvariantMedia) {
+
 			}
 
 			virtuals.add(vc);
@@ -103,7 +102,7 @@ public interface OulipoMachine extends InvariantStream {
 
 		return virtuals;
 	}
-	
+
 	/**
 	 * Returns the <code>Span<code> at the specified character position, or null if
 	 * none exists at that position
@@ -112,7 +111,7 @@ public interface OulipoMachine extends InvariantStream {
 	 * @return
 	 */
 	Invariant index(long characterPosition);
-	
+
 	/**
 	 * Inserts the specified text at the specified (variant) character position. The
 	 * text will be appended to the end of the invariant stream but its variant
@@ -126,17 +125,18 @@ public interface OulipoMachine extends InvariantStream {
 	 * @throws MalformedSpanException
 	 */
 	void insert(long characterPosition, String text) throws IOException, MalformedSpanException;
-	
+
 	void loadDocument(String hash)
 			throws MalformedTumblerException, MalformedSpanException, IOException, SignatureException;
-	
+
 	void moveVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
-	
+
 	void putInvariant(long to, Invariant invariant) throws MalformedSpanException, IOException;
+
 	void putOverlay(long to, Overlay overlay) throws MalformedSpanException, IOException;
 
 	void swapVariants(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
-	
+
 	/**
 	 * Toggle the overlay. If any of the overlays in the specified variantSpan do
 	 * not have the link type, then add the link type to every overlay, otherwise
@@ -149,6 +149,5 @@ public interface OulipoMachine extends InvariantStream {
 	 * @throws IOException
 	 */
 	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
-
 
 }

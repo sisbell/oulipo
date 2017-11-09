@@ -175,7 +175,7 @@ public class TumblerAddressTest {
 		String result = new ObjectMapper().writeValueAsString(ta);
 		assertEquals("\"ted://1.5.1.0.8.4.0.16.4.0.2.43.62\"", result);
 	}
-	
+
 	@Test
 	public void serializeWithSpan() throws Exception {
 		TumblerAddress ta = TumblerAddress.create("ted://1.5.1.0.8.4.0.16.4.1.0.1.100~1.200");

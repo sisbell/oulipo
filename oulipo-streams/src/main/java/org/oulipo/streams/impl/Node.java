@@ -135,7 +135,7 @@ public class Node<T extends StreamElement> {
 	 * Descriptive tag for this node (useful for debugging)
 	 */
 	public String tag;
-	
+
 	/**
 	 * The stream element value of this node. A value can only exist for a leaf node
 	 */
@@ -212,10 +212,10 @@ public class Node<T extends StreamElement> {
 	}
 
 	/**
-	 * Splits leaf node value along it's variant span position. The weight of the returned
-	 * parent node will equal the specified variant position. This is because the
-	 * weight is the number of characters to the left of the node and we are
-	 * splitting and inserting a node to right of the variant position.
+	 * Splits leaf node value along it's variant span position. The weight of the
+	 * returned parent node will equal the specified variant position. This is
+	 * because the weight is the number of characters to the left of the node and we
+	 * are splitting and inserting a node to right of the variant position.
 	 * 
 	 * @param leftPartitionWidth
 	 *            the variant span position
@@ -228,15 +228,16 @@ public class Node<T extends StreamElement> {
 	 *             equal to the specified variant position
 	 */
 	public Node<T> split(long leftPartitionWidth) throws MalformedSpanException {
-		if(leftPartitionWidth < 1) {
+		if (leftPartitionWidth < 1) {
 			throw new IllegalArgumentException("leftPartitionWidth must be greater than 0");
 		}
 		if (!isLeaf()) {
 			throw new MalformedSpanException("Can only split a leaf node");
 		}
 
-//		long cutPoint = (value instanceof InvariantSpan) ? ((InvariantSpan) value).getStart() + leftPartitionWidth
-//				: leftPartitionWidth;
+		// long cutPoint = (value instanceof InvariantSpan) ? ((InvariantSpan)
+		// value).getStart() + leftPartitionWidth
+		// : leftPartitionWidth;
 		Node<T> parent = new Node<T>(leftPartitionWidth);
 
 		StreamElementPartition<T> spans = (StreamElementPartition<T>) value.split(leftPartitionWidth);

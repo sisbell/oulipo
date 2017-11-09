@@ -25,7 +25,6 @@ import static org.oulipo.streams.impl.NodeFactory.getK;
 import org.junit.Test;
 import org.oulipo.net.MalformedSpanException;
 import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.impl.Node;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class NodeTest {
@@ -34,8 +33,7 @@ public class NodeTest {
 
 	@Test
 	public void isRight() throws Exception {
-		Node<InvariantSpan> right = 
-				new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> right = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
 		new Node.Builder<InvariantSpan>(0).right(right).build();
 		assertTrue(right.isRightNode());
 		assertTrue(right.isLeaf());
@@ -53,29 +51,27 @@ public class NodeTest {
 
 	@Test
 	public void simpleSplit() throws Exception {
-		Node<InvariantSpan> node = 
-				new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
-		
+		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+
 		Node<InvariantSpan> result = node.split(5);
 		assertNotNull(result.left);
 		assertNotNull(result.right);
-		
+
 		assertEquals(new InvariantSpan(1, 5, homeDocument), result.left.value);
 		assertEquals(new InvariantSpan(6, 5, homeDocument), result.right.value);
 	}
-	
+
 	@Test
 	public void split13() throws Exception {
 		Node<InvariantSpan> result = getK().split(2);
 		assertEquals(new InvariantSpan(300, 2, homeDocument), result.left.value);
 		assertEquals(new InvariantSpan(302, 2, homeDocument), result.right.value);
 	}
-	
+
 	@Test(expected = MalformedSpanException.class)
 	public void splitBranch() throws Exception {
 		new Node<InvariantSpan>(10).split(5);
 	}
-
 
 	@Test
 	public void splitEdge() throws Exception {
@@ -97,13 +93,11 @@ public class NodeTest {
 		assertEquals(new InvariantSpan(100, 1, homeDocument), result.left.value);
 		assertEquals(new InvariantSpan(101, 5, homeDocument), result.right.value);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void splitNegative() throws Exception {
-		Node<InvariantSpan> node = 
-				new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
 		node.split(-1);
 	}
-
 
 }

@@ -31,7 +31,7 @@ public final class OverlayMedia extends Overlay {
 	// the media stream
 
 	public final String hash;
-	
+
 	public final TumblerAddress mediaAddress;
 
 	/**
@@ -43,13 +43,15 @@ public final class OverlayMedia extends Overlay {
 	 *            the link types for styling and tagging this media
 	 * @throws MalformedSpanException
 	 */
-	public OverlayMedia(TumblerAddress mediaAddress, String hash, Set<TumblerAddress> linkTypes) throws MalformedSpanException {
+	public OverlayMedia(TumblerAddress mediaAddress, String hash, Set<TumblerAddress> linkTypes)
+			throws MalformedSpanException {
 		super(1, linkTypes);
 		this.mediaAddress = mediaAddress;
 		this.hash = hash;
 	}
 
-	public OverlayMedia(TumblerAddress mediaAddress, String hash, TumblerAddress... linkTypes) throws MalformedSpanException {
+	public OverlayMedia(TumblerAddress mediaAddress, String hash, TumblerAddress... linkTypes)
+			throws MalformedSpanException {
 		super(1, linkTypes);
 		this.mediaAddress = mediaAddress;
 		this.hash = hash;

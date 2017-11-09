@@ -47,15 +47,6 @@ public final class TumblerField {
 		return new TumblerField(createList(field));
 	}
 
-	public static TumblerField create(String field, int size) throws MalformedTumblerException {
-		List<Integer> items = createList(field);
-		if (items.size() != size) {
-			throw new MalformedTumblerException(
-					"Field does not match specified size: is = " + items.size() + ", expected = " + size);
-		}
-		return new TumblerField(items);
-	}
-
 	public static TumblerField createEmpty() {
 		return new TumblerField();
 	}

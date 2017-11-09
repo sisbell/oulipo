@@ -22,7 +22,7 @@ import org.oulipo.streams.types.StreamElement;
  * along a cut point.
  */
 public final class StreamElementPartition<T extends StreamElement> {
-	
+
 	/**
 	 * Left half of partition
 	 */
@@ -77,7 +77,5 @@ public final class StreamElementPartition<T extends StreamElement> {
 	public String toString() {
 		return "StreamElementPartition [left=" + left + ", right=" + right + "]";
 	}
-	
-	
 
 }

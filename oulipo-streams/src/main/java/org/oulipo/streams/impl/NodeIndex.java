@@ -23,9 +23,9 @@ public final class NodeIndex<T extends StreamElement> {
 	 * Characters to the left of the node
 	 */
 	public long displacement;
-	
+
 	public final Node<T> node;
-	
+
 	public NodeIndex(Node<T> node, long displacement) {
 		this.node = node;
 		this.displacement = displacement;

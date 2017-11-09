@@ -32,7 +32,7 @@ import org.oulipo.streams.types.InvariantSpan;
 public interface InvariantStream {
 
 	/**
-	 * Appends text to the end of the IStream. 
+	 * Appends text to the end of the IStream.
 	 * 
 	 * @param text
 	 *            the text to append. Text must not be null.

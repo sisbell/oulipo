@@ -88,12 +88,10 @@ public class InvariantSpanTest {
 		InvariantSpan span = new InvariantSpan(1, 4, homeDocument);
 		span.split(0);
 	}
-	
+
 	@Test(expected = MalformedSpanException.class)
 	public void zeroWidth() throws Exception {
 		new InvariantSpan(100, 0, homeDocument);
 	}
-
-
 
 }

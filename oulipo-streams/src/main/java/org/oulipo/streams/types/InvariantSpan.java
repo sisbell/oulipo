@@ -137,13 +137,14 @@ public final class InvariantSpan implements Invariant {
 	 */
 	@Override
 	public StreamElementPartition<InvariantSpan> split(long leftPartitionWidth) throws MalformedSpanException {
-		if(leftPartitionWidth < 1) {
-			throw new IndexOutOfBoundsException("Partition width must be greater than 0, partitionWidth = " + leftPartitionWidth);
+		if (leftPartitionWidth < 1) {
+			throw new IndexOutOfBoundsException(
+					"Partition width must be greater than 0, partitionWidth = " + leftPartitionWidth);
 		}
-		
+
 		if (width <= leftPartitionWidth) {
-			throw new IndexOutOfBoundsException("Width of left partition is greater than or equal to span: span width =" + width
-					+ ", partitionWidth = " + leftPartitionWidth);
+			throw new IndexOutOfBoundsException("Width of left partition is greater than or equal to span: span width ="
+					+ width + ", partitionWidth = " + leftPartitionWidth);
 		}
 		return new StreamElementPartition<InvariantSpan>(new InvariantSpan(start, leftPartitionWidth, homeDocument),
 				new InvariantSpan(start + leftPartitionWidth, width - leftPartitionWidth, homeDocument));
@@ -151,7 +152,7 @@ public final class InvariantSpan implements Invariant {
 
 	@Override
 	public String toString() {
-		return "SpanStreamElement [start=" + start + ", width=" + width + ", homeDocument=" + homeDocument  + "]";
+		return "SpanStreamElement [start=" + start + ", width=" + width + ", homeDocument=" + homeDocument + "]";
 	}
 
 }

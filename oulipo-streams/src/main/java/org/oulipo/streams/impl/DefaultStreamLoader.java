@@ -78,8 +78,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 				.removalListener(new RemovalListener<TumblerAddress, VariantStream<Invariant>>() {
 
 					@Override
-					public void onRemoval(
-							RemovalNotification<TumblerAddress, VariantStream<Invariant>> notification) {
+					public void onRemoval(RemovalNotification<TumblerAddress, VariantStream<Invariant>> notification) {
 						try {
 							persistInvariantElements(notification.getKey(), notification.getValue());
 						} catch (IOException | MalformedSpanException e) {
@@ -98,8 +97,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 				.removalListener(new RemovalListener<TumblerAddress, VariantStream<Overlay>>() {
 
 					@Override
-					public void onRemoval(
-							RemovalNotification<TumblerAddress, VariantStream<Overlay>> notification) {
+					public void onRemoval(RemovalNotification<TumblerAddress, VariantStream<Overlay>> notification) {
 						try {
 							persistOverlayElements(notification.getKey(), notification.getValue());
 						} catch (IOException | MalformedSpanException e) {
@@ -108,8 +106,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 					}
 				}).build(new CacheLoader<TumblerAddress, VariantStream<Overlay>>() {
 					@Override
-					public VariantStream<Overlay> load(TumblerAddress key)
-							throws IOException, MalformedSpanException {
+					public VariantStream<Overlay> load(TumblerAddress key) throws IOException, MalformedSpanException {
 						return openOverlayVariantStream(key);
 					}
 				});
@@ -188,7 +185,7 @@ public final class DefaultStreamLoader implements StreamLoader {
 
 	@Override
 	public void setHash(String hash) {
-		
+
 	}
 
 }

@@ -642,7 +642,7 @@ public final class TumblerAddress extends IRI {
 
 	@Override
 	public String toString() {
-		return "TumblerAddress [address = " + value  +  "]";
+		return "TumblerAddress [address = " + value + "]";
 	}
 
 	public String toTumblerAuthority() throws MalformedTumblerException {

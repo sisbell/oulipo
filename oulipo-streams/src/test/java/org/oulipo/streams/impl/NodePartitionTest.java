@@ -16,7 +16,6 @@
 package org.oulipo.streams.impl;
 
 import org.junit.Test;
-import org.oulipo.streams.impl.NodePartition;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class NodePartitionTest {
