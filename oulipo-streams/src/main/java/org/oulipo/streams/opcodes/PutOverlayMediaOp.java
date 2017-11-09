@@ -29,21 +29,40 @@ import org.oulipo.net.MalformedSpanException;
  * Overlays a media object with styling and links.
  */
 public final class PutOverlayMediaOp extends Op {
-	
-	public final int hash;
-	
-	public final Set<Integer> linkTypes;
-	
-	public final int mediaAddress;
 
+	/**
+	 * Index of the hash for this media
+	 */
+	public final int hash;
+
+	/**
+	 * The overlay types such as styling and jump links. These are indexes into the
+	 * tumblerPool.
+	 */
+	public final Set<Integer> linkTypes;
+
+	/**
+	 * Index in tumbler pool of this media's tumbler address
+	 */
+	public final int mediaTumblerIndex;
+
+	/**
+	 * Variant position in document to put the media overlay
+	 */
 	public final long to;
 
+	/**
+	 * 
+	 * @param dis
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
 	public PutOverlayMediaOp(DataInputStream dis) throws MalformedSpanException, IOException {
 		super(Op.PUT_OVERLAY_MEDIA);
 		to = dis.readLong();
 		hash = dis.readInt();
-		mediaAddress = dis.readInt();
-		
+		mediaTumblerIndex = dis.readInt();
+
 		int length = dis.readInt();
 		Set<Integer> links = new HashSet<>(length);
 
@@ -56,12 +75,36 @@ public final class PutOverlayMediaOp extends Op {
 		}
 		linkTypes = Collections.unmodifiableSet(links);
 	}
-	
-	public PutOverlayMediaOp(long to, int hash, int mediaAddress, Set<Integer> linkTypes) {
+
+	/**
+	 * 
+	 * @param to
+	 *            variant position in document to put the media overlay
+	 * @param hash
+	 * @param mediaTumblerIndex
+	 * @param linkTypes
+	 */
+	public PutOverlayMediaOp(long to, int hash, int mediaTumblerIndex, Set<Integer> linkTypes) {
 		super(Op.PUT_OVERLAY_MEDIA);
+		if (to < 1) {
+			throw new IndexOutOfBoundsException("to position must be greater than 0");
+		}
+		
+		if (hash < 0) {
+			throw new IndexOutOfBoundsException("hash index must be non-negative");
+		}
+	
+		if (mediaTumblerIndex < 0) {
+			throw new IndexOutOfBoundsException("mediaTumblerIndex position must be non-negative");
+		}
+		
+		if (linkTypes == null) {
+			throw new IllegalArgumentException("linkTypes is null");
+		}
+
 		this.to = to;
 		this.hash = hash;
-		this.mediaAddress = mediaAddress;
+		this.mediaTumblerIndex = mediaTumblerIndex;
 		this.linkTypes = Collections.unmodifiableSet(linkTypes);
 	}
 
@@ -72,7 +115,7 @@ public final class PutOverlayMediaOp extends Op {
 			dos.writeByte(Op.PUT_OVERLAY_MEDIA);
 			dos.writeLong(to);
 			dos.writeInt(hash);
-			dos.writeInt(mediaAddress);
+			dos.writeInt(mediaTumblerIndex);
 			dos.writeInt(linkTypes.size());
 			for (Integer i : linkTypes) {
 				dos.writeInt(i);
@@ -82,4 +125,40 @@ public final class PutOverlayMediaOp extends Op {
 		return os.toByteArray();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PutOverlayMediaOp other = (PutOverlayMediaOp) obj;
+		if (hash != other.hash)
+			return false;
+		if (!linkTypes.equals(other.linkTypes))
+			return false;
+		if (mediaTumblerIndex != other.mediaTumblerIndex)
+			return false;
+		if (to != other.to)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + hash;
+		result = prime * result + ((linkTypes == null) ? 0 : linkTypes.hashCode());
+		result = prime * result + mediaTumblerIndex;
+		result = prime * result + (int) (to ^ (to >>> 32));
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "PutOverlayMediaOp [hash=" + hash + ", linkTypes=" + linkTypes + ", mediaAddress=" + mediaTumblerIndex
+				+ ", to=" + to + "]";
+	}
 }

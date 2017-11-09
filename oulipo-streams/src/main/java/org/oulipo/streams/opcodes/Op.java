@@ -34,13 +34,12 @@ public abstract class Op {
 	 */
 	public static final byte DELETE = 0x3;
 
-	public static final byte INSERT_TEXT = 0x5;
-
 	/**
-	 * Operation for moving text and media from one document region to another region
+	 * Operation for moving text and media from one document region to another
+	 * region
 	 */
 	public static final byte MOVE = 0x7;
-	
+
 	/**
 	 * Operation for putting a media object into a stream
 	 */
@@ -50,17 +49,17 @@ public abstract class Op {
 	 * Operation for putting an invariant span of text into a stream
 	 */
 	public static final byte PUT_INVARIANT_SPAN = 0x1;
-	
+
 	/**
 	 * Operation for putting an overlay onto a region of a stream
 	 */
 	public static final byte PUT_OVERLAY = 0x12;
-	
+
 	/**
 	 * Operation for putting an overlay on a media object
 	 */
 	public static final byte PUT_OVERLAY_MEDIA = 0x13;
-	
+
 	/**
 	 * Operation for swapping text and media
 	 */
@@ -76,7 +75,8 @@ public abstract class Op {
 	/**
 	 * Constructs an Op with specific type
 	 * 
-	 * @param code the op type
+	 * @param code
+	 *            the op type
 	 */
 	public Op(byte code) {
 		this.code = code;
@@ -89,7 +89,7 @@ public abstract class Op {
 	 * @throws IOException
 	 */
 	public abstract byte[] encode() throws IOException;
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -123,6 +123,6 @@ public abstract class Op {
 
 	@Override
 	public String toString() {
-		return "Op [code=" + code +  "]";
+		return "Op [code=" + code + "]";
 	}
 }

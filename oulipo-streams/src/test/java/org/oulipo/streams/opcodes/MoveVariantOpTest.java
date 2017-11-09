@@ -16,6 +16,7 @@
 package org.oulipo.streams.opcodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -25,16 +26,67 @@ import org.oulipo.streams.VariantSpan;
 
 public class MoveVariantOpTest {
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void badToPosition() throws Exception {
+		new MoveVariantOp(0, new VariantSpan(50, 75));
+	}
+
 	@Test
 	public void encodeDecode() throws Exception {
 		MoveVariantOp op = new MoveVariantOp(100, new VariantSpan(50, 75));
 		byte[] data = op.encode();
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
-		
+
 		assertEquals(Op.MOVE, dis.readByte());
-		
+
 		MoveVariantOp decoded = new MoveVariantOp(dis);
-		
+
 		assertEquals(op, decoded);
 	}
+
+	@Test
+	public void equalsTrue() throws Exception {
+		MoveVariantOp op1 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		MoveVariantOp op2 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		assertEquals(op1, op2);
+		assertEquals(op2, op1);
+	}
+
+	@Test
+	public void equalsVariantsFalse() throws Exception {
+		MoveVariantOp op1 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		MoveVariantOp op2 = new MoveVariantOp(1, new VariantSpan(2, 100));
+		assertFalse(op1.equals(op2));
+		assertFalse(op2.equals(op1));
+	}
+
+	@Test
+	public void hashFalse() throws Exception {
+		MoveVariantOp op1 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		MoveVariantOp op2 = new MoveVariantOp(1, new VariantSpan(2, 100));
+		assertFalse(op1.hashCode() == op2.hashCode());
+		;
+	}
+
+	@Test
+	public void hashFalse2() throws Exception {
+		MoveVariantOp op1 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		MoveVariantOp op2 = new MoveVariantOp(2, new VariantSpan(1, 100));
+		assertFalse(op1.hashCode() == op2.hashCode());
+		;
+	}
+
+	@Test
+	public void hashTrue() throws Exception {
+		MoveVariantOp op1 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		MoveVariantOp op2 = new MoveVariantOp(1, new VariantSpan(1, 100));
+		assertEquals(op1.hashCode(), op2.hashCode());
+		;
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullSpan() throws Exception {
+		new MoveVariantOp(1, null);
+	}
+
 }

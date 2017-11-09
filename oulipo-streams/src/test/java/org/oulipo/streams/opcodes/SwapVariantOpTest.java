@@ -16,6 +16,7 @@
 package org.oulipo.streams.opcodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -38,4 +39,45 @@ public class SwapVariantOpTest {
 		assertEquals(op, decoded);
 	}
 
+	@Test
+	public void equalsFalse() throws Exception {
+		SwapVariantOp op1 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		SwapVariantOp op2 = new SwapVariantOp(new VariantSpan(100, 10), new VariantSpan(200, 1));
+		assertFalse(op1.equals(op2));
+		assertFalse(op2.equals(op1));
+	}
+
+	@Test
+	public void equalsTrue() throws Exception {
+		SwapVariantOp op1 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		SwapVariantOp op2 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		assertEquals(op1, op2);
+		assertEquals(op2, op1);
+	}
+
+	@Test
+	public void hashFalse() throws Exception {
+		SwapVariantOp op1 = new SwapVariantOp(new VariantSpan(100, 10), new VariantSpan(200, 1));
+		SwapVariantOp op2 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		assertFalse(op1.hashCode() == op2.hashCode());
+		;
+	}
+
+	@Test
+	public void hashTrue() throws Exception {
+		SwapVariantOp op1 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		SwapVariantOp op2 = new SwapVariantOp(new VariantSpan(100, 1), new VariantSpan(200, 1));
+		assertEquals(op1.hashCode(), op2.hashCode());
+		;
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullSpan1() throws Exception {
+		new SwapVariantOp(null, new VariantSpan(200, 1));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullSpan2() throws Exception {
+		new SwapVariantOp(new VariantSpan(200, 1), null);
+	}
 }

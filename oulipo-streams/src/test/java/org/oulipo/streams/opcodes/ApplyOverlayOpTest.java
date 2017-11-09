@@ -16,6 +16,8 @@
 package org.oulipo.streams.opcodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -31,7 +33,7 @@ public class ApplyOverlayOpTest {
 	public void encode() throws Exception {
 		ApplyOverlayOp op = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
 		byte[] data = op.encode();
-		
+
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
 		assertEquals(Op.APPLY_OVERLAY, dis.read());
 		assertEquals(1, dis.readLong());
@@ -40,17 +42,59 @@ public class ApplyOverlayOpTest {
 		assertEquals(1, dis.readInt());
 		assertEquals(10, dis.readInt());
 	}
-	
+
 	@Test
 	public void encodeDecode() throws Exception {
 		ApplyOverlayOp op = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
 		byte[] data = op.encode();
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
-		
+
 		assertEquals(Op.APPLY_OVERLAY, dis.readByte());
-		
+
 		ApplyOverlayOp decoded = new ApplyOverlayOp(dis);
-		
+
 		assertEquals(op, decoded);
+	}
+
+	@Test
+	public void equalsLinkTypesFalse() throws Exception {
+		ApplyOverlayOp op1 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1));
+		ApplyOverlayOp op2 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		assertFalse(op1.equals(op2));
+		assertFalse(op2.equals(op1));
+	}
+
+	@Test
+	public void equalsTrue() throws Exception {
+		ApplyOverlayOp op1 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		ApplyOverlayOp op2 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		assertTrue(op1.equals(op2));
+		assertTrue(op2.equals(op1));
+	}
+
+	@Test
+	public void equalsVariantsFalse() throws Exception {
+		ApplyOverlayOp op1 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		ApplyOverlayOp op2 = new ApplyOverlayOp(new VariantSpan(2, 100), Sets.newHashSet(1, 10));
+		assertFalse(op1.equals(op2));
+		assertFalse(op2.equals(op1));
+	}
+
+	@Test
+	public void hashTrue() throws Exception {
+		ApplyOverlayOp op1 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		ApplyOverlayOp op2 = new ApplyOverlayOp(new VariantSpan(1, 100), Sets.newHashSet(1, 10));
+		assertEquals(op1.hashCode(), op2.hashCode());
+		;
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullLinkTypes() throws Exception {
+		new ApplyOverlayOp(new VariantSpan(1, 100), null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullVariantSpan() throws Exception {
+		new ApplyOverlayOp(null, Sets.newHashSet(1, 10));
 	}
 }

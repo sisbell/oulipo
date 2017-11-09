@@ -33,20 +33,45 @@ public final class MoveVariantOp extends Op {
 	 */
 	public final long to;
 
+	/**
+	 * The variant span (or region of text) to move
+	 */
 	public final VariantSpan variantSpan;
 
+	/**
+	 * Constructs a MoveVariantOp from the specified <code>DataInputStream</code>
+	 * 
+	 * @param dis
+	 *            the input to read the op code from
+	 * @throws IOException
+	 *             if I/O exception reading the stream
+	 * @throws MalformedSpanException
+	 *             if variant span read from stream is malformed
+	 * @throws IndexOutOfBoundsException
+	 *             if specified to position read from stream is less than 1
+	 */
 	public MoveVariantOp(DataInputStream dis) throws IOException, MalformedSpanException {
 		this(dis.readLong(), new VariantSpan(dis));
 	}
-	
+
 	/**
 	 * Moves the variant span to the specified 'to' position
 	 * 
-	 * @param to the position to move the text to
-	 * @param variantSpan the region of text to move
+	 * @param to
+	 *            the position to move the text to
+	 * @param variantSpan
+	 *            the region of text to move
+	 * @throws IndexOutOfBoundsException
+	 *             if specified to position is less than 1
 	 */
 	public MoveVariantOp(long to, VariantSpan variantSpan) {
 		super(Op.MOVE);
+		if (to < 1) {
+			throw new IndexOutOfBoundsException("to position must be greater than 0");
+		}
+		if (variantSpan == null) {
+			throw new IllegalArgumentException("null variant span");
+		}
 		this.to = to;
 		this.variantSpan = variantSpan;
 	}
@@ -75,10 +100,7 @@ public final class MoveVariantOp extends Op {
 		MoveVariantOp other = (MoveVariantOp) obj;
 		if (to != other.to)
 			return false;
-		if (variantSpan == null) {
-			if (other.variantSpan != null)
-				return false;
-		} else if (!variantSpan.equals(other.variantSpan))
+		if (!variantSpan.equals(other.variantSpan))
 			return false;
 		return true;
 	}
@@ -88,7 +110,7 @@ public final class MoveVariantOp extends Op {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (int) (to ^ (to >>> 32));
-		result = prime * result + ((variantSpan == null) ? 0 : variantSpan.hashCode());
+		result = prime * result + variantSpan.hashCode();
 		return result;
 	}
 

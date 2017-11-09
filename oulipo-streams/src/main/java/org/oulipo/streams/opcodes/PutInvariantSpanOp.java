@@ -24,12 +24,12 @@ import java.io.IOException;
  * Puts an invariant span into a variant stream.
  */
 public final class PutInvariantSpanOp extends Op {
-	
+
 	/**
 	 * Index in tumbler pool of this span's tumbler address
 	 */
 	public final int homeDocumentIndex;
-	
+
 	/**
 	 * Start position within the invariant stream
 	 */
@@ -44,24 +44,56 @@ public final class PutInvariantSpanOp extends Op {
 	 * Width of the specified span
 	 */
 	public final long width;
-	
+
+	/**
+	 * Creates a <code>PutInvariantSpan</code> from the specified stream
+	 * 
+	 * @param dis
+	 *            the input to read the op code from
+	 * @throws IOException
+	 *             if I/O exception reading the stream
+	 */
 	public PutInvariantSpanOp(DataInputStream dis) throws IOException {
 		this(dis.readLong(), dis.readLong(), dis.readLong(), dis.readInt());
 	}
+
 	/**
-	 * Constructs a put span operation 
+	 * Creates a <code>PutInvariantSpanOp</code> with the specified position and
+	 * indexes
 	 * 
-	 * @param to the variant position to insert text
-	 * @param invariantStart the start position within the invariant stream
-	 * @param width the width of span
-	 * @param homeDocumentIndex the index in tumbler pool of this span's tumbler address
+	 * @param to
+	 *            the variant position to insert text
+	 * @param invariantStart
+	 *            the start position within the invariant stream
+	 * @param width
+	 *            the width of span
+	 * @param homeDocumentIndex
+	 *            the index in tumbler pool of this span's tumbler address
+	 * @throws IndexOutOfBoundsException
+	 *             if specified to position is less than 1
 	 */
 	public PutInvariantSpanOp(long to, long invariantStart, long width, int homeDocumentIndex) {
 		super(Op.PUT_INVARIANT_SPAN);
 		this.to = to;
+		if (to < 1) {
+			throw new IndexOutOfBoundsException("to position must be greater than 0");
+		}
+		
+		if (invariantStart < 1) {
+			throw new IndexOutOfBoundsException("invariantStart must be greater than 0");
+		}
+		
+		if (width < 1) {
+			throw new IndexOutOfBoundsException("Width must be greater than 0");
+		}
+
+		if (homeDocumentIndex < 0) {
+			throw new IndexOutOfBoundsException("homeDocumentIndex position must be non-negative");
+		}
+
 		this.invariantStart = invariantStart;
 		this.width = width;
-		this.homeDocumentIndex = homeDocumentIndex;		
+		this.homeDocumentIndex = homeDocumentIndex;
 	}
 
 	@Override
@@ -77,7 +109,7 @@ public final class PutInvariantSpanOp extends Op {
 		os.flush();
 		return os.toByteArray();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -97,6 +129,7 @@ public final class PutInvariantSpanOp extends Op {
 			return false;
 		return true;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -107,10 +140,11 @@ public final class PutInvariantSpanOp extends Op {
 		result = prime * result + (int) (width ^ (width >>> 32));
 		return result;
 	}
+
 	@Override
 	public String toString() {
-		return "PutInvariantSpanOp [start=" + invariantStart + ", width=" + width + ", homeDocumentIndex=" + homeDocumentIndex
-				+ ", to=" + to + "]";
+		return "PutInvariantSpanOp [start=" + invariantStart + ", width=" + width + ", homeDocumentIndex="
+				+ homeDocumentIndex + ", to=" + to + "]";
 	}
 
 }

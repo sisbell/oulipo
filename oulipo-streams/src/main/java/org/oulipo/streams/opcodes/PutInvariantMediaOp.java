@@ -21,38 +21,73 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Puts a media object in the document.
+ * Puts a media object in the document. This operation will reference the index
+ * of hash of a media object (like an image). The hash is stored in a mediaPool
+ * within the document.
+ * 
+ * The invariant media may have a different document address than the host
+ * documentFile.
  */
 public final class PutInvariantMediaOp extends Op {
-	
+
 	/**
 	 * Index in media pool of this media's hash value
 	 */
 	public final int mediaPoolIndex;
-	
+
 	/**
 	 * Index in tumbler pool of this media's tumbler address
 	 */
 	public final int mediaTumblerIndex;
-	
+
 	/**
 	 * Variant position in document to put media object
 	 */
 	public final long to;
-	
+
+	/**
+	 * Constructs a PutInvariantMediaOp from the specified
+	 * <code>DataInputStream</code>
+	 * 
+	 * @param dis
+	 *            the input to read the op code from
+	 * @throws IOException
+	 *             if I/O exception reading the stream
+	 * @throws IndexOutOfBoundsException
+	 *             if to < 1 or mediaPoolIndex/mediaTumblerIndex are negative
+	 */
 	public PutInvariantMediaOp(DataInputStream dis) throws IOException {
 		this(dis.readLong(), dis.readInt(), dis.readInt());
 	}
 
 	/**
+	 * Creates a <code>PutInvariantMediaOp</code> with the specified positions and
+	 * indexes
 	 * 
-	 * @param to the variant position 
-	 * @param mediaPoolIndex the index of the hash
-	 * @param mediaTumblerIndex the index of the media tumbler address
+	 * @param to
+	 *            the variant position. Must be greater than 0.
+	 * @param mediaPoolIndex
+	 *            the index of the hash. Must be non-negative.
+	 * @param mediaTumblerIndex
+	 *            the index of the media tumbler address. Must be non-negative.
+	 * @throws IndexOutOfBoundsException
+	 *             if to < 1 or mediaPoolIndex/mediaTumblerIndex are negative
 	 */
 	public PutInvariantMediaOp(long to, int mediaPoolIndex, int mediaTumblerIndex) {
 		super(Op.PUT_INVARIANT_MEDIA);
 		this.to = to;
+		if (to < 1) {
+			throw new IndexOutOfBoundsException("to position must be greater than 0");
+		}
+
+		if (mediaPoolIndex < 0) {
+			throw new IndexOutOfBoundsException("mediaPoolIndex position must be non-negative");
+		}
+
+		if (mediaTumblerIndex < 0) {
+			throw new IndexOutOfBoundsException("mediaTumblerIndex position must be non-negative");
+		}
+
 		this.mediaPoolIndex = mediaPoolIndex;
 		this.mediaTumblerIndex = mediaTumblerIndex;
 	}
@@ -97,4 +132,11 @@ public final class PutInvariantMediaOp extends Op {
 		result = prime * result + (int) (to ^ (to >>> 32));
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "PutInvariantMediaOp [mediaPoolIndex=" + mediaPoolIndex + ", mediaTumblerIndex=" + mediaTumblerIndex
+				+ ", to=" + to + "]";
+	}
+
 }

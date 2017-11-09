@@ -16,6 +16,7 @@
 package org.oulipo.streams.opcodes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -35,5 +36,57 @@ public class PutInvariantSpanOpTest {
 		PutInvariantSpanOp decoded = new PutInvariantSpanOp(dis);
 
 		assertEquals(op, decoded);
+	}
+
+	@Test
+	public void equalsFalse() throws Exception {
+		PutInvariantSpanOp op1 = new PutInvariantSpanOp(100, 50, 1, 0);
+		PutInvariantSpanOp op2 = new PutInvariantSpanOp(101, 50, 1, 0);
+		assertFalse(op1.equals(op2));
+		assertFalse(op2.equals(op1));
+	}
+
+	@Test
+	public void equalsTrue() throws Exception {
+		PutInvariantSpanOp op1 = new PutInvariantSpanOp(100, 50, 1, 0);
+		PutInvariantSpanOp op2 = new PutInvariantSpanOp(100, 50, 1, 0);
+		assertEquals(op1, op2);
+		assertEquals(op2, op1);
+	}
+
+	@Test
+	public void hashFalse() throws Exception {
+		PutInvariantSpanOp op1 = new PutInvariantSpanOp(100, 50, 1, 0);
+		PutInvariantSpanOp op2 = new PutInvariantSpanOp(101, 50, 1, 0);
+		assertFalse(op1.hashCode() == op2.hashCode());
+		;
+	}
+
+	@Test
+	public void hashTrue() throws Exception {
+		PutInvariantSpanOp op1 = new PutInvariantSpanOp(100, 50, 1, 0);
+		PutInvariantSpanOp op2 = new PutInvariantSpanOp(100, 50, 1, 0);
+		assertEquals(op1.hashCode(), op2.hashCode());
+		;
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void homeDocumentOutOfBounds() throws Exception {
+		new PutInvariantSpanOp(100, 50, 1, -1);
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void invariantStartOutOfBounds() throws Exception {
+		new PutInvariantSpanOp(100, 0, 1, 0);
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void toOutOfBound() throws Exception {
+		new PutInvariantSpanOp(0, 50, 1, 0);
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void widthOutOfBounds() throws Exception {
+		new PutInvariantSpanOp(100, 50, 0, 0);
 	}
 }

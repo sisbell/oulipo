@@ -33,12 +33,34 @@ public final class DeleteVariantOp extends Op {
 	 */
 	public final VariantSpan variantSpan;
 
+	/**
+	 * Constructs a DeleteVariantOp from the specified <code>DataInputStream</code>
+	 * 
+	 * @param dis
+	 *            the input to read the op code from
+	 * @throws IOException
+	 *             if I/O exception reading the stream
+	 * @throws MalformedSpanException
+	 *             if variant span read from stream is malformed
+	 */
 	public DeleteVariantOp(DataInputStream dis) throws MalformedSpanException, IOException {
 		this(new VariantSpan(dis));
 	}
-	
+
+	/**
+	 * Constructs a <code>DeleteVariantOp</code> with the specified span
+	 * 
+	 * @param variantSpan
+	 *            the variant span within the document to delete
+	 * @throws IllegalArgumentException
+	 *             if variantSpan is null
+	 */
 	public DeleteVariantOp(VariantSpan variantSpan) {
 		super(Op.DELETE);
+		if (variantSpan == null) {
+			throw new IllegalArgumentException("null variant span");
+		}
+
 		this.variantSpan = variantSpan;
 	}
 
@@ -63,10 +85,7 @@ public final class DeleteVariantOp extends Op {
 		if (getClass() != obj.getClass())
 			return false;
 		DeleteVariantOp other = (DeleteVariantOp) obj;
-		if (variantSpan == null) {
-			if (other.variantSpan != null)
-				return false;
-		} else if (!variantSpan.equals(other.variantSpan))
+		if (!variantSpan.equals(other.variantSpan))
 			return false;
 		return true;
 	}
@@ -75,7 +94,12 @@ public final class DeleteVariantOp extends Op {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((variantSpan == null) ? 0 : variantSpan.hashCode());
+		result = prime * result + variantSpan.hashCode();
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "DeleteVariantOp [variantSpan=" + variantSpan + "]";
 	}
 }

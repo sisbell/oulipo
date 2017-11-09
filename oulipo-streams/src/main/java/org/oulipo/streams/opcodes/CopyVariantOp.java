@@ -24,10 +24,13 @@ import org.oulipo.net.MalformedSpanException;
 import org.oulipo.streams.VariantSpan;
 
 /**
- * Copies a region of text or media to a new location.
+ * Copies a region of text or media to a new location with a document.
  */
 public final class CopyVariantOp extends Op {
 
+	/**
+	 * The variant position to copy to
+	 */
 	public final long to;
 
 	/**
@@ -35,12 +38,43 @@ public final class CopyVariantOp extends Op {
 	 */
 	public final VariantSpan variantSpan;
 
+	/**
+	 * Constructs a CopyVariantOp from the specified <code>DataInputStream</code>
+	 * 
+	 * @param dis
+	 *            the input to read the op code from
+	 * @throws IOException
+	 *             if I/O exception reading the stream
+	 * @throws MalformedSpanException
+	 *             if variant span read from stream is malformed
+	 */
 	public CopyVariantOp(DataInputStream dis) throws IOException, MalformedSpanException {
 		this(dis.readLong(), new VariantSpan(dis));
 	}
-	
+
+	/**
+	 * Constructs a <code>CopyVariantOp</code> with the specified to position and
+	 * variant span
+	 * 
+	 * @param to
+	 *            the variant position to copy to
+	 * @param variantSpan
+	 *            variant span within the document to copy
+	 * @throws IllegalArgumentException
+	 *             if variantSpan is null
+	 * @throws IndexOutOfBoundsException
+	 *             if specified to position is less than 1
+	 */
 	public CopyVariantOp(long to, VariantSpan variantSpan) {
 		super(Op.COPY);
+		if (to < 1) {
+			throw new IndexOutOfBoundsException("to position must be greater than 0");
+		}
+
+		if (variantSpan == null) {
+			throw new IllegalArgumentException("null variant span");
+		}
+
 		this.to = to;
 		this.variantSpan = variantSpan;
 	}
@@ -70,10 +104,7 @@ public final class CopyVariantOp extends Op {
 		CopyVariantOp other = (CopyVariantOp) obj;
 		if (to != other.to)
 			return false;
-		if (variantSpan == null) {
-			if (other.variantSpan != null)
-				return false;
-		} else if (!variantSpan.equals(other.variantSpan))
+		if (!variantSpan.equals(other.variantSpan))
 			return false;
 		return true;
 	}
@@ -83,7 +114,7 @@ public final class CopyVariantOp extends Op {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (int) (to ^ (to >>> 32));
-		result = prime * result + ((variantSpan == null) ? 0 : variantSpan.hashCode());
+		result = prime * result + variantSpan.hashCode();
 		return result;
 	}
 

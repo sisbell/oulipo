@@ -28,25 +28,41 @@ import org.oulipo.streams.VariantSpan;
  */
 public final class ToggleOverlayOp extends Op {
 
+	/**
+	 * Index in tumbler pool of this overlay's type
+	 */
 	public final int linkTypeIndex;
-	
+
 	/**
 	 * The variant span of the region to toggle
 	 */
 	public final VariantSpan variantSpan;
 
+	/**
+	 * 
+	 * @param dis
+	 * @throws MalformedSpanException
+	 * @throws IOException
+	 */
 	public ToggleOverlayOp(DataInputStream dis) throws MalformedSpanException, IOException {
 		this(new VariantSpan(dis), dis.readInt());
 	}
-	
+
 	/**
 	 * Create operation for toggling an overlay
 	 * 
 	 * @param variantSpan
-	 * @param linkTypeIndex the index of the linkType
+	 * @param linkTypeIndex
+	 *            the index of the linkType
 	 */
 	public ToggleOverlayOp(VariantSpan variantSpan, int linkTypeIndex) {
 		super(Op.TOGGLE_OVERLAY);
+		if (variantSpan == null) {
+			throw new IllegalArgumentException("null variant span");
+		}
+		if (linkTypeIndex < 0) {
+			throw new IndexOutOfBoundsException("linkTypeIndex must be non-negative: " + linkTypeIndex);
+		}
 		this.variantSpan = variantSpan;
 		this.linkTypeIndex = linkTypeIndex;
 	}

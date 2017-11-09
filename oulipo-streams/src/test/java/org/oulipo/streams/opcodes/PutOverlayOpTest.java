@@ -38,4 +38,15 @@ public class PutOverlayOpTest {
 
 		assertEquals(op, decoded);
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullLinks() throws Exception {
+		new PutOverlayOp(new VariantSpan(200, 1), null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullSpan() throws Exception {
+		new PutOverlayOp(null, Sets.newSet(10, 5));
+	}
+
 }

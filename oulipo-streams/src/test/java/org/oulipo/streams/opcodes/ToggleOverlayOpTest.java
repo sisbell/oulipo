@@ -38,4 +38,14 @@ public class ToggleOverlayOpTest {
 		assertEquals(op, decoded);
 	}
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void indexOutOfBounds() throws Exception {
+		new ToggleOverlayOp(new VariantSpan(100, 1), -1);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void nullSpan() throws Exception {
+		new ToggleOverlayOp(null, 10);
+	}
+
 }
