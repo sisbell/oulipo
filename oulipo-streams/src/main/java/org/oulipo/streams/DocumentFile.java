@@ -66,13 +66,19 @@ import com.google.common.io.ByteStreams;
  * DocumentFiles are chained through the hash field.
  * 
  */
-public class DocumentFile {
+public final class DocumentFile {
 
 	/**
-	 * Builder for a DocumentFile. The build methods can pass in a <code>DataInputStream</code> or can pass in 
-	 * non-stream parameter values. Do not mix these method types when building a Document.
+	 * Builder for a DocumentFile. The build methods can pass in a
+	 * <code>DataInputStream</code> or can pass in non-stream parameter values. Do
+	 * not mix these method types when building a Document.
 	 */
 	public static class Builder {
+
+		/**
+		 * Contains text to be appended to the encrypted invariant stream.
+		 */
+		private StringBuilder encryptedInvariantStream = new StringBuilder();
 
 		/**
 		 * The hash of the previous block (or documentFile)
@@ -84,7 +90,7 @@ public class DocumentFile {
 		/**
 		 * Contains text to be appended to the invariant stream.
 		 */
-		private StringBuilder invariantStringArea = new StringBuilder();
+		private StringBuilder invariantStream = new StringBuilder();
 
 		/**
 		 * Current number of media items in media pool
@@ -107,12 +113,14 @@ public class DocumentFile {
 		private int tumblerCount = 1;
 
 		/**
-		 * Pool of tumbler addresses. Key = tumbler address, Value = index in tumbler pool
+		 * Pool of tumbler addresses. Key = tumbler address, Value = index in tumbler
+		 * pool
 		 */
 		private BiMap<String, Integer> tumblerPool = HashBiMap.create();
 
 		/**
-		 * Constructs a <code>DocumentFile.Builder</code> with the specified home document.
+		 * Constructs a <code>DocumentFile.Builder</code> with the specified home
+		 * document.
 		 * 
 		 * @param homeDocument
 		 */
@@ -120,10 +128,10 @@ public class DocumentFile {
 			if (homeDocument == null) {
 				throw new IllegalArgumentException("homeDocument is null");
 			}
-			if(!homeDocument.hasDocument()) {
+			if (!homeDocument.hasDocument()) {
 				throw new IllegalArgumentException("Tumbler does not contain a home document");
 			}
-			if(homeDocument.hasElement()) {
+			if (homeDocument.hasElement()) {
 				throw new IllegalArgumentException("Tumbler contains an element field");
 			}
 			this.homeDocument = homeDocument;
@@ -131,13 +139,14 @@ public class DocumentFile {
 		}
 
 		/**
-		 * Adds a media hash to the media pool. 
+		 * Adds a media hash to the media pool.
 		 * 
-		 * @param hash the media hash
+		 * @param hash
+		 *            the media hash
 		 * @return the index of the specified hash
 		 */
 		private Integer addMediaHash(String hash) {
-			if(Strings.isNullOrEmpty(hash)) {
+			if (Strings.isNullOrEmpty(hash)) {
 				throw new IllegalArgumentException("Media hash is null");
 			}
 			Integer index = mediaPool.get(hash);
@@ -151,11 +160,13 @@ public class DocumentFile {
 
 		/**
 		 * Adds a tumbler address to the tumbler pool
-		 * @param tumbler the tumbler to add
+		 * 
+		 * @param tumbler
+		 *            the tumbler to add
 		 * @return the index of the tumbler address
 		 */
 		private Integer addTumbler(TumblerAddress tumbler) {
-			if(tumbler == null) {
+			if (tumbler == null) {
 				throw new IllegalArgumentException("tumbler is null");
 			}
 			Integer index = tumblerPool.get(tumbler.value);
@@ -168,13 +179,14 @@ public class DocumentFile {
 		}
 
 		/**
-		 * Adds set of tumbler addresses to tumbler pool. Returns set of tumbler indices in pool.
+		 * Adds set of tumbler addresses to tumbler pool. Returns set of tumbler indices
+		 * in pool.
 		 * 
 		 * @param linkTypes
 		 * @return
 		 */
 		private Set<Integer> addTumblersToPool(Set<TumblerAddress> linkTypes) {
-			if(linkTypes == null) {
+			if (linkTypes == null) {
 				throw new IllegalArgumentException("linkTypes are null");
 			}
 			Set<Integer> links = new HashSet<>();
@@ -191,22 +203,38 @@ public class DocumentFile {
 		}
 
 		/**
+		 * Appends text to the encrypted invariant stream. The specified text is
+		 * unencrypted and will encrypted later.
+		 * 
+		 * @param text
+		 *            the text to append
+		 * @return
+		 */
+		public Builder appendEncryptedText(String text) {
+			if (!Strings.isNullOrEmpty(text)) {
+				encryptedInvariantStream.append(text);
+			}
+			return this;
+		}
+
+		/**
 		 * Appends text to the invariant string area
 		 * 
-		 * @param text the text to append
+		 * @param text
+		 *            the text to append
 		 * @return
 		 */
 		public Builder appendText(String text) {
-			if(!Strings.isNullOrEmpty(text)) {
-				invariantStringArea.append(text);
+			if (!Strings.isNullOrEmpty(text)) {
+				invariantStream.append(text);
 			}
 			return this;
 		}
 
 		public Builder applyOverlay(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
-			}			
+			}
 			ops.add(new ApplyOverlayOp(dis));
 			return this;
 		}
@@ -226,17 +254,18 @@ public class DocumentFile {
 			file.hashPreviousBlock = hashPreviousBlock;
 			file.tumblerPool = tumblerPool.inverse();
 			file.ops = ops;
-			file.invariantStringArea = invariantStringArea.toString();
+			file.invariantStream = invariantStream.toString();
+			file.encryptedInvariantStream = null;
 			file.mediaPool = mediaPool.inverse();
 			file.homeDocument = homeDocument;
 			return file;
 		}
 
 		public Builder copyVariant(DataInputStream dis) throws IOException, MalformedSpanException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
-			
+
 			ops.add(new CopyVariantOp(dis));
 			return this;
 		}
@@ -247,10 +276,10 @@ public class DocumentFile {
 		}
 
 		public Builder deleteVariant(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
-			
+
 			ops.add(new DeleteVariantOp(dis));
 			return this;
 		}
@@ -261,10 +290,10 @@ public class DocumentFile {
 		}
 
 		public Builder moveVariant(DataInputStream dis) throws IOException, MalformedSpanException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
-			
+
 			ops.add(new MoveVariantOp(dis));
 			return this;
 		}
@@ -278,51 +307,56 @@ public class DocumentFile {
 			this.hashPreviousBlock = hash;
 			return this;
 		}
-		
+
 		public Builder putInvariantMediaOp(DataInputStream dis) throws IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
 			ops.add(new PutInvariantMediaOp(dis));
 			return this;
 		}
-		
-		public Builder putInvariantMediaOp(long to, String hash, TumblerAddress mediaAddress) {
+
+		public Builder putInvariantMediaOp(long to, String hash, TumblerAddress mediaAddress)
+				throws MalformedSpanException {
+			if (!mediaAddress.isElementTumbler()) {
+				throw new MalformedSpanException("Expecting a mediaAddress: " + mediaAddress.value);
+			}
 			ops.add(new PutInvariantMediaOp(to, addMediaHash(hash), addTumbler(mediaAddress)));
 			return this;
 		}
-	
+
 		public Builder putInvariantSpan(DataInputStream dis) throws IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
 			ops.add(new PutInvariantSpanOp(dis));
 			return this;
 		}
-		
+
 		public Builder putInvariantSpan(long to, long start, long width, TumblerAddress homeDocument) {
 			ops.add(new PutInvariantSpanOp(to, start, width, addTumbler(homeDocument)));
 			return this;
 		}
 
 		public Builder putOverlayMediaOp(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
 			}
 			ops.add(new PutOverlayMediaOp(dis));
 			return this;
 		}
-		
+
 		public Builder putOverlayMediaOp(long to, String hash, TumblerAddress mediaAddress,
 				Set<TumblerAddress> linkTypes) {
-			ops.add(new PutOverlayMediaOp(to, addMediaHash(hash), addTumbler(mediaAddress), addTumblersToPool(linkTypes)));
+			ops.add(new PutOverlayMediaOp(to, addMediaHash(hash), addTumbler(mediaAddress),
+					addTumblersToPool(linkTypes)));
 			return this;
 		}
 
 		public Builder putOverlayOp(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
-			}			
+			}
 			ops.add(new PutOverlayOp(dis));
 			return this;
 		}
@@ -333,9 +367,9 @@ public class DocumentFile {
 		}
 
 		public Builder swapVariant(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
-			}			
+			}
 			ops.add(new SwapVariantOp(dis));
 			return this;
 		}
@@ -346,9 +380,9 @@ public class DocumentFile {
 		}
 
 		public Builder toggleOverlay(DataInputStream dis) throws MalformedSpanException, IOException {
-			if(dis == null) {
+			if (dis == null) {
 				throw new IllegalArgumentException("input stream is null");
-			}			
+			}
 			ops.add(new ToggleOverlayOp(dis));
 			return this;
 		}
@@ -370,10 +404,13 @@ public class DocumentFile {
 		// new DataInputStream(new ByteArrayInputStream(bodyBytes)));
 	}
 
+	// TODO: key for decrypt
+
 	/**
 	 * Reads compiled bytes and returns a <code>DocumentFile</code> instance.
 	 * 
-	 * @param input the bytes of a compiled document file
+	 * @param input
+	 *            the bytes of a compiled document file
 	 * @return
 	 * @throws IOException
 	 * @throws SignatureException
@@ -429,13 +466,15 @@ public class DocumentFile {
 			mediaPool.put(dis.readInt(), dis.readUTF());
 		}
 
-		String textArea = dis.readUTF();
+		String invariantStream = dis.readUTF();
+		// Need to know alg
+		String encryptedInvariantStream = dis.readUTF();
 
 		DocumentFile.Builder documentFileBuilder = new DocumentFile.Builder(TumblerAddress.create(tumblerPool.get(0)));
 		documentFileBuilder.previousHashBlock(previousHash);
 		documentFileBuilder.mediaPool = mediaPool.inverse();
 		documentFileBuilder.tumblerPool = tumblerPool.inverse();
-		documentFileBuilder.appendText(textArea);
+		documentFileBuilder.appendText(invariantStream);
 
 		int opSpanSize = dis.readInt();
 		for (int i = 0; i < opSpanSize; i++) {
@@ -477,7 +516,6 @@ public class DocumentFile {
 		return documentFileBuilder.build();
 	}
 
-	
 	/**
 	 * Reads <code>DocumentFile<code> for the specified input stream.
 	 * 
@@ -498,6 +536,11 @@ public class DocumentFile {
 	}
 
 	/**
+	 * Contains encrypted text to be appended to the encrypted invariant stream
+	 */
+	private String encryptedInvariantStream;
+
+	/**
 	 * Hash of the previous DocumentFile
 	 */
 	private String hashPreviousBlock;
@@ -507,7 +550,7 @@ public class DocumentFile {
 	/**
 	 * Contains text to be appended to the invariant stream.
 	 */
-	private String invariantStringArea;
+	private String invariantStream;
 
 	/**
 	 * Contains media hashes. Value = media hash, Key = index in media pool
@@ -520,7 +563,8 @@ public class DocumentFile {
 	private List<Op> ops;
 
 	/**
-	 * Pool of tumbler addresses. Value = tumbler address, Index = index in tumbler pool
+	 * Pool of tumbler addresses. Value = tumbler address, Index = index in tumbler
+	 * pool
 	 */
 	private Map<Integer, String> tumblerPool;
 
@@ -528,16 +572,18 @@ public class DocumentFile {
 	}
 
 	/**
-	 * Compile <code>DocumentFile</code> to binary and generated a signature using the 
-	 * specified key.
+	 * Compile <code>DocumentFile</code> to binary and generated a signature using
+	 * the specified key.
 	 * 
-	 * @param ecKey the key to use to generate signature
-	 * @return a string in the format [documentFile + "." + publicKeyHash + "." + signature64];
-
+	 * @param ecKey
+	 *            the key to use to generate signature
+	 * @return a string in the format [documentFile + "." + publicKeyHash + "." +
+	 *         signature64];
+	 * 
 	 * @throws IOException
 	 */
 	public String compile(ECKey ecKey) throws IOException {
-		if(ecKey == null) {
+		if (ecKey == null) {
 			throw new IllegalArgumentException("ECKey is null");
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -548,7 +594,7 @@ public class DocumentFile {
 		os.writeShort(0);
 		os.writeUTF(publicKeyHash);
 		os.writeUTF(Strings.isNullOrEmpty(hashPreviousBlock) ? "" : hashPreviousBlock);
-		
+
 		os.writeInt(tumblerPool.size());
 		for (Map.Entry<Integer, String> entry : tumblerPool.entrySet()) {
 			os.writeInt(entry.getKey());
@@ -559,7 +605,8 @@ public class DocumentFile {
 			os.writeInt(entry.getKey());
 			os.writeUTF(entry.getValue());
 		}
-		os.writeUTF(Strings.isNullOrEmpty(invariantStringArea) ? "" : invariantStringArea);
+		os.writeUTF(Strings.isNullOrEmpty(invariantStream) ? "" : invariantStream);
+		os.writeUTF(Strings.isNullOrEmpty(encryptedInvariantStream) ? "" : encryptedInvariantStream);
 
 		os.writeInt(ops.size());
 		for (Op op : ops) {
@@ -571,6 +618,10 @@ public class DocumentFile {
 		return message + "." + publicKeyHash + "." + signature64;
 	}
 
+	public String getEncyptedInvariantStream() {
+		return encryptedInvariantStream;
+	}
+
 	public String getHashPreviousBlock() {
 		return hashPreviousBlock;
 	}
@@ -579,14 +630,14 @@ public class DocumentFile {
 		return homeDocument;
 	}
 
-	public String getInvariantStringArea() {
-		return invariantStringArea;
+	public String getInvariantStream() {
+		return invariantStream;
 	}
 
 	public String getMediaHash(int mediaPoolIndex) {
-		if(mediaPoolIndex < 0) {
+		if (mediaPoolIndex < 0) {
 			throw new IllegalArgumentException("mediaPoolIndex must be non-negative: " + mediaPoolIndex);
-		}		
+		}
 		return mediaPool.get(mediaPoolIndex);
 	}
 
@@ -598,15 +649,24 @@ public class DocumentFile {
 		return Collections.unmodifiableList(ops);
 	}
 
+	/**
+	 * Gets the tumbler address at the specified index in the tumblerPool
+	 * 
+	 * @param tumblerPoolIndex
+	 * @return tumbler address at the specified index in the tumblerPool
+	 * @throws MalformedTumblerException
+	 *             if tumbler address in pool is malformed
+	 * @IllegalArgumentException if tumblerPool index is negative
+	 */
 	public TumblerAddress getTumblerAddress(int tumblerPoolIndex) throws MalformedTumblerException {
-		if(tumblerPoolIndex < 0) {
+		if (tumblerPoolIndex < 0) {
 			throw new IllegalArgumentException("tumblerPoolIndex must be non-negative: " + tumblerPoolIndex);
 		}
 		return TumblerAddress.create(tumblerPool.get(tumblerPoolIndex));
 	}
 
 	public Set<TumblerAddress> getTumblerAddresses(Set<Integer> indicies) throws MalformedTumblerException {
-		if(indicies == null) {
+		if (indicies == null) {
 			throw new IllegalArgumentException("indicies is null");
 		}
 		Set<TumblerAddress> tumblers = new HashSet<>(indicies.size());
