@@ -17,15 +17,15 @@ package org.oulipo.streams.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Key;
 import java.util.List;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.InvariantStream;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantStream;
 import org.oulipo.streams.types.Invariant;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,14 +52,14 @@ public final class DefaultStreamLoader implements StreamLoader {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/**
-	 * Variant stream in-memory cache
+	 * Variant stream in-memory cache (key = documentHash)
 	 */
-	private final LoadingCache<TumblerAddress, VariantStream<Overlay>> overlayCache;
+	private final LoadingCache<String, VariantStream<OverlayStream>> overlayCache;
 
 	/**
-	 * Variant stream in-memory cache
+	 * Variant stream in-memory cache (key = documentHash)
 	 */
-	private final LoadingCache<TumblerAddress, VariantStream<Invariant>> spanCache;
+	private final LoadingCache<String, VariantStream<Invariant>> spanCache;
 
 	/**
 	 * Constructs a <code>StreamLoader</code> instance backed by the file system and
@@ -74,39 +74,37 @@ public final class DefaultStreamLoader implements StreamLoader {
 	public DefaultStreamLoader(File baseDir, String spec) {
 		this.baseDir = baseDir;
 		baseDir.mkdirs();
-		spanCache = CacheBuilder.from(spec)
-				.removalListener(new RemovalListener<TumblerAddress, VariantStream<Invariant>>() {
+		spanCache = CacheBuilder.from(spec).removalListener(new RemovalListener<String, VariantStream<Invariant>>() {
 
-					@Override
-					public void onRemoval(RemovalNotification<TumblerAddress, VariantStream<Invariant>> notification) {
-						try {
-							persistInvariantElements(notification.getKey(), notification.getValue());
-						} catch (IOException | MalformedSpanException e) {
-							e.printStackTrace();
-						}
-					}
-				}).build(new CacheLoader<TumblerAddress, VariantStream<Invariant>>() {
-					@Override
-					public VariantStream<Invariant> load(TumblerAddress key)
-							throws IOException, MalformedSpanException {
-						return openInvariantVariantStream(key);
-					}
-				});
+			@Override
+			public void onRemoval(RemovalNotification<String, VariantStream<Invariant>> notification) {
+				try {
+					persistInvariantElements(notification.getKey(), notification.getValue());
+				} catch (IOException | MalformedSpanException e) {
+					e.printStackTrace();
+				}
+			}
+		}).build(new CacheLoader<String, VariantStream<Invariant>>() {
+			@Override
+			public VariantStream<Invariant> load(String key) throws IOException, MalformedSpanException {
+				return openInvariantVariantStream(key);
+			}
+		});
 
 		overlayCache = CacheBuilder.from(spec)
-				.removalListener(new RemovalListener<TumblerAddress, VariantStream<Overlay>>() {
+				.removalListener(new RemovalListener<String, VariantStream<OverlayStream>>() {
 
 					@Override
-					public void onRemoval(RemovalNotification<TumblerAddress, VariantStream<Overlay>> notification) {
+					public void onRemoval(RemovalNotification<String, VariantStream<OverlayStream>> notification) {
 						try {
 							persistOverlayElements(notification.getKey(), notification.getValue());
 						} catch (IOException | MalformedSpanException e) {
 							e.printStackTrace();
 						}
 					}
-				}).build(new CacheLoader<TumblerAddress, VariantStream<Overlay>>() {
+				}).build(new CacheLoader<String, VariantStream<OverlayStream>>() {
 					@Override
-					public VariantStream<Overlay> load(TumblerAddress key) throws IOException, MalformedSpanException {
+					public VariantStream<OverlayStream> load(String key) throws IOException, MalformedSpanException {
 						return openOverlayVariantStream(key);
 					}
 				});
@@ -124,62 +122,60 @@ public final class DefaultStreamLoader implements StreamLoader {
 	}
 
 	@Override
-	public InvariantStream openInvariantStream(TumblerAddress tumbler) throws IOException {
-		return new FileInvariantStream(
-				new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-invariant.txt"), tumbler);
+	public InvariantStream openInvariantStream(String documentHash, Key key) throws IOException {
+		return new FileInvariantStream(new File(baseDir, documentHash + "-invariant.txt"),
+				new File(baseDir, documentHash + "-invariant-encrypted.txt"), documentHash, key);
 	}
 
 	@Override
-	public VariantStream<Invariant> openInvariantVariantStream(TumblerAddress tumbler)
+	public VariantStream<Invariant> openInvariantVariantStream(String documentHash)
 			throws IOException, MalformedSpanException {
-		tumbler = tumbler.getDocumentAddress();
-		VariantStream<Invariant> stream = spanCache.getIfPresent(tumbler);
+		VariantStream<Invariant> stream = spanCache.getIfPresent(documentHash);
 		if (stream != null) {
 			return stream;
 		}
 
-		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-invariants.json");
-		stream = new RopeVariantStream<Invariant>(tumbler);
+		File file = new File(baseDir, documentHash + "-invariants.json");
+		stream = new RopeVariantStream<Invariant>(documentHash);
 		if (file.exists()) {
 			List<Invariant> elements = mapper.readValue(file, new TypeReference<List<Invariant>>() {
 			});
 			stream.load(elements);
 		}
-		spanCache.put(tumbler, stream);
+		spanCache.put(documentHash, stream);
 
 		return stream;
 	}
 
 	@Override
-	public VariantStream<Overlay> openOverlayVariantStream(TumblerAddress tumbler)
+	public VariantStream<OverlayStream> openOverlayVariantStream(String documentHash)
 			throws IOException, MalformedSpanException {
-		tumbler = tumbler.getDocumentAddress();
-		VariantStream<Overlay> stream = overlayCache.getIfPresent(tumbler);
+		VariantStream<OverlayStream> stream = overlayCache.getIfPresent(documentHash);
 		if (stream != null) {
 			return stream;
 		}
 
-		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-overlays.json");
-		stream = new RopeVariantStream<Overlay>(tumbler);
+		File file = new File(baseDir, documentHash + "-overlays.json");
+		stream = new RopeVariantStream<OverlayStream>(documentHash);
 		if (file.exists()) {
-			List<Overlay> elements = mapper.readValue(file, new TypeReference<List<Overlay>>() {
+			List<OverlayStream> elements = mapper.readValue(file, new TypeReference<List<OverlayStream>>() {
 			});
 			stream.load(elements);
 		}
-		overlayCache.put(tumbler, stream);
+		overlayCache.put(documentHash, stream);
 
 		return stream;
 	}
 
-	private void persistInvariantElements(TumblerAddress tumbler, VariantStream<Invariant> stream)
+	private void persistInvariantElements(String documentHash, VariantStream<Invariant> stream)
 			throws IOException, MalformedSpanException {
-		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-invariants.json");
+		File file = new File(baseDir, documentHash + "-invariants.json");
 		mapper.writeValue(file, stream.getStreamElements());
 	}
 
-	private void persistOverlayElements(TumblerAddress tumbler, VariantStream<Overlay> stream)
+	private void persistOverlayElements(String documentHash, VariantStream<OverlayStream> stream)
 			throws IOException, MalformedSpanException {
-		File file = new File(baseDir, tumbler.userVal() + ".0." + tumbler.documentVal() + "-overlays.json");
+		File file = new File(baseDir, documentHash + "-overlays.json");
 		mapper.writeValue(file, stream.getStreamElements());
 	}
 
@@ -187,5 +183,4 @@ public final class DefaultStreamLoader implements StreamLoader {
 	public void setHash(String hash) {
 
 	}
-
 }

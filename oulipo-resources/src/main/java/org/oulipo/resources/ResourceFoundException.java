@@ -15,30 +15,30 @@
  *******************************************************************************/
 package org.oulipo.resources;
 
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.net.TumblerResourceException;
+import org.oulipo.streams.IRI;
+import org.oulipo.streams.IriResourceException;
 
-public class ResourceFoundException extends TumblerResourceException {
+public class ResourceFoundException extends IriResourceException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3130943928308549144L;
 
-	public ResourceFoundException(TumblerAddress tumblerAddress) {
-		super(tumblerAddress);
+	public ResourceFoundException(IRI iri) {
+		super(iri);
 	}
 
-	public ResourceFoundException(TumblerAddress tumblerAddress, String message) {
-		super(tumblerAddress, message);
+	public ResourceFoundException(IRI iri, String message) {
+		super(iri, message);
 	}
 
-	public ResourceFoundException(TumblerAddress tumblerAddress, String message, Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public ResourceFoundException(IRI iri, String message, Throwable cause) {
+		super(iri, message, cause);
 	}
 
-	public ResourceFoundException(TumblerAddress tumblerAddress, Throwable cause) {
-		super(tumblerAddress, cause);
+	public ResourceFoundException(IRI iri, Throwable cause) {
+		super(iri, cause);
 	}
 
 }

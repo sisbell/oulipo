@@ -19,13 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamElementPartition;
 
 public class InvariantSpanTest {
 
-	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
+	public static final String documentHash = "fakeHash";
 
 	@Test
 	public void equality() throws Exception {
@@ -36,7 +35,7 @@ public class InvariantSpanTest {
 
 	@Test(expected = MalformedSpanException.class)
 	public void illegalStart() throws Exception {
-		new InvariantSpan(0, 100, homeDocument);
+		new InvariantSpan(0, 100, documentHash);
 	}
 
 	@Test
@@ -53,23 +52,23 @@ public class InvariantSpanTest {
 
 	@Test
 	public void split() throws Exception {
-		InvariantSpan span = new InvariantSpan(1, 4, homeDocument);
+		InvariantSpan span = new InvariantSpan(1, 4, documentHash);
 		StreamElementPartition<InvariantSpan> result = span.split(1);
-		assertEquals(new InvariantSpan(1, 1, homeDocument), result.getLeft());
-		assertEquals(new InvariantSpan(2, 3, homeDocument), result.getRight());
+		assertEquals(new InvariantSpan(1, 1, documentHash), result.getLeft());
+		assertEquals(new InvariantSpan(2, 3, documentHash), result.getRight());
 	}
 
 	@Test
 	public void splitEnd() throws Exception {
-		InvariantSpan span = new InvariantSpan(1, 4, homeDocument);
+		InvariantSpan span = new InvariantSpan(1, 4, documentHash);
 		StreamElementPartition<InvariantSpan> part = span.split(3);
-		assertEquals(new InvariantSpan(1, 3, homeDocument), part.getLeft());
-		assertEquals(new InvariantSpan(4, 1, homeDocument), part.getRight());
+		assertEquals(new InvariantSpan(1, 3, documentHash), part.getLeft());
+		assertEquals(new InvariantSpan(4, 1, documentHash), part.getRight());
 	}
 
 	@Test
 	public void splitOk() throws Exception {
-		InvariantSpan span = new InvariantSpan(100, 10, homeDocument);
+		InvariantSpan span = new InvariantSpan(100, 10, documentHash);
 		StreamElementPartition<InvariantSpan> partition = span.split(5);
 		assertEquals(100L, partition.getLeft().getStart());
 		assertEquals(5L, partition.getLeft().getWidth());
@@ -79,19 +78,19 @@ public class InvariantSpanTest {
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void splitOverUpperBound() throws Exception {
-		InvariantSpan span = new InvariantSpan(100, 10, homeDocument);
+		InvariantSpan span = new InvariantSpan(100, 10, documentHash);
 		span.split(15);
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void splitStart() throws Exception {
-		InvariantSpan span = new InvariantSpan(1, 4, homeDocument);
+		InvariantSpan span = new InvariantSpan(1, 4, documentHash);
 		span.split(0);
 	}
 
 	@Test(expected = MalformedSpanException.class)
 	public void zeroWidth() throws Exception {
-		new InvariantSpan(100, 0, homeDocument);
+		new InvariantSpan(100, 0, documentHash);
 	}
 
 }

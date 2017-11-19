@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.browser.tables;
 
-import org.oulipo.resources.model.Document;
+import org.oulipo.rdf.model.Document;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
@@ -31,7 +31,7 @@ public final class DocumentTree extends RecursiveTreeObject<DocumentTree> {
 	public final StringProperty title;
 
 	public DocumentTree(Document document) {
-		this.address = new SimpleStringProperty(document.resourceId.value);
+		this.address = new SimpleStringProperty(document.subject.value);
 		this.title = new SimpleStringProperty(document.title);
 		this.description = new SimpleStringProperty(document.description);
 		// TODO: document icon hash

@@ -65,7 +65,7 @@ public class RemoteImageOps<S> implements SegmentOps<RemoteImage<S>, S> {
 			throw new IllegalArgumentException("End cannot be greater than segment's length");
 		}
 		return start == 0 && end == 1 ? seg : emptySeg;
-	
+
 	}
 
 }

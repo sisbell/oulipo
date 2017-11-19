@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.browser.tables;
 
-import org.oulipo.resources.model.Thing;
+import org.oulipo.rdf.Thing;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
@@ -27,7 +27,7 @@ public class ThingTreeObject<T> extends RecursiveTreeObject<T> {
 	public final StringProperty address;
 
 	public ThingTreeObject(Thing thing) {
-		this.address = new SimpleStringProperty(thing.resourceId.value);
+		this.address = new SimpleStringProperty(thing.subject.value);
 	}
 
 }

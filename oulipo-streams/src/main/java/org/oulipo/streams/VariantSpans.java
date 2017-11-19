@@ -18,8 +18,6 @@ package org.oulipo.streams;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oulipo.net.TumblerAddress;
-
 /**
  * Collection of Variant Spans
  *
@@ -29,7 +27,7 @@ public final class VariantSpans {
 	/**
 	 * The home document of the variant spans in this class.
 	 */
-	public TumblerAddress homeDocument;
+	public String documentHash;
 
 	public List<VariantSpan> spans = new ArrayList<>();
 }

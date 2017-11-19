@@ -15,27 +15,26 @@
  *******************************************************************************/
 package org.oulipo.streams.impl;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.types.InvariantSpan;
 
 public final class NodeFactory {
 
-	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
+	public static final String documentHash = "fakeHash";
 
 	private static Node<InvariantSpan> createTestNode() throws MalformedSpanException {
 		Node<InvariantSpan> A = new Node<>(22);
 		Node<InvariantSpan> B = new Node<>(9);
 		Node<InvariantSpan> C = new Node<>(6);
 		Node<InvariantSpan> D = new Node<>(6);
-		Node<InvariantSpan> E = new Node<>(new InvariantSpan(100, 6, homeDocument));
-		Node<InvariantSpan> F = new Node<>(new InvariantSpan(200, 3, homeDocument));
+		Node<InvariantSpan> E = new Node<>(new InvariantSpan(100, 6, documentHash));
+		Node<InvariantSpan> F = new Node<>(new InvariantSpan(200, 3, documentHash));
 		Node<InvariantSpan> G = new Node<>(2);
 		Node<InvariantSpan> H = new Node<>(1);
-		Node<InvariantSpan> J = new Node<>(new InvariantSpan(250, 2, homeDocument));
-		Node<InvariantSpan> K = new Node<>(new InvariantSpan(300, 4, homeDocument));
-		Node<InvariantSpan> M = new Node<>(new InvariantSpan(350, 1, homeDocument));
-		Node<InvariantSpan> N = new Node<>(new InvariantSpan(360, 6, homeDocument));
+		Node<InvariantSpan> J = new Node<>(new InvariantSpan(250, 2, documentHash));
+		Node<InvariantSpan> K = new Node<>(new InvariantSpan(300, 4, documentHash));
+		Node<InvariantSpan> M = new Node<>(new InvariantSpan(350, 1, documentHash));
+		Node<InvariantSpan> N = new Node<>(new InvariantSpan(360, 6, documentHash));
 
 		A.tag = "A";
 		B.tag = "B";
@@ -77,7 +76,7 @@ public final class NodeFactory {
 
 	public static Node<InvariantSpan> createTestNode2() throws MalformedSpanException {
 		Node<InvariantSpan> A = new Node<>(3);
-		Node<InvariantSpan> B = new Node<>(new InvariantSpan(200, 3, homeDocument));
+		Node<InvariantSpan> B = new Node<>(new InvariantSpan(200, 3, documentHash));
 		Node<InvariantSpan> C = new Node<>(6);
 		Node<InvariantSpan> G = getG();
 		Node<InvariantSpan> H = getH();

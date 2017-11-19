@@ -19,14 +19,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.Test;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
 
 public class VariantSpanTest {
 
 	@Test
 	public void homeNoMatch() throws Exception {
-		assertFalse(new VariantSpan(1, 9, TumblerAddress.create("1.1.0.2.0.2.1.1")).equals(new VariantSpan(1, 10)));
+		assertFalse(new VariantSpan(1, 9, "fakeHash").equals(new VariantSpan(1, 10)));
 	}
 
 	@Test

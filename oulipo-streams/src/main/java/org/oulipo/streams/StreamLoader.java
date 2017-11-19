@@ -16,11 +16,10 @@
 package org.oulipo.streams;
 
 import java.io.IOException;
+import java.security.Key;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.types.Invariant;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 
 /**
  * Provides services for loading variant and invariant streams
@@ -50,7 +49,7 @@ public interface StreamLoader {
 	 *             if there is I/O problem with the stream of if the specified
 	 *             documentTumbler is not a document address
 	 */
-	InvariantStream openInvariantStream(TumblerAddress homeDocument) throws IOException;
+	InvariantStream openInvariantStream(String documentHash, Key key) throws IOException;
 
 	/**
 	 * Opens the <code>VariantStream</code> for the specified document.
@@ -61,10 +60,9 @@ public interface StreamLoader {
 	 * @throws IOException
 	 * @throws MalformedSpanException
 	 */
-	VariantStream<Invariant> openInvariantVariantStream(TumblerAddress homeDocument)
-			throws IOException, MalformedSpanException;
+	VariantStream<Invariant> openInvariantVariantStream(String documentHash) throws IOException, MalformedSpanException;
 
-	VariantStream<Overlay> openOverlayVariantStream(TumblerAddress homeDocument)
+	VariantStream<OverlayStream> openOverlayVariantStream(String documentHash)
 			throws IOException, MalformedSpanException;
 
 	void setHash(String hash);

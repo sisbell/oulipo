@@ -17,7 +17,7 @@ package org.oulipo.browser.api;
 
 import java.io.IOException;
 
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 
 public interface PageRouter {
 

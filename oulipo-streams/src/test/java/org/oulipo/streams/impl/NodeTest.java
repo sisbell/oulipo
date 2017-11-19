@@ -23,17 +23,16 @@ import static org.oulipo.streams.impl.NodeFactory.getF;
 import static org.oulipo.streams.impl.NodeFactory.getK;
 
 import org.junit.Test;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class NodeTest {
 
-	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
+	public static final String documentHash = "fakeHash";
 
 	@Test
 	public void isRight() throws Exception {
-		Node<InvariantSpan> right = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> right = new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash));
 		new Node.Builder<InvariantSpan>(0).right(right).build();
 		assertTrue(right.isRightNode());
 		assertTrue(right.isLeaf());
@@ -51,21 +50,21 @@ public class NodeTest {
 
 	@Test
 	public void simpleSplit() throws Exception {
-		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash));
 
 		Node<InvariantSpan> result = node.split(5);
 		assertNotNull(result.left);
 		assertNotNull(result.right);
 
-		assertEquals(new InvariantSpan(1, 5, homeDocument), result.left.value);
-		assertEquals(new InvariantSpan(6, 5, homeDocument), result.right.value);
+		assertEquals(new InvariantSpan(1, 5, documentHash), result.left.value);
+		assertEquals(new InvariantSpan(6, 5, documentHash), result.right.value);
 	}
 
 	@Test
 	public void split13() throws Exception {
 		Node<InvariantSpan> result = getK().split(2);
-		assertEquals(new InvariantSpan(300, 2, homeDocument), result.left.value);
-		assertEquals(new InvariantSpan(302, 2, homeDocument), result.right.value);
+		assertEquals(new InvariantSpan(300, 2, documentHash), result.left.value);
+		assertEquals(new InvariantSpan(302, 2, documentHash), result.right.value);
 	}
 
 	@Test(expected = MalformedSpanException.class)
@@ -76,27 +75,27 @@ public class NodeTest {
 	@Test
 	public void splitEdge() throws Exception {
 		Node<InvariantSpan> result = getE().split(4);
-		assertEquals(new InvariantSpan(100, 4, homeDocument), result.left.value);
-		assertEquals(new InvariantSpan(104, 2, homeDocument), result.right.value);
+		assertEquals(new InvariantSpan(100, 4, documentHash), result.left.value);
+		assertEquals(new InvariantSpan(104, 2, documentHash), result.right.value);
 	}
 
 	@Test
 	public void splitF() throws Exception {
 		Node<InvariantSpan> result = getF().split(2);
-		assertEquals(new InvariantSpan(200, 2, homeDocument), result.left.value);
-		assertEquals(new InvariantSpan(202, 1, homeDocument), result.right.value);
+		assertEquals(new InvariantSpan(200, 2, documentHash), result.left.value);
+		assertEquals(new InvariantSpan(202, 1, documentHash), result.right.value);
 	}
 
 	@Test
 	public void splitMinEdge() throws Exception {
 		Node<InvariantSpan> result = getE().split(1);
-		assertEquals(new InvariantSpan(100, 1, homeDocument), result.left.value);
-		assertEquals(new InvariantSpan(101, 5, homeDocument), result.right.value);
+		assertEquals(new InvariantSpan(100, 1, documentHash), result.left.value);
+		assertEquals(new InvariantSpan(101, 5, documentHash), result.right.value);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void splitNegative() throws Exception {
-		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> node = new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash));
 		node.split(-1);
 	}
 

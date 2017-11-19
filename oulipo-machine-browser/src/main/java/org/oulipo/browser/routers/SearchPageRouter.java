@@ -22,7 +22,7 @@ import org.oulipo.browser.api.Page.View;
 import org.oulipo.browser.api.PageRouter;
 import org.oulipo.browser.api.Scheme;
 import org.oulipo.browser.pages.SearchController;
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 
 @Scheme("search")
 public class SearchPageRouter implements PageRouter {

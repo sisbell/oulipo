@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.oulipo.net.IRI;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.rdf.Statement;
+import org.oulipo.rdf.StatementsToThing;
+import org.oulipo.rdf.Thing;
+import org.oulipo.rdf.ThingToString;
 import org.oulipo.resources.DataMapper;
-import org.oulipo.resources.model.Thing;
+import org.oulipo.streams.IRI;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -62,7 +62,7 @@ public final class RdfDataMapper implements DataMapper {
 		public boolean rawUpdate(String update) {
 			try {
 				Response<FusekiResponse> response = fusekiService.update(update).execute();
-				if(response.isSuccessful()) {
+				if (response.isSuccessful()) {
 					return true;
 				}
 			} catch (Exception e) {
@@ -86,6 +86,11 @@ public final class RdfDataMapper implements DataMapper {
 			this.template = template;
 		}
 
+		public TemplateBuilder addParam(String name, IRI value) {
+			params.put(name, value.value);
+			return this;
+		}
+
 		public TemplateBuilder addParam(String name, Map<String, String> value) {
 			params.put(name, value);
 			return this;
@@ -93,11 +98,6 @@ public final class RdfDataMapper implements DataMapper {
 
 		public TemplateBuilder addParam(String name, String value) {
 			params.put(name, value);
-			return this;
-		}
-
-		public TemplateBuilder addParam(String name, TumblerAddress value) throws MalformedTumblerException {
-			params.put(name, value.toTumblerAuthority());
 			return this;
 		}
 
@@ -157,7 +157,7 @@ public final class RdfDataMapper implements DataMapper {
 	}
 
 	@Override
-	public Collection<Thing> findEndsetsOfDoc(TumblerAddress docAddress) throws Exception {
+	public Collection<Thing> findEndsetsOfDoc(IRI docAddress) throws Exception {
 		TemplateBuilder builder = template("endsets.sparql").addParam("documentId", docAddress);
 		return getQueryEngine().things(builder.build());
 	}
@@ -185,13 +185,19 @@ public final class RdfDataMapper implements DataMapper {
 	}
 
 	@Override
-	public Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams) {
-		return getByTypeAndQueries(network, type, queryParams);
+	public Thing get(String hash) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	public Collection<Thing> getByTypeAndQueries(int network, String type, Map<String, String> queryParams) {
+	@Override
+	public Collection<Thing> getAllThings(String type, Map<String, String> queryParams) {
+		return getByTypeAndQueries(type, queryParams);
+	}
+
+	public Collection<Thing> getByTypeAndQueries(String type, Map<String, String> queryParams) {
 		TemplateBuilder builder = template("thingsByTypeAndQueryParams.sparql").addParam("type", type)
-				.addParam("networkId", String.valueOf(network)).addParam("queryParams", queryParams);
+				.addParam("queryParams", queryParams);
 		try {
 			return getQueryEngine().things(builder.build());
 		} catch (Exception e) {
@@ -225,15 +231,6 @@ public final class RdfDataMapper implements DataMapper {
 		return values;
 	}
 
-	@Override
-	public String getPublicKeyOfNode(TumblerAddress node) throws Exception {
-		List<String> pks = getFieldValuesOfResource(node.toTumblerAuthority(), "publicKey");
-		if (pks == null || pks.isEmpty()) {
-			return null;
-		}
-		return pks.get(0);
-	}
-
 	public QueryEngine getQueryEngine() {
 		return engine;
 	}
@@ -252,7 +249,7 @@ public final class RdfDataMapper implements DataMapper {
 	@Override
 	public void update(Thing thing) {
 		thing.updatedDate = new Date();
-		getQueryEngine().rawUpdate("DELETE WHERE {<" + thing.resourceId.value + "> ?p ?o }");
+		getQueryEngine().rawUpdate("DELETE WHERE {<" + thing.subject.value + "> ?p ?o }");
 		try {
 			getQueryEngine()
 					.rawUpdate("PREFIX : <http://oulipo.org/>INSERT DATA {" + ThingToString.asString(thing) + "}");

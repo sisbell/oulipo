@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.oulipo.streams;
 
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.types.Invariant;
 
 public final class VirtualContent {
@@ -28,7 +27,7 @@ public final class VirtualContent {
 	/**
 	 * Home document of the invariant spans and content
 	 */
-	public TumblerAddress homeDocument;
+	public String documentHash;
 
 	/**
 	 * The invariant. This maps to the immutable text or media of the homeDocument.
@@ -42,7 +41,7 @@ public final class VirtualContent {
 
 	@Override
 	public String toString() {
-		return "VirtualContent [content=" + content + ", homeDocument=" + homeDocument + ", invariant=" + invariant
+		return "VirtualContent [content=" + content + ", documentHash=" + documentHash + ", invariant=" + invariant
 				+ ", order=" + order + "]";
 	}
 

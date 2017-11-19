@@ -24,7 +24,6 @@ import org.oulipo.browser.api.MenuContext;
 import org.oulipo.browser.api.people.Account;
 import org.oulipo.browser.api.people.CurrentUser;
 import org.oulipo.browser.api.tabs.OulipoTab;
-import org.oulipo.net.TumblerAddress;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -45,9 +44,8 @@ public class TabExtension extends BaseExtension implements Extension {
 		CurrentUser user = ctx.getCurrentUser();
 		if (user != null) {
 			try {
-				TumblerAddress address = TumblerAddress.create(user.address);
-				address.setScheme("edit");
-				ctx.getTabManager().addTabWithAddressBar(address.toExternalForm() + "/documents", "New Document");
+				// address.setScheme("edit");
+				ctx.getTabManager().addTabWithAddressBar(user.address + "/documents", "New Document");
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

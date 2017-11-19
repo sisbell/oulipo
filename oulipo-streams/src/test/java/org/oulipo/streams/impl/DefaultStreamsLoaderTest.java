@@ -17,22 +17,21 @@ package org.oulipo.streams.impl;
 
 import java.io.File;
 
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantStream;
 import org.oulipo.streams.types.Invariant;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class DefaultStreamsLoaderTest {
-	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
+	public static final String documentHash = "fakeHash";
 
 	// @Test
 	public void a() throws Exception {
 		String spec = "maximumSize=10000,expireAfterWrite=10m";
 		File testDir = new File("test-streams");
 		StreamLoader streamLoader = new DefaultStreamLoader(testDir, spec);
-		VariantStream<Invariant> vs = streamLoader.openInvariantVariantStream(homeDocument);
-		vs.put(1, new InvariantSpan(1, 10, homeDocument));
+		VariantStream<Invariant> vs = streamLoader.openInvariantVariantStream(documentHash);
+		vs.put(1, new InvariantSpan(1, 10, documentHash));
 		streamLoader.flushVariantCache();
 	}
 }

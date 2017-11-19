@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.streams.types;
 
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamElementPartition;
 
 public interface StreamElement {

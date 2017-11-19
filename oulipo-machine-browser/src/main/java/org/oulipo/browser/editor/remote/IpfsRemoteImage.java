@@ -13,7 +13,7 @@ import javafx.scene.image.ImageView;
 public class IpfsRemoteImage<S> implements RemoteImage<S> {
 
 	private final String hash;
-	
+
 	private S style;
 
 	public IpfsRemoteImage(String hash, S style) {

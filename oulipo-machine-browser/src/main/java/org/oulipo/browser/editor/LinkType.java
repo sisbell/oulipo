@@ -34,8 +34,8 @@ public class LinkType {
 			Optional<String> fontFamily = OPT_STRING_CODEC.decode(is);
 			Optional<Color> textColor = OPT_COLOR_CODEC.decode(is);
 			Optional<Color> bgrColor = OPT_COLOR_CODEC.decode(is);
-			Optional<String> image =  OPT_STRING_CODEC.decode(is);
-			
+			Optional<String> image = OPT_STRING_CODEC.decode(is);
+
 			return new LinkType(bold(bius), italic(bius), underline(bius), strikethrough(bius), fontSize, fontFamily,
 					textColor, bgrColor, image);
 		}
@@ -250,7 +250,7 @@ public class LinkType {
 		// TODO: highlight based on address - each address has assigned style/color
 		return sb.toString();
 	}
-	
+
 	@Override
 	public String toString() {
 		List<String> styles = new ArrayList<>();
@@ -282,15 +282,15 @@ public class LinkType {
 		return new LinkType(bold, italic, underline, strikethrough, fontSize, Optional.of(fontFamily), textColor,
 				backgroundColor, image);
 	}
-	
+
 	public LinkType updateFontSize(int fontSize) {
 		return new LinkType(bold, italic, underline, strikethrough, Optional.of(fontSize), fontFamily, textColor,
 				backgroundColor, image);
 	}
 
 	public LinkType updateImage(String image) {
-		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor,
-				backgroundColor, Optional.of(image));
+		return new LinkType(bold, italic, underline, strikethrough, fontSize, fontFamily, textColor, backgroundColor,
+				Optional.of(image));
 	}
 
 	public LinkType updateItalic(boolean italic) {

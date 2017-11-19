@@ -15,74 +15,38 @@
  *******************************************************************************/
 package org.oulipo.services;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.ResourceNotFoundException;
-import org.oulipo.resources.model.Document;
-import org.oulipo.resources.model.Link;
-import org.oulipo.resources.model.Node;
-import org.oulipo.resources.model.User;
 import org.oulipo.security.auth.AuthenticationException;
-import org.oulipo.security.auth.UnauthorizedException;
-import org.oulipo.streams.VariantSpan;
-import org.oulipo.streams.VariantSpans;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 
-public class OulipoRequest {
+public final class OulipoRequest {
 
 	private final byte[] body;
 
-	private TumblerAddress documentAddress;
+	private final String hash;
 
-	private final String documentId;
-
-	private TumblerAddress elementAddress;
-
-	private final String elementId;
-
-	private Map<String, String> headers;
-
-	private TumblerAddress networkAddress;
-
-	private final String networkId;
-
-	private TumblerAddress nodeAddress;
-
-	private final String nodeId;
+	private final Map<String, String> headers;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
+	private Map<String, String> params;
+
 	private String publicKey;
 
-	private ResourceSessionManager sessionManager;
-
-	private final String spans;
-
+	private final ResourceSessionManager sessionManager;
+	
 	private String token;
-
-	private TumblerAddress userAddress;
-
-	private final String userId;
 
 	public OulipoRequest(ResourceSessionManager sessionManager, Map<String, String> headers, Map<String, String> params,
 			byte[] body) {
 		this.sessionManager = sessionManager;
 		this.body = body;
 		this.headers = headers;
-		this.networkId = params.get(":networkid");
-		this.nodeId = params.get(":nodeid");
-		this.userId = params.get(":userid");
-		this.documentId = params.get(":docid");
-		this.elementId = params.get(":elementid");
-		this.spans = params.get(":spans");
+		this.hash = params.get(":hash");
 		if (headers != null) {
 			this.publicKey = headers.get("x-oulipo-user");
 			this.token = headers.get("x-oulipo-token");
@@ -93,10 +57,6 @@ public class OulipoRequest {
 		sessionManager.authenticateSession(this);
 	}
 
-	public void authorize() throws UnauthorizedException, MalformedTumblerException, ResourceNotFoundException {
-		sessionManager.authorizeResource(this);
-	}
-
 	public String getBody() {
 		return new String(body, StandardCharsets.UTF_8);
 	}
@@ -105,142 +65,16 @@ public class OulipoRequest {
 		return body;
 	}
 
-	public Document getDocument() throws IOException, MissingBodyException {
-		if (!hasBody()) {
-			throw new MissingBodyException(getDocumentAddress(),
-					"Unable to create document. Please add JSON body to request");
-		}
-
-		Document document = objectMapper.readValue(body, Document.class);
-		document.resourceId = getDocumentAddress();
-		return document;
-	}
-
-	public TumblerAddress getDocumentAddress() throws MalformedTumblerException {
-		if (documentAddress == null) {
-			documentAddress = new TumblerAddress.Builder("ted", networkId).node(nodeId).user(userId)
-					.document(documentId).build();
-
-			if (documentAddress.getDocument().size() != 3) {
-				throw new MalformedTumblerException(
-						"Document tumbler field only supports 3 elements x.x.x . Try recreating document");
-			}
-		}
-		return documentAddress;
-	}
-
-	public String getDocumentId() {
-		return documentId;
-	}
-
-	public TumblerAddress getElementAddress() throws MalformedTumblerException {
-		if (elementAddress == null) {
-			elementAddress = new TumblerAddress.Builder("ted", networkId).node(nodeId).user(userId).document(documentId)
-					.element(elementId).build();
-		}
-		return elementAddress;
-	}
-
-	public String getElementId() {
-		return elementId;
-	}
-
-	public Link getLink() throws IOException, MissingBodyException {
-		if (!hasBody()) {
-			throw new MissingBodyException(getElementAddress(),
-					"Unable to create link. Please add JSON body to request");
-		}
-
-		Link link = objectMapper.readValue(body, Link.class);
-		link.resourceId = getElementAddress();
-		return link;
-	}
-
-	public TumblerAddress getNetworkAddress() throws MalformedTumblerException {
-		if (networkAddress == null) {
-			elementAddress = new TumblerAddress.Builder("ted", networkId).build();
-		}
-		return elementAddress;
-	}
-
-	public String getNetworkId() throws MalformedTumblerException {
-		if (Strings.isNullOrEmpty(networkId)) {
-			throw new MalformedTumblerException("Missing networkId");
-		}
-		return networkId;
-	}
-
-	public int getNetworkIdAsInt() throws MalformedTumblerException {
-		try {
-			return Integer.parseInt(getNetworkId());
-		} catch (NumberFormatException e) {
-			throw new MalformedTumblerException(e.getMessage());
-		}
-	}
-
-	public Node getNode() throws IOException, MissingBodyException {
-		if (!hasBody()) {
-			throw new MissingBodyException(getNodeAddress(), "Unable to create node. Please add JSON body to request");
-		}
-
-		Node node = objectMapper.readValue(body, Node.class);
-		node.resourceId = getNodeAddress();
-		return node;
-	}
-
-	public TumblerAddress getNodeAddress() throws MalformedTumblerException {
-		if (nodeAddress == null) {
-			nodeAddress = new TumblerAddress.Builder("ted", networkId).node(nodeId).build();
-		}
-		return nodeAddress;
-	}
-
-	public String getNodeId() {
-		return nodeId;
+	public String getDocumentHash()  {
+		return hash;
 	}
 
 	public String getPublicKey() {
 		return publicKey;
 	}
 
-	public String getSpans() {
-		return spans;
-	}
-
 	public String getToken() {
 		return token;
-	}
-
-	public User getUser() throws IOException, MissingBodyException {
-		if (!hasBody()) {
-			throw new MissingBodyException(getUserAddress(), "Unable to create user. Please add JSON body to request");
-		}
-
-		User user = objectMapper.readValue(body, User.class);
-		user.resourceId = getUserAddress();
-		user.rootId = getUserAddress().getUser().get(0);
-		return user;
-	}
-
-	public TumblerAddress getUserAddress() throws MalformedTumblerException {
-		if (userAddress == null) {
-			userAddress = new TumblerAddress.Builder("ted", networkId).node(nodeId).user(userId).build();
-		}
-		return userAddress;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public List<VariantSpan> getVariantSpans() throws IOException, MissingBodyException {
-		if (!hasBody()) {
-			throw new MissingBodyException(getElementAddress(),
-					"Unable to read variant spans. Please add JSON body to request");
-		}
-
-		VariantSpans spans = objectMapper.readValue(body, VariantSpans.class);
-		return spans.spans;
 	}
 
 	public boolean hasBody() {
@@ -248,19 +82,15 @@ public class OulipoRequest {
 	}
 
 	public Map<String, String> queryParams() {
+		//TODO: parse
+		/*
 		try {
 			return getNodeAddress().getQueryParams();
 		} catch (MalformedTumblerException e) {
 			e.printStackTrace();
 		}
+		*/
 		return new HashMap<>();
-	}
-
-	@Override
-	public String toString() {
-		return "OulipoRequest [documentId=" + documentId + ", elementId=" + elementId + ", headers=" + headers
-				+ ", networkId=" + networkId + ", nodeId=" + nodeId + ", publicKey=" + publicKey + ", spans=" + spans
-				+ ", token=" + token + ", userId=" + userId + "]";
 	}
 
 }

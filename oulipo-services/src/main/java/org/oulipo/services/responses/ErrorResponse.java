@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.services.responses;
 
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.IRI;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public final class ErrorResponse {
 
-	public TumblerAddress address;
+	public IRI address;
 
 	public int code;
 
@@ -32,7 +32,7 @@ public final class ErrorResponse {
 	public ErrorResponse() {
 	}
 
-	public ErrorResponse(int code, String message, TumblerAddress address) {
+	public ErrorResponse(int code, String message, IRI address) {
 		this.code = code;
 		this.message = message;
 		this.address = address;

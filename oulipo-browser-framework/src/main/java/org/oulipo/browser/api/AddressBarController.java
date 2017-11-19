@@ -22,8 +22,7 @@ import java.util.ResourceBundle;
 import org.controlsfx.control.textfield.CustomTextField;
 import org.oulipo.browser.api.tabs.OulipoTab;
 import org.oulipo.browser.framework.HistoryController;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.IRI;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
@@ -113,16 +112,16 @@ public class AddressBarController implements Initializable {
 		historyController.forward();
 	}
 
+	public IRI getAddress() {
+		return new IRI(addressBox.getText());
+	}
+
 	public String getAddressBoxText() {
 		return addressBox.getText();
 	}
 
 	public BrowserContext getContext() {
 		return ctx;
-	}
-
-	public TumblerAddress getTumbler() throws MalformedTumblerException {
-		return TumblerAddress.create(addressBox.getText());
 	}
 
 	@Override
@@ -178,17 +177,17 @@ public class AddressBarController implements Initializable {
 		}
 	}
 
-	public void setTabTitle(String title) {
-		this.tab.setTitle(title);
-	}
-
-	public void setTumbler(TumblerAddress tumbler) {
+	public void setAddress(IRI tumbler) {
 		addressBox.setText(tumbler.value);
 		tab.setTumblerAddress(tumbler.value);
 		refresh();
 	}
 
-	public void show(String address) throws MalformedTumblerException, IOException {
+	public void setTabTitle(String title) {
+		this.tab.setTitle(title);
+	}
+
+	public void show(String address) throws IOException {
 		historyController.visit(address);
 		this.headerNode = null;
 		addressBox.setText(address);
@@ -197,7 +196,7 @@ public class AddressBarController implements Initializable {
 		refresh();
 	}
 
-	public void show(String address, OulipoTab tab, BrowserContext ctx) throws MalformedTumblerException, IOException {
+	public void show(String address, OulipoTab tab, BrowserContext ctx) throws IOException {
 		historyController.visit(address);
 		this.ctx = ctx;
 		this.tab = tab;

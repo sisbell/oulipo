@@ -20,7 +20,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.VariantSpan;
 
 /**

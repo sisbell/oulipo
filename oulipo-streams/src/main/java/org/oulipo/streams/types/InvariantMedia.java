@@ -15,9 +15,7 @@
  *******************************************************************************/
 package org.oulipo.streams.types;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamElementPartition;
 
 import com.google.common.base.Strings;
@@ -26,40 +24,27 @@ public final class InvariantMedia implements Invariant {
 
 	public String hash;
 
-	public TumblerAddress mediaAddress;
-
 	public InvariantMedia() {
 		super();
 	}
 
 	/**
-	 * Constructs an <code>InvariantMedia</code>. Unlike InvariantSpan, the
-	 * homeDocument is the complete tumbler address of the media (extending the
-	 * homeDocument).
+	 * Constructs an <code>InvariantMedia</code>.
 	 * 
-	 * @param mediaAddress
-	 *            the complete tumbler address of the media
 	 * @throws MalformedSpanException
-	 * @throws MalformedTumblerException
+	 * @throws IllegalArgumentException
+	 *             if hash is empty or null
 	 */
-	public InvariantMedia(String hash, String mediaAddress) throws MalformedSpanException, MalformedTumblerException {
-		this(hash, TumblerAddress.create(mediaAddress));
-	}
-
-	public InvariantMedia(String hash, TumblerAddress mediaAddress) throws MalformedSpanException {
+	public InvariantMedia(String hash) throws MalformedSpanException {
 		if (Strings.isNullOrEmpty(hash)) {
 			throw new IllegalArgumentException("hash is empty");
 		}
-		if (mediaAddress == null) {
-			throw new IllegalArgumentException("media address is null");
-		}
 		this.hash = hash;
-		this.mediaAddress = mediaAddress;
 	}
 
 	@Override
 	public StreamElement copy() throws MalformedSpanException {
-		return new InvariantMedia(hash, mediaAddress);
+		return new InvariantMedia(hash);
 	}
 
 	@Override
@@ -71,15 +56,7 @@ public final class InvariantMedia implements Invariant {
 		if (getClass() != obj.getClass())
 			return false;
 		InvariantMedia other = (InvariantMedia) obj;
-		if (hash == null) {
-			if (other.hash != null)
-				return false;
-		} else if (!hash.equals(other.hash))
-			return false;
-		if (mediaAddress == null) {
-			if (other.mediaAddress != null)
-				return false;
-		} else if (!mediaAddress.equals(other.mediaAddress))
+		if (!hash.equals(other.hash))
 			return false;
 		return true;
 	}
@@ -93,8 +70,7 @@ public final class InvariantMedia implements Invariant {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((hash == null) ? 0 : hash.hashCode());
-		result = prime * result + ((mediaAddress == null) ? 0 : mediaAddress.hashCode());
+		result = prime * result + hash.hashCode();
 		return result;
 	}
 
@@ -110,7 +86,7 @@ public final class InvariantMedia implements Invariant {
 
 	@Override
 	public String toString() {
-		return "InvariantMedia [hash=" + hash + ", mediaAddress=" + mediaAddress + "]";
+		return "InvariantMedia [hash=" + hash + "]";
 	}
 
 }

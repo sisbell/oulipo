@@ -15,16 +15,14 @@
  *******************************************************************************/
 package org.oulipo.services;
 
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.rdf.model.Document;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.ThingRepository;
-import org.oulipo.resources.model.Document;
-import org.oulipo.resources.model.User;
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.UnauthorizedException;
 import org.oulipo.security.session.SessionManager;
 import org.oulipo.storage.StorageService;
+import org.oulipo.streams.IRI;
 
 public class ResourceSessionManager extends SessionManager {
 
@@ -50,36 +48,10 @@ public class ResourceSessionManager extends SessionManager {
 		super.authenticateSession(oulipoRequest.getToken(), oulipoRequest.getPublicKey());
 	}
 
-	/**
-	 * Users publicKey matches what we have
-	 * 
-	 * @param resource
-	 * @param request
-	 * @throws UnauthorizedException
-	 * @throws MalformedTumblerException
-	 * @throws org.oulipo.resources.ResourceNotFoundException
-	 */
-	public void authorizeResource(OulipoRequest oulipoRequest)
-			throws UnauthorizedException, MalformedTumblerException, ResourceNotFoundException {
-
-		TumblerAddress userAddress = oulipoRequest.getUserAddress();
-		User user = thingRepo.findUser(userAddress);
-		if (!user.publicKeyMatches(oulipoRequest.getPublicKey())) {
-			throw new UnauthorizedException(userAddress, "User is not authorized to modify this resource");
-		}
-	}
-
-	public Document getDocumentForReadAccess(OulipoRequest oulipoRequest) throws MalformedTumblerException,
+	public Document getDocumentForReadAccess(OulipoRequest oulipoRequest) throws 
 			ResourceNotFoundException, AuthenticationException, UnauthorizedException {
-
-		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		Document document = thingRepo.findDocument(documentAddress);
-		if (document.isPublic != null && !document.isPublic) {
-			authenticateSession(oulipoRequest);
-			authorizeResource(oulipoRequest);
-		}
-
-		return document;
+		String documentHash = oulipoRequest.getDocumentHash();
+		return thingRepo.findDocument(new IRI(documentHash));
 	}
 
 }

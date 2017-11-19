@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.oulipo.browser.tables;
 
-import org.oulipo.resources.model.User;
+import org.oulipo.rdf.model.User;
 
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 
@@ -31,7 +31,7 @@ public final class UserTree extends RecursiveTreeObject<UserTree> {
 	public final StringProperty publicKey;
 
 	public UserTree(User user) {
-		this.address = new SimpleStringProperty(user.resourceId.value);
+		this.address = new SimpleStringProperty(user.subject.value);
 		this.publicKey = new SimpleStringProperty(user.publicKey);
 		this.name = new SimpleStringProperty(user.xandle);
 	}

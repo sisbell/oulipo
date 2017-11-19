@@ -18,9 +18,6 @@ package org.oulipo.streams;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
-
 /**
  * This variant span is the public interface that clients see. As an example, if
  * the variant span is 1.10~1.50, then this represents the content in the
@@ -30,21 +27,7 @@ import org.oulipo.net.TumblerAddress;
  */
 public final class VariantSpan {
 
-	/**
-	 * Constructs a <code>VariantSpan</code> starting at the specified start
-	 * position with the specified width
-	 * 
-	 * @param to
-	 *            the character position this span starts at. Must be greater than
-	 *            0.
-	 * @param width
-	 *            the number of characters in this span. Must be greater than 0
-	 * 
-	 * @throws MalformedSpanException
-	 *             if the start or width is an illegal value
-	 */
-
-	public String homeDocument;
+	public String documentHash;
 
 	/**
 	 * Start byte position
@@ -96,7 +79,7 @@ public final class VariantSpan {
 	 * @throws MalformedSpanException
 	 *             if start < 1 || width < 1
 	 */
-	public VariantSpan(long start, long width, String homeDocument) throws MalformedSpanException {
+	public VariantSpan(long start, long width, String documentHash) throws MalformedSpanException {
 		this.start = start;
 		this.width = width;
 		if (start < 1) {
@@ -105,25 +88,7 @@ public final class VariantSpan {
 		if (width < 1) {
 			throw new MalformedSpanException("Width must be greater than 0");
 		}
-		this.homeDocument = homeDocument;
-	}
-
-	/**
-	 * Constructs a variant span with the specified start position, width and
-	 * homeDocument
-	 * 
-	 * @param start
-	 *            start byte position of span
-	 * @param width
-	 *            number of characters in span
-	 * @param homeDocument
-	 *            the home document of the span. This is the document that contains
-	 *            the span
-	 * @throws MalformedSpanException
-	 *             if start < 1 || width < 1
-	 */
-	public VariantSpan(long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
-		this(start, width, homeDocument != null ? homeDocument.value : null);
+		this.documentHash = documentHash;
 	}
 
 	@Override
@@ -135,10 +100,10 @@ public final class VariantSpan {
 		if (getClass() != obj.getClass())
 			return false;
 		VariantSpan other = (VariantSpan) obj;
-		if (homeDocument == null) {
-			if (other.homeDocument != null)
+		if (documentHash == null) {
+			if (other.documentHash != null)
 				return false;
-		} else if (!homeDocument.equals(other.homeDocument))
+		} else if (!documentHash.equals(other.documentHash))
 			return false;
 		if (start != other.start)
 			return false;
@@ -151,7 +116,7 @@ public final class VariantSpan {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
+		result = prime * result + ((documentHash == null) ? 0 : documentHash.hashCode());
 		result = prime * result + (int) (start ^ (start >>> 32));
 		result = prime * result + (int) (width ^ (width >>> 32));
 		return result;
@@ -159,7 +124,6 @@ public final class VariantSpan {
 
 	@Override
 	public String toString() {
-		return "VariantSpan [homeDocument=" + homeDocument + ", start=" + start + ", width=" + width + "]";
+		return "VariantSpan [documentHash=" + documentHash + ", start=" + start + ", width=" + width + "]";
 	}
-
 }

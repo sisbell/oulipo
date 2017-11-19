@@ -33,20 +33,19 @@ import org.fxmisc.richtext.model.TextOps;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.editor.remote.RemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImageOps;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.ops.HyperOperation;
-import org.oulipo.resources.ops.HyperOperation.OpCode;
-import org.oulipo.resources.ops.HyperRegion;
+import org.oulipo.resources.HyperOperation;
+import org.oulipo.resources.HyperOperation.OpCode;
+import org.oulipo.resources.HyperRegion;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.overlays.PresenterOverlay;
+import org.oulipo.streams.types.OverlayStream;
 import org.reactfx.EventStream;
 import org.reactfx.util.Either;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
@@ -67,14 +66,14 @@ public class DocumentArea
 		/**
 		 * Creates a Delete HyperOperation
 		 * 
-		 * @param tumblerAddress
+		 * @param documentHash
 		 * @param change
 		 * @return
 		 */
-		public HyperOperation delete(TumblerAddress tumblerAddress, PlainTextChange change) {
+		public HyperOperation delete(String documentHash, PlainTextChange change) {
 			int width = change.getRemoved().length();
 			HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
-			HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.DELETE, change.getRemoved());
+			HyperOperation op = new HyperOperation(documentHash, region, OpCode.DELETE, change.getRemoved());
 			return op;
 		}
 	}
@@ -90,16 +89,15 @@ public class DocumentArea
 		 * If the caret position has moved, this method creates and returns an INSERT
 		 * HyperOperation. Otherwise it returns an empty operation.
 		 * 
-		 * @param tumblerAddress
+		 * @param documentHash
 		 * @param change
 		 * @return
 		 */
-		public Optional<HyperOperation> insert(TumblerAddress tumblerAddress, PlainTextChange change) {
+		public Optional<HyperOperation> insert(String documentHash, PlainTextChange change) {
 			int width = change.getInserted().length();
 			if (width > 0) {
 				HyperRegion region = new HyperRegion(change.getInsertionEnd() - width, width);
-				HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.INSERT_TEXT,
-						change.getInserted());
+				HyperOperation op = new HyperOperation(documentHash, region, OpCode.INSERT_TEXT, change.getInserted());
 				return Optional.of(op);
 			} else {
 				return Optional.empty();
@@ -112,15 +110,16 @@ public class DocumentArea
 	 */
 	public static class Overlayer {
 
-		public HyperOperation on(TumblerAddress tumblerAddress, IndexRange range) {
-		//	int width = change.getRemoved().length();
-		//	HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
-		//	HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.DELETE, change.getRemoved());
-		//	return op;
+		public HyperOperation on(String tumblerAddress, IndexRange range) {
+			// int width = change.getRemoved().length();
+			// HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
+			// HyperOperation op = new HyperOperation(tumblerAddress, region, OpCode.DELETE,
+			// change.getRemoved());
+			// return op;
 			return null;
 		}
 
-		public HyperOperation toggle(TumblerAddress tumblerAddress, IndexRange range) {
+		public HyperOperation toggle(String tumblerAddress, IndexRange range) {
 			return null;
 		}
 
@@ -140,17 +139,17 @@ public class DocumentArea
 	 * Creates new instance. The specified tumbler address is the local address of
 	 * the current XanaDoc being worked on.
 	 * 
-	 * @param homeDocument
+	 * @param documentHash
 	 * @return
 	 * @throws IllegalTumblerException
 	 */
-	public static DocumentArea newInstance(TumblerAddress tumblerAddress, BrowserContext ctx,
-			VariantStream<Overlay> variantStream) {
+	public static DocumentArea newInstance(String documentHash, BrowserContext ctx,
+			VariantStream<OverlayStream> variantStream) {
 		TextOps<StyledText<LinkType>, LinkType> styledTextOps = StyledText.textOps();
 		RemoteImageOps<LinkType> linkedImageOps = new RemoteImageOps<>();
 		RemoteFileManager fileManager = ctx.getApplicationContext().getRemoteFileManager();
 
-		return new DocumentArea(tumblerAddress, ctx, styledTextOps._or(linkedImageOps),
+		return new DocumentArea(documentHash, ctx, styledTextOps._or(linkedImageOps),
 				seg -> createNode(styledTextOps, seg, (text, style) -> text.setStyle(style.toCss()), fileManager),
 				variantStream);
 	}
@@ -162,27 +161,27 @@ public class DocumentArea
 	/**
 	 * Tumbler address of this Document
 	 */
-	private final TumblerAddress homeDocument;
+	private final String documentHash;
 
 	private final Inserter inserter = new Inserter();
 
 	private final ArrayList<HyperOperation> operations = new ArrayList<>();
 
-	private VariantStream<Overlay> variantStream;
+	private VariantStream<OverlayStream> variantStream;
 
 	private boolean writeOps;
 
-	private DocumentArea(TumblerAddress homeDocument, BrowserContext ctx,
+	private DocumentArea(String documentHash, BrowserContext ctx,
 			TextOps<Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> segmentOps,
 			Function<Either<StyledText<LinkType>, RemoteImage<LinkType>>, Node> nodeFactory,
-			VariantStream<Overlay> variantStream) {
+			VariantStream<OverlayStream> variantStream) {
 		super(ParStyle.EMPTY, (paragraph, style) -> paragraph.setStyle(style.toCss()),
 				LinkType.EMPTY.updateFontSize(12).updateFontFamily("Serif").updateTextColor(Color.BLACK), segmentOps,
 				nodeFactory);
 		this.variantStream = variantStream;
 		this.ctx = ctx;
-		this.homeDocument = homeDocument;
-		homeDocument.setScheme("ted");
+		this.documentHash = documentHash;
+		// homeDocument.setScheme("ted");
 
 		setShowCaret(CaretVisibility.ON);
 
@@ -218,42 +217,36 @@ public class DocumentArea
 	 * @param span
 	 * @param linkType
 	 */
-	public void applyStyle(TumblerAddress span, TumblerAddress linkType) {
-		int styleStart = span.spanStart() - 1;
-		StyleSpans<LinkType> styles = getStyleSpans(styleStart, styleStart + span.spanWidth());
-		if (TumblerAddress.BOLD.equals(linkType)) {
-			LinkType mixin = LinkType.bold(true);
-			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-			setStyleSpans(styleStart, newStyles);
-		} else if (TumblerAddress.ITALIC.equals(linkType)) {
-			LinkType mixin = LinkType.italic(true);
-			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-			setStyleSpans(styleStart, newStyles);
-		} else if (TumblerAddress.UNDERLINE.equals(linkType)) {
-			LinkType mixin = LinkType.underline(true);
-			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-			setStyleSpans(styleStart, newStyles);
-		} else if (TumblerAddress.STRIKE_THROUGH.equals(linkType)) {
-			LinkType mixin = LinkType.strikethrough(true);
-			StyleSpans<LinkType> newStyles = styles.mapStyles(style -> style.updateWith(mixin));
-			setStyleSpans(styleStart, newStyles);
-		}
-
-		// HyperRegion region = new HyperRegion(change.getRemovalEnd() - width, width);
-
-		// HyperOperation op = new HyperOperation(tumblerAddress, region,
-		// OpCode.OVERLAY_ON, change.getRemoved());
-
-		// operations.add(e)
-		try {
-			variantStream.applyOverlays(new VariantSpan(span.spanStart(), span.spanWidth()), Sets.newHashSet(linkType));
-		} catch (MalformedSpanException | IOException e) {
-			e.printStackTrace();
-		}
-	}
+	/*
+	 * public void applyStyle(TumblerField span, int linkType) { int styleStart =
+	 * span.spanStart() - 1; StyleSpans<LinkType> styles = getStyleSpans(styleStart,
+	 * styleStart + span.spanWidth()); if (PresenterOverlay.BOLD == linkType) {
+	 * LinkType mixin = LinkType.bold(true); StyleSpans<LinkType> newStyles =
+	 * styles.mapStyles(style -> style.updateWith(mixin)); setStyleSpans(styleStart,
+	 * newStyles); } else if (PresenterOverlay.ITALIC == linkType) { LinkType mixin
+	 * = LinkType.italic(true); StyleSpans<LinkType> newStyles =
+	 * styles.mapStyles(style -> style.updateWith(mixin)); setStyleSpans(styleStart,
+	 * newStyles); } else if (PresenterOverlay.UNDERLINE == linkType) { LinkType
+	 * mixin = LinkType.underline(true); StyleSpans<LinkType> newStyles =
+	 * styles.mapStyles(style -> style.updateWith(mixin)); setStyleSpans(styleStart,
+	 * newStyles); } else if (PresenterOverlay.STRIKE_THROUGH == linkType) {
+	 * LinkType mixin = LinkType.strikethrough(true); StyleSpans<LinkType> newStyles
+	 * = styles.mapStyles(style -> style.updateWith(mixin));
+	 * setStyleSpans(styleStart, newStyles); }
+	 * 
+	 * // HyperRegion region = new HyperRegion(change.getRemovalEnd() - width,
+	 * width);
+	 * 
+	 * // HyperOperation op = new HyperOperation(tumblerAddress, region, //
+	 * OpCode.OVERLAY_ON, change.getRemoved());
+	 * 
+	 * // operations.add(e) try { variantStream.applyOverlays(new
+	 * VariantSpan(span.spanStart(), span.spanWidth()), Sets.newHashSet(linkType));
+	 * } catch (MalformedSpanException | IOException e) { e.printStackTrace(); } }
+	 */
 
 	private void deleteText(PlainTextChange change) {
-		operations.add(deleter.delete(homeDocument, change));
+		operations.add(deleter.delete(documentHash, change));
 
 		long width = change.getRemoved().length();
 		long start = change.getRemovalEnd() - width + 1;
@@ -279,11 +272,11 @@ public class DocumentArea
 
 		if (writeOps) {
 			HyperRegion region = new HyperRegion(position, text.length());
-			operations.add(new HyperOperation(homeDocument, region, OpCode.INSERT_TEXT, text));
+			operations.add(new HyperOperation(documentHash, region, OpCode.INSERT_TEXT, text));
 		}
 		try {
 			long start = position + 1;
-			variantStream.put(start, new Overlay((long) text.length(), homeDocument));
+			variantStream.put(start, new OverlayStream(text.length(), documentHash));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -297,7 +290,7 @@ public class DocumentArea
 	 */
 	private void notifyTextInsertionChange(PlainTextChange change) {
 		if (writeOps) {
-			Optional<HyperOperation> ho = inserter.insert(homeDocument, change);
+			Optional<HyperOperation> ho = inserter.insert(documentHash, change);
 			if (ho.isPresent()) {
 				HyperOperation hop = ho.get();
 				operations.add(hop);
@@ -308,7 +301,7 @@ public class DocumentArea
 			long width = change.getInserted().length();
 			if (width > 0) {
 				long start = change.getInsertionEnd() - width + 1;
-				variantStream.put(start, new Overlay(width, homeDocument));
+				variantStream.put(start, new OverlayStream(width, documentHash));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -327,7 +320,7 @@ public class DocumentArea
 		if (clipboard.hasString()) {
 			String text = clipboard.getString();
 			if (text != null) {
-				operations.add(new HyperOperation(homeDocument, selectedRegion(), OpCode.PASTE, text));
+				operations.add(new HyperOperation(documentHash, selectedRegion(), OpCode.PASTE, text));
 				paste();
 			}
 		}
@@ -342,22 +335,22 @@ public class DocumentArea
 	}
 
 	public void toggleBold() {
-		updateStyleInSelection(TumblerAddress.BOLD,
+		updateStyleInSelection(PresenterOverlay.BOLD_OVERLAY,
 				spans -> LinkType.bold(!spans.styleStream().allMatch(style -> style.bold.orElse(false))));
 	}
 
 	public void toggleItalic() {
-		updateStyleInSelection(TumblerAddress.ITALIC,
+		updateStyleInSelection(PresenterOverlay.ITALIC_OVERLAY,
 				spans -> LinkType.italic(!spans.styleStream().allMatch(style -> style.italic.orElse(false))));
 	}
 
 	public void toggleStrikethrough() {
-		updateStyleInSelection(TumblerAddress.STRIKE_THROUGH, spans -> LinkType
+		updateStyleInSelection(PresenterOverlay.STRIKE_THROUGH_OVERLAY, spans -> LinkType
 				.strikethrough(!spans.styleStream().allMatch(style -> style.strikethrough.orElse(false))));
 	}
 
 	public void toggleUnderline() {
-		updateStyleInSelection(TumblerAddress.UNDERLINE,
+		updateStyleInSelection(PresenterOverlay.UNDERLINE_OVERLAY,
 				spans -> LinkType.underline(!spans.styleStream().allMatch(style -> style.underline.orElse(false))));
 	}
 
@@ -368,10 +361,11 @@ public class DocumentArea
 		setStyleSpans(selection.getStart(), newStyles);
 	}
 
-	private void updateStyleInSelection(TumblerAddress linkType, Function<StyleSpans<LinkType>, LinkType> mixinGetter) {
+	private void updateStyleInSelection(PresenterOverlay linkType,
+			Function<StyleSpans<LinkType>, LinkType> mixinGetter) {
 		IndexRange selection = getSelection();
 		if (selection.getLength() != 0) {
-			
+
 			try {
 				variantStream.toggleOverlay(new VariantSpan(selection.getStart() + 1, selection.getLength()), linkType);
 			} catch (MalformedSpanException | IOException e) {

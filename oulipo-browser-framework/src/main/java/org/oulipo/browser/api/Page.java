@@ -17,8 +17,6 @@ package org.oulipo.browser.api;
 
 import java.io.IOException;
 
-import org.oulipo.net.MalformedTumblerException;
-
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -27,7 +25,7 @@ public class Page {
 
 	public static interface Controller extends Initializable {
 
-		void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException;
+		void show(AddressBarController addressBarController) throws IOException;
 
 	}
 
@@ -62,7 +60,7 @@ public class Page {
 		this.view = view;
 	}
 
-	public void present(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
+	public void present(AddressBarController addressBarController) throws IOException {
 		if (view != null) {
 			FXMLLoader loader = addressBarController.getContext().getLoader();
 			loader.setController(controller);

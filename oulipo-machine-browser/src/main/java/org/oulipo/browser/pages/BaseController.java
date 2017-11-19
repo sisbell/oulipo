@@ -20,33 +20,31 @@ import java.io.IOException;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
 import org.oulipo.browser.api.Page;
-import org.oulipo.client.services.TumblerService;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.client.services.DocuverseService;
 import org.oulipo.storage.StorageException;
+import org.oulipo.streams.IRI;
 
 public abstract class BaseController implements Page.Controller {
 
-	protected TumblerAddress address;
+	protected IRI address;
 
 	protected AddressBarController addressBarController;
 
 	protected BrowserContext ctx;
 
-	protected TumblerService tumblerService;
+	protected DocuverseService docService;
 
 	@Override
-	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws IOException {
 		this.ctx = controller.getContext();
 		this.addressBarController = controller;
-		this.address = addressBarController.getTumbler();
+		this.address = addressBarController.getAddress();
 		controller.setTabTitle(address.value);
 		try {
-			this.tumblerService = new TumblerService(ctx.getDocuverseService());
+			docService = ctx.getDocuverseService();
 		} catch (StorageException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 }

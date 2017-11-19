@@ -15,31 +15,18 @@
  *******************************************************************************/
 package org.oulipo.machine.server;
 
-import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
-import static spark.Spark.put;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerResourceException;
 import org.oulipo.resources.DefaultThingRepository;
-import org.oulipo.resources.ResourceErrorCodes;
-import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.ThingRepository;
 import org.oulipo.resources.rdf.RdfDataMapper;
 import org.oulipo.security.auth.AuthResource;
-import org.oulipo.security.auth.AuthResponseCodes;
-import org.oulipo.security.auth.AuthenticationException;
-import org.oulipo.security.auth.AuthorizationException;
-import org.oulipo.security.auth.UnauthorizedException;
-import org.oulipo.services.EditResourceException;
-import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequestService;
 import org.oulipo.services.ResourceSessionManager;
-import org.oulipo.services.responses.ErrorResponse;
 import org.oulipo.storage.StorageService;
 import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
@@ -47,7 +34,6 @@ import org.oulipo.streams.impl.DefaultStreamLoader;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
@@ -104,7 +90,7 @@ public class OulipoServer {
 		StreamLoader streamLoader = new DefaultStreamLoader(new File("streams"), spec);
 
 		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
-		RemoteFileManager remoteFileManager  = new org.oulipo.services.IpfsFileManager();
+		RemoteFileManager remoteFileManager = new org.oulipo.services.IpfsFileManager();
 
 		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader,
 				remoteFileManager);
@@ -113,137 +99,12 @@ public class OulipoServer {
 		get("/auth", JSON, AuthApi.temporyAuthToken(authResource), transformer);
 		post("/auth", AuthApi.getSessionToken(authResource), transformer);
 
-		get("/docuverse/:networkId", JSON, req.getNetwork(), transformer);
+		get("/docuverse/documents", req.getDocuments(), transformer);
 
-		get("/docuverse/:networkId/nodes", JSON, req.getNodes(), transformer);
-
-		get("/docuverse/:networkId/1", JSON, req.getSystemNodes(), transformer);
-		get("/docuverse/:networkId/:nodeId", JSON, req.getNode(), transformer);
-		get("/docuverse/:networkId/:nodeId/users", JSON, req.getNodeUsers(), transformer);
-		put("/docuverse/:networkId/:nodeId", JSON, req.createNode(), transformer);
-
-		get("/docuverse/:networkId/1/1", JSON, req.getSystemUser(), transformer);
-		get("/docuverse/:networkId/:nodeId/newUser", JSON, req.newUser(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId", JSON, req.getUser(), transformer);
-		put("/docuverse/:networkId/:nodeId/:userId", JSON, req.createOrUpdateUser(), transformer);
-
-		get("/docuverse/:networkId/:nodeId/:userId/documents", JSON, req.getUserDocuments(), transformer);
-
-		get("/docuverse/:networkId/1/1/1.1.1", req.getSystemDocuments(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId/newDocument", req.newDocument(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId/:docId", req.getDocument(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId/:docId/links", req.getDocumentLinks(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId/:docId/virtual", req.getVirtual(), transformer);
-
-		put("/docuverse/:networkId/:nodeId/:userId/:docId", JSON, req.createDocument(), transformer);
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/newVersion", req.newVersion(), transformer);
-
-		get("/docuverse/:networkId/:nodeId/:userId/:docId/endsets", req.getEndsets(), transformer);
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/newLink", req.newLink(), transformer);
-		post("/docuverse/:networkId/:nodeId/:userId/:docId/load", req.loadOperation(), transformer);
-
-		get("/docuverse/:networkId/1/1/1.1.1/2.1", req.getSystemLinks(), transformer);
-		get("/docuverse/:networkId/1/1/1.1.1/1.1~1.1", req.getSystemVSpans(), transformer);
-		get("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", req.getElement(), transformer);
-
-		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId/image", JSON, req.createOrUpdateLink(), transformer);
-		put("/docuverse/:networkId/:nodeId/:userId/:docId/:elementId", JSON, req.createOrUpdateLink(), transformer);
-
-		exception(MalformedTumblerException.class, (exception, request, response) -> {
-			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.BAD_TUMBLER_ADDRESS, exception.getMessage(),
-					null);
-			try {
-				response.status(400);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e) {
-			}
-
-		});
-
-		exception(EditResourceException.class, (exception, request, response) -> {
-			TumblerResourceException e = exception;
-			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.BAD_EDIT, exception.getMessage(),
-					e.getTumblerAddress());
-			try {
-				response.status(400);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
-
-		exception(UnrecognizedPropertyException.class, (exception, request, response) -> {
-			exception.printStackTrace();
-			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.INVALID_JSON, exception.getMessage(), null);
-			try {
-				response.status(400);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e) {
-			}
-
-		});
-
-		exception(UnauthorizedException.class, (exception, request, response) -> {
-			TumblerResourceException e = exception;
-			ErrorResponse resp = new ErrorResponse(AuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(),
-					e.getTumblerAddress());
-			try {
-				response.status(401);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
-
-		exception(AuthenticationException.class, (exception, request, response) -> {
-			AuthenticationException e = exception;
-			ErrorResponse resp = new ErrorResponse(999, exception.getMessage(), null);
-			try {
-				response.status(401);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
-		exception(AuthorizationException.class, (exception, request, response) -> {
-			ErrorResponse resp = new ErrorResponse(AuthResponseCodes.NOT_AUTHORIZED, exception.getMessage(), null);
-			try {
-				response.status(401);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
-		exception(ResourceNotFoundException.class, (exception, request, response) -> {
-			ResourceNotFoundException e = exception;
-			ErrorResponse resp = new ErrorResponse(e.getCode(), exception.getMessage(), e.getTumblerAddress());
-			try {
-				response.status(404);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
-
-		exception(MissingBodyException.class, (exception, request, response) -> {
-			TumblerResourceException e = exception;
-			ErrorResponse resp = new ErrorResponse(ResourceErrorCodes.MISSING_JSON_BODY, exception.getMessage(),
-					e.getTumblerAddress());
-			try {
-				response.status(400);
-				response.type("application/json");
-				response.body(objectMapper.writeValueAsString(resp));
-			} catch (Exception e1) {
-			}
-
-		});
+		get("/docuverse/:hash", req.getDocument(), transformer);
+		get("/docuverse/:hash/virtual", req.getVirtual(), transformer);
+		get("/docuverse/:hash/endsets", req.getEndsets(), transformer);
+		post("/docuverse/:hash", req.loadDocument(), transformer);
 	}
 
 }

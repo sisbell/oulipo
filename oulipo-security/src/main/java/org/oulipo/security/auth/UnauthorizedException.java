@@ -15,30 +15,30 @@
  *******************************************************************************/
 package org.oulipo.security.auth;
 
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.net.TumblerResourceException;
+import org.oulipo.streams.IRI;
+import org.oulipo.streams.IriResourceException;
 
-public class UnauthorizedException extends TumblerResourceException {
+public class UnauthorizedException extends IriResourceException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 628874465598916086L;
 
-	public UnauthorizedException(TumblerAddress tumblerAddress) {
-		super(tumblerAddress);
+	public UnauthorizedException(IRI iri) {
+		super(iri);
 	}
 
-	public UnauthorizedException(TumblerAddress tumblerAddress, String message) {
-		super(tumblerAddress, message);
+	public UnauthorizedException(IRI iri, String message) {
+		super(iri, message);
 	}
 
-	public UnauthorizedException(TumblerAddress tumblerAddress, String message, Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public UnauthorizedException(IRI iri, String message, Throwable cause) {
+		super(iri, message, cause);
 	}
 
-	public UnauthorizedException(TumblerAddress tumblerAddress, Throwable cause) {
-		super(tumblerAddress, cause);
+	public UnauthorizedException(IRI iri, Throwable cause) {
+		super(iri, cause);
 	}
 
 }

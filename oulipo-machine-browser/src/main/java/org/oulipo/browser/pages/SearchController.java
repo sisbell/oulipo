@@ -23,7 +23,6 @@ import org.controlsfx.control.textfield.CustomTextField;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.Page;
 import org.oulipo.browser.tables.ButtonsCreator;
-import org.oulipo.net.MalformedTumblerException;
 
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -44,7 +43,7 @@ public class SearchController implements Page.Controller {
 	}
 
 	@Override
-	public void show(AddressBarController addressBarController) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController addressBarController) throws IOException {
 		ImageView searchView = new ImageView();
 		searchView.setFitWidth(20);
 		searchView.setFitHeight(20);

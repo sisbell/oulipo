@@ -15,49 +15,16 @@
  *******************************************************************************/
 package org.oulipo.services.responses;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.rdf.annotations.ObjectIRI;
-import org.oulipo.rdf.annotations.Predicate;
-import org.oulipo.resources.utils.Add;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class Endset {
 
-	@Predicate("fromVSpan")
-	@ObjectIRI
-	public HashSet<TumblerAddress> fromVSpans;
-
-	@Predicate("toVSpan")
-	@ObjectIRI
-	public HashSet<TumblerAddress> toVSpans;
-
-	@Predicate("linkType")
-	@ObjectIRI
-	public TumblerAddress[] types;
-
-	public void addType(Collection<TumblerAddress> type) {
-		types = Add.both(types, type, TumblerAddress.class);
-	}
-
-	public void addType(TumblerAddress type) {
-		types = Add.one(types, type);
-	}
-
-	public void addType(TumblerAddress[] type) {
-		types = Add.both(types, type, TumblerAddress.class);
-	}
-
-	@Override
-	public String toString() {
-		return "Endset [fromVSpans=" + fromVSpans + ", toVSpans=" + toVSpans + ", types=" + Arrays.toString(types)
-				+ "]";
-	}
+	//TODO: to/from hashes and IV start/width
+	
+//	@Predicate("linkType")
+//	@ObjectIRI
+	//public TumblerField[] types;
 
 }

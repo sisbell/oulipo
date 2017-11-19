@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.controlsfx.control.HyperlinkLabel;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.api.BrowserContext;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.IRI;
 
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TreeTableCell;
@@ -45,10 +45,10 @@ public class HyperLinkTableCell<U> extends TreeTableCell<U, String> {
 			Hyperlink link = (Hyperlink) event.getSource();
 			String address = link == null ? "" : link.getText();
 			try {
-				TumblerAddress tumbler = TumblerAddress.create(address);
+				IRI tumbler = new IRI(address);
 				// ctx.getTabManager().
 				if (openTab) {
-					ctx.getTabManager().addTabWithAddressBar(address, tumbler.toTumblerFields());
+					ctx.getTabManager().addTabWithAddressBar(address, tumbler.value);
 				} else {
 					addressBarController.show(address);
 				}

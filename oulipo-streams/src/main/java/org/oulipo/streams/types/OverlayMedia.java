@@ -18,48 +18,40 @@ package org.oulipo.streams.types;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamElementPartition;
+import org.oulipo.streams.overlays.Overlay;
 
 /**
  * Link types will be used to style and to specify to the type of media
  */
-public final class OverlayMedia extends Overlay {
+public final class OverlayMedia extends OverlayStream {
 
 	// TODO: override the addLinkType method to filter address that can't apply to
 	// the media stream
 
 	public final String hash;
 
-	public final TumblerAddress mediaAddress;
+	public OverlayMedia(String hash, Overlay... linkTypes) throws MalformedSpanException {
+		super(1, linkTypes);
+		this.hash = hash;
+	}
 
 	/**
 	 * Constructs an <code>OverlayMedia</code>
 	 * 
-	 * @param mediaAddress
-	 *            the tumbler address of this media
 	 * @param linkTypes
 	 *            the link types for styling and tagging this media
 	 * @throws MalformedSpanException
 	 */
-	public OverlayMedia(TumblerAddress mediaAddress, String hash, Set<TumblerAddress> linkTypes)
-			throws MalformedSpanException {
+	public OverlayMedia(String hash, Set<Overlay> linkTypes) throws MalformedSpanException {
 		super(1, linkTypes);
-		this.mediaAddress = mediaAddress;
-		this.hash = hash;
-	}
-
-	public OverlayMedia(TumblerAddress mediaAddress, String hash, TumblerAddress... linkTypes)
-			throws MalformedSpanException {
-		super(1, linkTypes);
-		this.mediaAddress = mediaAddress;
 		this.hash = hash;
 	}
 
 	@Override
 	public OverlayMedia copy() throws MalformedSpanException {
-		return new OverlayMedia(mediaAddress, hash, new HashSet<TumblerAddress>(linkTypes));
+		return new OverlayMedia(hash, new HashSet<Overlay>(linkTypes));
 	}
 
 	@Override
@@ -71,10 +63,10 @@ public final class OverlayMedia extends Overlay {
 		if (getClass() != obj.getClass())
 			return false;
 		OverlayMedia other = (OverlayMedia) obj;
-		if (mediaAddress == null) {
-			if (other.mediaAddress != null)
+		if (hash == null) {
+			if (other.hash != null)
 				return false;
-		} else if (!mediaAddress.equals(other.mediaAddress))
+		} else if (!hash.equals(other.hash))
 			return false;
 		return true;
 	}
@@ -83,17 +75,13 @@ public final class OverlayMedia extends Overlay {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((mediaAddress == null) ? 0 : mediaAddress.hashCode());
+		result = prime * result + ((hash == null) ? 0 : hash.hashCode());
 		return result;
 	}
 
 	@Override
-	public StreamElementPartition<Overlay> split(long cutPoint) throws MalformedSpanException {
+	public StreamElementPartition<OverlayStream> split(long cutPoint) throws MalformedSpanException {
 		throw new UnsupportedOperationException("Cannot split a media overlay");
 	}
 
-	@Override
-	public String toString() {
-		return "OverlayMedia [mediaAddress=" + mediaAddress + ", linkTypes=" + linkTypes + ", width=" + width + "]";
-	}
 }

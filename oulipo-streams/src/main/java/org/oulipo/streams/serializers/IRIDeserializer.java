@@ -17,7 +17,7 @@ package org.oulipo.streams.serializers;
 
 import java.io.IOException;
 
-import org.oulipo.net.IRI;
+import org.oulipo.streams.IRI;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;

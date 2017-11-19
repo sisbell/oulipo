@@ -26,14 +26,14 @@ import java.io.IOException;
 public final class PutInvariantSpanOp extends Op {
 
 	/**
-	 * Index in tumbler pool of this span's tumbler address
-	 */
-	public final int homeDocumentIndex;
-
-	/**
 	 * Start position within the invariant stream
 	 */
 	public final long invariantStart;
+
+	/**
+	 * Index in resource id pool of this span
+	 */
+	public final int ripIndex;
 
 	/**
 	 * The variant position to insert text
@@ -67,12 +67,12 @@ public final class PutInvariantSpanOp extends Op {
 	 *            the start position within the invariant stream
 	 * @param width
 	 *            the width of span
-	 * @param homeDocumentIndex
+	 * @param ripIndex
 	 *            the index in tumbler pool of this span's tumbler address
 	 * @throws IndexOutOfBoundsException
 	 *             if specified to position is less than 1
 	 */
-	public PutInvariantSpanOp(long to, long invariantStart, long width, int homeDocumentIndex) {
+	public PutInvariantSpanOp(long to, long invariantStart, long width, int ripIndex) {
 		super(Op.PUT_INVARIANT_SPAN);
 		this.to = to;
 		if (to < 1) {
@@ -87,13 +87,13 @@ public final class PutInvariantSpanOp extends Op {
 			throw new IndexOutOfBoundsException("Width must be greater than 0");
 		}
 
-		if (homeDocumentIndex < 0) {
-			throw new IndexOutOfBoundsException("homeDocumentIndex position must be non-negative");
+		if (ripIndex < 0) {
+			throw new IndexOutOfBoundsException("Resource ID Pool index must be non-negative");
 		}
 
 		this.invariantStart = invariantStart;
 		this.width = width;
-		this.homeDocumentIndex = homeDocumentIndex;
+		this.ripIndex = ripIndex;
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public final class PutInvariantSpanOp extends Op {
 			dos.writeLong(to);
 			dos.writeLong(invariantStart);
 			dos.writeLong(width);
-			dos.writeInt(homeDocumentIndex);
+			dos.writeInt(ripIndex);
 		}
 		os.flush();
 		return os.toByteArray();
@@ -119,7 +119,7 @@ public final class PutInvariantSpanOp extends Op {
 		if (getClass() != obj.getClass())
 			return false;
 		PutInvariantSpanOp other = (PutInvariantSpanOp) obj;
-		if (homeDocumentIndex != other.homeDocumentIndex)
+		if (ripIndex != other.ripIndex)
 			return false;
 		if (invariantStart != other.invariantStart)
 			return false;
@@ -134,7 +134,7 @@ public final class PutInvariantSpanOp extends Op {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + homeDocumentIndex;
+		result = prime * result + ripIndex;
 		result = prime * result + (int) (invariantStart ^ (invariantStart >>> 32));
 		result = prime * result + (int) (to ^ (to >>> 32));
 		result = prime * result + (int) (width ^ (width >>> 32));
@@ -143,8 +143,8 @@ public final class PutInvariantSpanOp extends Op {
 
 	@Override
 	public String toString() {
-		return "PutInvariantSpanOp [start=" + invariantStart + ", width=" + width + ", homeDocumentIndex="
-				+ homeDocumentIndex + ", to=" + to + "]";
+		return "PutInvariantSpanOp [start=" + invariantStart + ", width=" + width + ", ripIndex=" + ripIndex + ", to="
+				+ to + "]";
 	}
 
 }

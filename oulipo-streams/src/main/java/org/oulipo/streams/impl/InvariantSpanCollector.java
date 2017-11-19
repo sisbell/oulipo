@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.types.InvariantSpan;
 import org.oulipo.streams.types.StreamElement;
 

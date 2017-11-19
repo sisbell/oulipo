@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.oulipo.security.auth;
 
-import org.oulipo.net.TumblerAddress;
-
 public class AuthorizationException extends Exception {
 
 	/**
@@ -38,11 +36,6 @@ public class AuthorizationException extends Exception {
 
 	public AuthorizationException(int code, Throwable cause) {
 		super(cause);
-		this.code = code;
-	}
-
-	public AuthorizationException(int code, TumblerAddress address) {
-		super();
 		this.code = code;
 	}
 

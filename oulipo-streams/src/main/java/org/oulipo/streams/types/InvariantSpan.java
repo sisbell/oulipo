@@ -15,9 +15,7 @@
  *******************************************************************************/
 package org.oulipo.streams.types;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.StreamElementPartition;
 
 import com.google.common.base.Strings;
@@ -28,7 +26,9 @@ public final class InvariantSpan implements Invariant {
 	 * Home document of this element. The home document may be for spans
 	 * (characters) or for a media type (image/video)
 	 */
-	protected TumblerAddress homeDocument;
+	protected String documentHash;
+
+	protected boolean isEncrypted;
 
 	/**
 	 * Start byte position of an invariant stream
@@ -43,12 +43,7 @@ public final class InvariantSpan implements Invariant {
 	public InvariantSpan() {
 	}
 
-	public InvariantSpan(long start, long width, String homeDocument)
-			throws MalformedSpanException, MalformedTumblerException {
-		this(start, width, Strings.isNullOrEmpty(homeDocument) ? null : TumblerAddress.create(homeDocument));
-	}
-
-	public InvariantSpan(long start, long width, TumblerAddress homeDocument) throws MalformedSpanException {
+	public InvariantSpan(long start, long width, String documentHash) throws MalformedSpanException {
 		if (width < 1) {
 			throw new MalformedSpanException("Width must be greater than 0");
 		}
@@ -58,13 +53,13 @@ public final class InvariantSpan implements Invariant {
 		}
 
 		this.width = width;
-		this.homeDocument = homeDocument;
+		this.documentHash = documentHash;
 		this.start = start;
 	}
 
 	@Override
 	public InvariantSpan copy() throws MalformedSpanException {
-		return new InvariantSpan(start, width, homeDocument);
+		return new InvariantSpan(start, width, documentHash);
 	}
 
 	@Override
@@ -76,10 +71,10 @@ public final class InvariantSpan implements Invariant {
 		if (getClass() != obj.getClass())
 			return false;
 		InvariantSpan other = (InvariantSpan) obj;
-		if (homeDocument == null) {
-			if (other.homeDocument != null)
+		if (documentHash == null) {
+			if (other.documentHash != null)
 				return false;
-		} else if (!homeDocument.equals(other.homeDocument))
+		} else if (!documentHash.equals(other.documentHash))
 			return false;
 		if (start != other.start)
 			return false;
@@ -88,8 +83,8 @@ public final class InvariantSpan implements Invariant {
 		return true;
 	}
 
-	public TumblerAddress getHomeDocument() {
-		return homeDocument;
+	public String getDocumentHash() {
+		return documentHash;
 	}
 
 	public long getStart() {
@@ -105,10 +100,14 @@ public final class InvariantSpan implements Invariant {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((homeDocument == null) ? 0 : homeDocument.hashCode());
+		result = prime * result + ((documentHash == null) ? 0 : documentHash.hashCode());
 		result = prime * result + (int) (start ^ (start >>> 32));
 		result = prime * result + (int) (width ^ (width >>> 32));
 		return result;
+	}
+
+	public boolean hashDocumentHash() {
+		return !Strings.isNullOrEmpty(documentHash);
 	}
 
 	public void setStart(long start) {
@@ -146,13 +145,13 @@ public final class InvariantSpan implements Invariant {
 			throw new IndexOutOfBoundsException("Width of left partition is greater than or equal to span: span width ="
 					+ width + ", partitionWidth = " + leftPartitionWidth);
 		}
-		return new StreamElementPartition<InvariantSpan>(new InvariantSpan(start, leftPartitionWidth, homeDocument),
-				new InvariantSpan(start + leftPartitionWidth, width - leftPartitionWidth, homeDocument));
+		return new StreamElementPartition<InvariantSpan>(new InvariantSpan(start, leftPartitionWidth, documentHash),
+				new InvariantSpan(start + leftPartitionWidth, width - leftPartitionWidth, documentHash));
 	}
 
 	@Override
 	public String toString() {
-		return "SpanStreamElement [start=" + start + ", width=" + width + ", homeDocument=" + homeDocument + "]";
+		return "InvariantSpan [documentHash=" + documentHash + ", start=" + start + ", width=" + width + "]";
 	}
 
 }

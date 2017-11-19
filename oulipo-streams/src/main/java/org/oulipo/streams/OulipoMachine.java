@@ -21,13 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.overlays.Overlay;
 import org.oulipo.streams.types.Invariant;
 import org.oulipo.streams.types.InvariantMedia;
 import org.oulipo.streams.types.InvariantSpan;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 
 /**
  * Provides services for loading and pushing Oulipo OP codes.
@@ -41,7 +39,7 @@ import org.oulipo.streams.types.Overlay;
  */
 public interface OulipoMachine extends InvariantStream {
 
-	void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links) throws MalformedSpanException, IOException;
+	void applyOverlays(VariantSpan variantSpan, Set<Overlay> links) throws MalformedSpanException, IOException;
 
 	void copyVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
@@ -56,7 +54,7 @@ public interface OulipoMachine extends InvariantStream {
 	 * 
 	 * @return
 	 */
-	TumblerAddress getHomeDocument();
+	String getDocumentHash();
 
 	List<Invariant> getInvariants() throws MalformedSpanException;
 
@@ -90,8 +88,9 @@ public interface OulipoMachine extends InvariantStream {
 			vc.invariant = invariant;
 
 			vc.order = order++;
-			vc.homeDocument = getHomeDocument();
+			vc.documentHash = getDocumentHash();
 			if (invariant instanceof InvariantSpan) {
+				// TODO: check is encrypted/paid
 				vc.content = getText((InvariantSpan) invariant);
 			} else if (invariant instanceof InvariantMedia) {
 
@@ -126,14 +125,15 @@ public interface OulipoMachine extends InvariantStream {
 	 */
 	void insert(long characterPosition, String text) throws IOException, MalformedSpanException;
 
-	void loadDocument(String hash)
-			throws MalformedTumblerException, MalformedSpanException, IOException, SignatureException;
+	void insertEncrypted(long characterPosition, String text) throws IOException, MalformedSpanException;
+
+	void loadDocument(String hash) throws MalformedSpanException, IOException, SignatureException;
 
 	void moveVariant(long to, VariantSpan variantSpan) throws MalformedSpanException, IOException;
 
 	void putInvariant(long to, Invariant invariant) throws MalformedSpanException, IOException;
 
-	void putOverlay(long to, Overlay overlay) throws MalformedSpanException, IOException;
+	void putOverlay(long to, OverlayStream overlayStream) throws MalformedSpanException, IOException;
 
 	void swapVariants(VariantSpan v1, VariantSpan v2) throws MalformedSpanException, IOException;
 
@@ -148,6 +148,6 @@ public interface OulipoMachine extends InvariantStream {
 	 * @throws MalformedSpanException
 	 * @throws IOException
 	 */
-	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
+	void toggleOverlay(VariantSpan variantSpan, Overlay link) throws MalformedSpanException, IOException;
 
 }

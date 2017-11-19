@@ -16,18 +16,13 @@
 package org.oulipo.resources;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.model.Document;
-import org.oulipo.resources.model.InvariantLink;
-import org.oulipo.resources.model.InvariantSpan;
-import org.oulipo.resources.model.Node;
-import org.oulipo.resources.model.Thing;
-import org.oulipo.resources.model.User;
+import org.oulipo.rdf.Thing;
+import org.oulipo.rdf.model.Document;
+import org.oulipo.rdf.model.User;
+import org.oulipo.streams.IRI;
 
 /**
  * Service for finding and updating Things.
@@ -40,48 +35,23 @@ public interface ThingRepository {
 
 	void add(Thing... thing);
 
-	void addInvariantSpans(InvariantLink link, List<TumblerAddress> ispans, SpanSource source)
-			throws MalformedTumblerException;
+	Document findDocument(IRI address) throws ResourceNotFoundException;
 
-	Document findDocument(TumblerAddress address) throws ResourceNotFoundException;
+	Document findDocument(IRI address, String message) throws ResourceNotFoundException;
 
-	Document findDocument(TumblerAddress address, String message) throws ResourceNotFoundException;
+	Optional<Document> findDocumentOpt(IRI address);
 
-	Optional<Document> findDocumentOpt(TumblerAddress address);
+	Collection<Thing> findEndsetsOfDoc(IRI docId) throws Exception;
 
-	Collection<Thing> findEndsetsOfDoc(TumblerAddress docId) throws Exception;
+	User findUser(IRI address) throws ResourceNotFoundException;
 
-	Optional<InvariantLink> findInvariantLink(TumblerAddress tumbler);
+	User findUser(IRI address, String message) throws ResourceNotFoundException;
 
-	InvariantLink findInvariantLink(TumblerAddress address, String message) throws ResourceNotFoundException;
+	Collection<Thing> getAllDocuments(Map<String, String> queryParams);
 
-	Optional<InvariantLink> findInvariantLinkOpt(TumblerAddress address) throws ResourceNotFoundException;
+	Collection<Thing> getAllThings(String type, Map<String, String> queryParams);
 
-	InvariantSpan findInvariantSpan(TumblerAddress tumbler) throws ResourceNotFoundException;
-
-	Node findNode(TumblerAddress address) throws ResourceNotFoundException;
-
-	Node findNode(TumblerAddress address, String message) throws ResourceNotFoundException;
-
-	User findUser(TumblerAddress address) throws ResourceNotFoundException;
-
-	User findUser(TumblerAddress address, String message) throws ResourceNotFoundException;
-
-	Optional<User> findUserByXandle(int network, String xandle) throws Exception;
-
-	Collection<Thing> getAllDocuments(int network, Map<String, String> queryParams);
-
-	Collection<Thing> getAllInvariantLinks(int network, Map<String, String> queryParams);
-
-	Collection<Thing> getAllNodes(int network, Map<String, String> params);
-
-	Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams);
-
-	Collection<Thing> getAllUsers(int network, Map<String, String> queryParams);
-
-	String getPublicKeyOfNode(TumblerAddress node) throws Exception;
-
-	void removeInvariantSpansOfLink(InvariantLink link);
+	Collection<Thing> getAllUsers(Map<String, String> queryParams);
 
 	void update(Thing thing);
 

@@ -27,7 +27,7 @@ public class PutInvariantMediaOpTest {
 
 	@Test
 	public void encodeDecode() throws Exception {
-		PutInvariantMediaOp op = new PutInvariantMediaOp(100, 1, 3);
+		PutInvariantMediaOp op = new PutInvariantMediaOp(100, 1);
 		byte[] data = op.encode();
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
 
@@ -40,48 +40,44 @@ public class PutInvariantMediaOpTest {
 
 	@Test
 	public void equalsFalse() throws Exception {
-		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2, 3);
-		PutInvariantMediaOp op2 = new PutInvariantMediaOp(2, 2, 3);
+		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2);
+		PutInvariantMediaOp op2 = new PutInvariantMediaOp(2, 2);
 		assertFalse(op1.equals(op2));
 		assertFalse(op2.equals(op1));
 	}
 
 	@Test
 	public void equalsTrue() throws Exception {
-		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2, 3);
-		PutInvariantMediaOp op2 = new PutInvariantMediaOp(1, 2, 3);
+		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2);
+		PutInvariantMediaOp op2 = new PutInvariantMediaOp(1, 2);
 		assertEquals(op1, op2);
 		assertEquals(op2, op1);
 	}
 
 	@Test
 	public void hashFalse() throws Exception {
-		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2, 3);
-		PutInvariantMediaOp op2 = new PutInvariantMediaOp(2, 2, 3);
+		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2);
+		PutInvariantMediaOp op2 = new PutInvariantMediaOp(2, 2);
 		assertFalse(op1.hashCode() == op2.hashCode());
 		;
 	}
 
 	@Test
 	public void hashTrue() throws Exception {
-		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2, 1);
-		PutInvariantMediaOp op2 = new PutInvariantMediaOp(1, 2, 1);
+		PutInvariantMediaOp op1 = new PutInvariantMediaOp(1, 2);
+		PutInvariantMediaOp op2 = new PutInvariantMediaOp(1, 2);
 		assertEquals(op1.hashCode(), op2.hashCode());
 		;
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void mediaPoolOutOfBounds() throws Exception {
-		new PutInvariantMediaOp(1, -1, 1);
+		new PutInvariantMediaOp(1, -1);
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void toOutOfBound() throws Exception {
-		new PutInvariantMediaOp(0, 1, 1);
+		new PutInvariantMediaOp(0, 1);
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void tumblerIndexOutOfBounds() throws Exception {
-		new PutInvariantMediaOp(1, 1, -1);
-	}
 }

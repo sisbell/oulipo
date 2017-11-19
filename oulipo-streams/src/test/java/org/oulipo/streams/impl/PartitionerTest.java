@@ -23,44 +23,43 @@ import static org.oulipo.streams.impl.NodeFactory.getA;
 import java.util.List;
 
 import org.junit.Test;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.types.InvariantSpan;
 
 public class PartitionerTest {
 
-	public static final TumblerAddress homeDocument = TumblerAddress.createWithNoException("ted://1.2.0.2.0.23.1.1");
+	public static final String documentHash = "fakeHash";
 
 	@Test
 	public void createNodeParitionAlongRightCut() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, homeDocument));
-		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 20, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 10, documentHash));
+		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 20, documentHash));
 
 		Node<InvariantSpan> root = new Node.Builder<InvariantSpan>(10).left(left).right(right).build();
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(10, root);
 
-		assertEquals(new InvariantSpan(1, 10, homeDocument), part.left.left.value);
-		assertEquals(new InvariantSpan(1, 20, homeDocument), part.right.value);
+		assertEquals(new InvariantSpan(1, 10, documentHash), part.left.left.value);
+		assertEquals(new InvariantSpan(1, 20, documentHash), part.right.value);
 	}
 
 	@Test
 	public void createNodePartitionLeafRoot() throws Exception {
-		Node<InvariantSpan> root = new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument));
+		Node<InvariantSpan> root = new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash));
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(5, root);
-		assertEquals(new InvariantSpan(1, 5, homeDocument), part.left.value);
-		assertEquals(new InvariantSpan(6, 5, homeDocument), part.right.value);
+		assertEquals(new InvariantSpan(1, 5, documentHash), part.left.value);
+		assertEquals(new InvariantSpan(6, 5, documentHash), part.right.value);
 	}
 
 	@Test
 	public void createNodePartitionLinearList() throws Exception {
 
-		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, homeDocument));
-		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, homeDocument));
-		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, homeDocument));
-		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, homeDocument));
-		Node<InvariantSpan> e = new Node<>(new InvariantSpan(5, 1, homeDocument));
-		Node<InvariantSpan> f = new Node<>(new InvariantSpan(6, 1, homeDocument));
-		Node<InvariantSpan> g = new Node<>(new InvariantSpan(7, 1, homeDocument));
-		Node<InvariantSpan> h = new Node<>(new InvariantSpan(8, 1, homeDocument));
+		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, documentHash));
+		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, documentHash));
+		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, documentHash));
+		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, documentHash));
+		Node<InvariantSpan> e = new Node<>(new InvariantSpan(5, 1, documentHash));
+		Node<InvariantSpan> f = new Node<>(new InvariantSpan(6, 1, documentHash));
+		Node<InvariantSpan> g = new Node<>(new InvariantSpan(7, 1, documentHash));
+		Node<InvariantSpan> h = new Node<>(new InvariantSpan(8, 1, documentHash));
 
 		Node<InvariantSpan> ab = new Node.Builder<InvariantSpan>(1).left(a).right(b).build();
 		Node<InvariantSpan> ac = new Node.Builder<InvariantSpan>(2).left(ab).right(c).build();
@@ -83,10 +82,10 @@ public class PartitionerTest {
 	@Test
 	public void createNodePartitionLinearList2() throws Exception {
 
-		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, homeDocument));
-		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, homeDocument));
-		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, homeDocument));
-		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, homeDocument));
+		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, documentHash));
+		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, documentHash));
+		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, documentHash));
+		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, documentHash));
 
 		Node<InvariantSpan> ab = new Node.Builder<InvariantSpan>(1).left(a).right(b).build();
 		Node<InvariantSpan> ac = new Node.Builder<InvariantSpan>(2).left(ab).right(c).build();
@@ -101,10 +100,10 @@ public class PartitionerTest {
 
 	@Test
 	public void createNodePartitionMiddle() throws Exception {
-		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, homeDocument));
-		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, homeDocument));
-		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, homeDocument));
-		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, homeDocument));
+		Node<InvariantSpan> a = new Node<>(new InvariantSpan(1, 1, documentHash));
+		Node<InvariantSpan> b = new Node<>(new InvariantSpan(2, 1, documentHash));
+		Node<InvariantSpan> c = new Node<>(new InvariantSpan(3, 1, documentHash));
+		Node<InvariantSpan> d = new Node<>(new InvariantSpan(4, 1, documentHash));
 
 		Node<InvariantSpan> ab = new Node.Builder<InvariantSpan>(1).left(a).right(b).build();
 		Node<InvariantSpan> abc = new Node.Builder<InvariantSpan>(2).left(ab).right(c).build();
@@ -113,51 +112,51 @@ public class PartitionerTest {
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(1, abcd);
 
 		Node<InvariantSpan> leftNode = RopeUtils.index(1, part.left, 0).node;
-		assertEquals(new InvariantSpan(1, 1, homeDocument), leftNode.value);
-		assertEquals(new InvariantSpan(2, 1, homeDocument), RopeUtils.index(1, part.right, 0).node.value);
-		assertEquals(new InvariantSpan(3, 1, homeDocument), RopeUtils.index(2, part.right, 0).node.value);
-		assertEquals(new InvariantSpan(4, 1, homeDocument), RopeUtils.index(3, part.right, 0).node.value);
+		assertEquals(new InvariantSpan(1, 1, documentHash), leftNode.value);
+		assertEquals(new InvariantSpan(2, 1, documentHash), RopeUtils.index(1, part.right, 0).node.value);
+		assertEquals(new InvariantSpan(3, 1, documentHash), RopeUtils.index(2, part.right, 0).node.value);
+		assertEquals(new InvariantSpan(4, 1, documentHash), RopeUtils.index(3, part.right, 0).node.value);
 	}
 
 	@Test
 	public void createNodePartitionRootBadPosition() throws Exception {
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(0,
-				new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument)));
-		assertEquals(new InvariantSpan(1, 10, homeDocument), part.right.value);
+				new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash)));
+		assertEquals(new InvariantSpan(1, 10, documentHash), part.right.value);
 		assertNull(part.left);
 	}
 
 	@Test
 	public void createNodePartitionRootBeyondRangePutLeft() throws Exception {
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(12,
-				new Node<InvariantSpan>(new InvariantSpan(1, 10, homeDocument)));
-		assertEquals(new InvariantSpan(1, 10, homeDocument), part.left.value);
+				new Node<InvariantSpan>(new InvariantSpan(1, 10, documentHash)));
+		assertEquals(new InvariantSpan(1, 10, documentHash), part.left.value);
 		assertNull(part.right);
 	}
 
 	@Test
 	public void createNodePartitionWithRightLeaningIndexNode() throws Exception {
-		Node<InvariantSpan> a = new Node<>(new InvariantSpan(2, 1, homeDocument));
-		Node<InvariantSpan> b = new Node<>(new InvariantSpan(3, 1, homeDocument));
-		Node<InvariantSpan> c = new Node<>(new InvariantSpan(4, 1, homeDocument));
+		Node<InvariantSpan> a = new Node<>(new InvariantSpan(2, 1, documentHash));
+		Node<InvariantSpan> b = new Node<>(new InvariantSpan(3, 1, documentHash));
+		Node<InvariantSpan> c = new Node<>(new InvariantSpan(4, 1, documentHash));
 
 		Node<InvariantSpan> ab = new Node.Builder<InvariantSpan>(1).left(a).right(b).build();
 		Node<InvariantSpan> abc = new Node.Builder<InvariantSpan>(2).left(ab).right(c).build();
 
 		NodePartition<InvariantSpan> part = Partitioner.createNodePartition(2, abc);
 
-		assertEquals(new InvariantSpan(2, 1, homeDocument), RopeUtils.index(1, part.left, 0).node.value);
-		assertEquals(new InvariantSpan(3, 1, homeDocument), RopeUtils.index(2, part.left, 0).node.value);
-		assertEquals(new InvariantSpan(4, 1, homeDocument), RopeUtils.index(3, part.right, 0).node.value);
+		assertEquals(new InvariantSpan(2, 1, documentHash), RopeUtils.index(1, part.left, 0).node.value);
+		assertEquals(new InvariantSpan(3, 1, documentHash), RopeUtils.index(2, part.left, 0).node.value);
+		assertEquals(new InvariantSpan(4, 1, documentHash), RopeUtils.index(3, part.right, 0).node.value);
 	}
 
 	@Test
 	public void createPartition() throws Exception {
 		Node<InvariantSpan> A = new Node<InvariantSpan>(2);
 		Node<InvariantSpan> B = new Node<>(1);
-		Node<InvariantSpan> C = new Node<>(new InvariantSpan(4, 1, homeDocument));
-		Node<InvariantSpan> D = new Node<>(new InvariantSpan(2, 1, homeDocument));
-		Node<InvariantSpan> E = new Node<>(new InvariantSpan(3, 1, homeDocument));
+		Node<InvariantSpan> C = new Node<>(new InvariantSpan(4, 1, documentHash));
+		Node<InvariantSpan> D = new Node<>(new InvariantSpan(2, 1, documentHash));
+		Node<InvariantSpan> E = new Node<>(new InvariantSpan(3, 1, documentHash));
 
 		A.tag = "A";
 		B.tag = "B";
@@ -192,10 +191,10 @@ public class PartitionerTest {
 
 	@Test
 	public void prune() throws Exception {
-		Node<InvariantSpan> a = new Node<>(new InvariantSpan(300, 4, homeDocument));
-		Node<InvariantSpan> b = new Node<>(new InvariantSpan(350, 1, homeDocument));
-		Node<InvariantSpan> c = new Node<>(new InvariantSpan(360, 1, homeDocument));
-		Node<InvariantSpan> d = new Node<>(new InvariantSpan(361, 5, homeDocument));
+		Node<InvariantSpan> a = new Node<>(new InvariantSpan(300, 4, documentHash));
+		Node<InvariantSpan> b = new Node<>(new InvariantSpan(350, 1, documentHash));
+		Node<InvariantSpan> c = new Node<>(new InvariantSpan(360, 1, documentHash));
+		Node<InvariantSpan> d = new Node<>(new InvariantSpan(361, 5, documentHash));
 		d.tag = "d";
 
 		Node<InvariantSpan> cd = new Node.Builder<InvariantSpan>(1).left(c).right(d).tag("cd").build();
@@ -250,7 +249,7 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneNullLeft() throws Exception {
-		Node<InvariantSpan> right = new Node<>(new InvariantSpan(2, 1, homeDocument));
+		Node<InvariantSpan> right = new Node<>(new InvariantSpan(2, 1, documentHash));
 		new Node.Builder<InvariantSpan>(0).right(right).build();
 
 		List<Node<InvariantSpan>> orphans = Partitioner.pruneIndexNode(right, 1, 0);
@@ -259,7 +258,7 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneNullRight() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, documentHash));
 		new Node.Builder<InvariantSpan>(1).left(left).build();
 
 		List<Node<InvariantSpan>> orphans = Partitioner.pruneIndexNode(left, 1, 0);
@@ -269,11 +268,11 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneRight() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, documentHash));
 
 		Node<InvariantSpan> right = new Node<>(1);
-		right.left = new Node<InvariantSpan>(new InvariantSpan(50, 1, homeDocument));
-		right.right = new Node<InvariantSpan>(new InvariantSpan(100, 1, homeDocument));
+		right.left = new Node<InvariantSpan>(new InvariantSpan(50, 1, documentHash));
+		right.right = new Node<InvariantSpan>(new InvariantSpan(100, 1, documentHash));
 		right.tag = "RGHT";
 
 		new Node.Builder<InvariantSpan>(1).left(left).right(right).build();
@@ -286,15 +285,15 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneRight2() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 4, homeDocument));
-		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 20, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 4, documentHash));
+		Node<InvariantSpan> right = new Node<>(new InvariantSpan(1, 20, documentHash));
 
 		new Node.Builder<InvariantSpan>(4).left(left).right(right).build();
 
 		List<Node<InvariantSpan>> orphans = Partitioner.pruneIndexNode(left, 4, 0);
 
 		assertEquals(1, orphans.size());
-		assertEquals(new InvariantSpan(1, 20, homeDocument), orphans.get(0).value);
+		assertEquals(new InvariantSpan(1, 20, documentHash), orphans.get(0).value);
 	}
 	/*
 	 * @Test public void cutBranch() throws Exception { Node<InvariantSpan> left =
@@ -326,10 +325,10 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneRightWithNoChildLeft() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, documentHash));
 
 		Node<InvariantSpan> right = new Node<>(1);
-		right.right = new Node<InvariantSpan>(new InvariantSpan(100, 1, homeDocument));
+		right.right = new Node<InvariantSpan>(new InvariantSpan(100, 1, documentHash));
 		right.tag = "RGHT";
 
 		new Node.Builder<InvariantSpan>(1).left(left).right(right).build();
@@ -345,8 +344,8 @@ public class PartitionerTest {
 
 	@Test
 	public void pruneSimpleRight() throws Exception {
-		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, homeDocument));
-		Node<InvariantSpan> right = new Node<>(new InvariantSpan(2, 1, homeDocument));
+		Node<InvariantSpan> left = new Node<>(new InvariantSpan(1, 1, documentHash));
+		Node<InvariantSpan> right = new Node<>(new InvariantSpan(2, 1, documentHash));
 
 		new Node.Builder<InvariantSpan>(1).left(left).right(right).build();
 

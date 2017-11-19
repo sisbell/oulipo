@@ -15,52 +15,29 @@
  *******************************************************************************/
 package org.oulipo.services.endpoints;
 
-import static org.oulipo.services.VariantUtils.fromVariantToInvariant;
-
 import java.io.IOException;
+import java.security.SignatureException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.net.TumblerField;
-import org.oulipo.net.TumblerMatcher;
-import org.oulipo.net.matchers.AddressTumblerMatcher;
-import org.oulipo.net.matchers.RangeTumblerMatcher;
-import org.oulipo.resources.ResourceFoundException;
+import org.oulipo.rdf.Thing;
+import org.oulipo.rdf.model.Document;
+import org.oulipo.rdf.model.Virtual;
 import org.oulipo.resources.ResourceNotFoundException;
 import org.oulipo.resources.ThingRepository;
-import org.oulipo.resources.model.Document;
-import org.oulipo.resources.model.InvariantLink;
-import org.oulipo.resources.model.Thing;
-import org.oulipo.resources.model.Virtual;
 import org.oulipo.security.auth.AuthenticationException;
 import org.oulipo.security.auth.UnauthorizedException;
-import org.oulipo.services.MissingBodyException;
 import org.oulipo.services.OulipoRequest;
 import org.oulipo.services.ResourceSessionManager;
-import org.oulipo.services.VariantUtils;
-import org.oulipo.services.responses.LinkAddresses;
+import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.streams.IRI;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.impl.DefaultOulipoMachine;
 
-public class DocumentService {
-
-	private static boolean matchIt(List<TumblerAddress> tumblers, TumblerMatcher matcher) {
-		for (TumblerAddress tumbler : tumblers) {
-			if (matcher.match(tumbler)) {
-				return true;
-			}
-		}
-		return false;
-	}
+public final class DocumentService {
 
 	private final RemoteFileManager remoteFileManager;
 
@@ -70,129 +47,42 @@ public class DocumentService {
 
 	private final ThingRepository thingRepo;
 
-	public DocumentService(ThingRepository thingRepo, ResourceSessionManager sessionManager,
-			StreamLoader streamLoader, RemoteFileManager remoteFileManager) {
+	public DocumentService(ThingRepository thingRepo, ResourceSessionManager sessionManager, StreamLoader streamLoader,
+			RemoteFileManager remoteFileManager) {
 		this.thingRepo = thingRepo;
 		this.sessionManager = sessionManager;
 		this.streamLoader = streamLoader;
 		this.remoteFileManager = remoteFileManager;
 	}
 
-	public Document createDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, MissingBodyException, IOException {
-
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-
-		Document document = oulipoRequest.getDocument();
-		TumblerField docField = documentAddress.getDocument();
-
-		document.user = oulipoRequest.getUserAddress();
-		document.majorVersion = docField.get(0);
-		document.minorVersion = docField.get(1);
-		document.revision = docField.get(2);
-		// old document contains links
-
-		document.removeDuplicates();
-		thingRepo.update(document);
-		return document;
-	}
-
-	public Document getDocument(OulipoRequest oulipoRequest) throws MalformedTumblerException,
-			ResourceNotFoundException, UnauthorizedException, AuthenticationException {
+	public Document getDocument(OulipoRequest oulipoRequest)
+			throws ResourceNotFoundException, UnauthorizedException, AuthenticationException {
 		return sessionManager.getDocumentForReadAccess(oulipoRequest);
 	}
 
-	/**
-	 * Gets all link addresses to and from this document. If no to/from parameters
-	 * are specified, this method returns all link addresses
-	 * 
-	 * @param oulipoRequest
-	 * @return
-	 * @throws AuthenticationException
-	 * @throws UnauthorizedException
-	 * @throws ResourceNotFoundException
-	 * @throws MalformedSpanException
-	 * @throws IOException
-	 */
-	public LinkAddresses getDocumentLinks(OulipoRequest oulipoRequest) throws ResourceNotFoundException,
-			UnauthorizedException, AuthenticationException, IOException, MalformedSpanException {
-
-		int network = Integer.parseInt(oulipoRequest.getNetworkId());
-		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		Document document = sessionManager.getDocumentForReadAccess(oulipoRequest);
-
-		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager,
-				oulipoRequest.getDocumentAddress());
-
+	public Collection<Thing> getDocuments(OulipoRequest oulipoRequest) throws NumberFormatException {
 		Map<String, String> queryParams = oulipoRequest.queryParams();
-
-		List<TumblerAddress> toParams = queryParams.get("to") != null
-				? fromVariantToInvariant(queryParams.get("to").split("[,]"), om)
-				: null;
-
-		List<TumblerAddress> fromParams = queryParams.get("from") != null
-				? VariantUtils.fromVariantToInvariant(queryParams.get("from").split("[,]"), om)
-				: null;
-
-		LinkAddresses linkAddresses = new LinkAddresses();
-
-		if (toParams != null || fromParams != null) {
-			String[] typeParams = queryParams.get("type") != null ? queryParams.get("type").split("[,]") : null;
-
-			RangeTumblerMatcher fromMatcher = new RangeTumblerMatcher(new HashSet<>(toParams));
-			RangeTumblerMatcher toMatcher = new RangeTumblerMatcher(new HashSet<>(fromParams));
-			AddressTumblerMatcher linkTypeMatcher = AddressTumblerMatcher.createLinkTypeMatcher(typeParams);
-
-			TumblerAddress[] linkTumblers = document.links;
-
-			for (TumblerAddress linkTumbler : linkTumblers) {
-				Optional<InvariantLink> optLink = thingRepo.findInvariantLink(linkTumbler);
-				if (!optLink.isPresent()) {
-					continue;
-				}
-				InvariantLink link = optLink.get();
-
-				if (link.fromInvariantSpans != null && !matchIt(link.fromInvariantSpans, fromMatcher)) {
-					continue;
-				}
-
-				if (link.toInvariantSpans != null && !matchIt(link.toInvariantSpans, toMatcher)) {
-					continue;
-				}
-
-				if (link.linkTypes != null && !matchIt(link.linkTypes, linkTypeMatcher)) {
-					continue;
-				}
-				linkAddresses.links.addAll(VariantUtils.fromInvariantToVariant(link.resourceId, om));
-			}
-
-			return linkAddresses;
-		}
-
-		queryParams.put("document", documentAddress.toTumblerAuthority());
-
-		Collection<Thing> invariantLinks = thingRepo.getAllInvariantLinks(network, queryParams);
-		for (Thing thing : invariantLinks) {
-			InvariantLink ilink = (InvariantLink) thing;
-			linkAddresses.links.addAll(VariantUtils.fromInvariantToVariant(ilink.resourceId, om));
-		}
-		return linkAddresses;
+		return thingRepo.getAllDocuments(queryParams);
 	}
 
-	public Collection<Thing> getSystemDocuments(OulipoRequest oulipoRequest)
-			throws NumberFormatException, MalformedTumblerException {
-		int network = oulipoRequest.getNetworkIdAsInt();
+	public EndsetByType getEndsets(OulipoRequest oulipoRequest) throws Exception {
+		sessionManager.getDocumentForReadAccess(oulipoRequest);
 
-		Map<String, String> queryParams = oulipoRequest.queryParams();
-		return thingRepo.getAllDocuments(network, queryParams);
+		String documentAddress = oulipoRequest.getDocumentHash();
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
+
+		Collection<Thing> ispans = thingRepo.findEndsetsOfDoc(new IRI(documentAddress));
+
+		EndsetByType endset = new EndsetByType();
+		for (Thing thing : ispans) {
+		}		
+		//TODO: implementation
+		return endset;
 	}
 
 	/**
 	 * Gets a list of text partitions and invariant addresses of that text for a
-	 * document
+	 * document. This is used for transcluded content and for paid content.
 	 * 
 	 * @param oulipoRequest
 	 * @return
@@ -206,58 +96,24 @@ public class DocumentService {
 			AuthenticationException, IOException, MalformedSpanException {
 
 		Document document = sessionManager.getDocumentForReadAccess(oulipoRequest);
-		TumblerAddress documentAddress = (TumblerAddress) document.resourceId;
-		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentAddress);
+		IRI documentAddress = document.subject;
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager,
+				documentAddress.value);
 
 		Virtual virtual = new Virtual();
-		virtual.resourceId = documentAddress;
-		virtual.links = document.links;
+		virtual.subject = documentAddress;
 		virtual.content = om.getVirtualContent();
+		// TODO: need ranges
+		// TODO: check that content is either free or has been paid
 
 		return virtual;
 	}
 
-	public Document newDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
-			ResourceNotFoundException, MissingBodyException, IOException {
-
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		// Generate Random number and then verify not exists - TODO: replace with
-		// sequence
-		Random random = new Random();
-		TumblerField docField = TumblerField.create(random.nextInt(10000) + 1 + ".1.1");
-
-		Document document = new Document();
-		document.isPublic = true;// TODO: user configurable
-		document.resourceId = TumblerAddress
-				.create(oulipoRequest.getUserAddress().toExternalForm() + ".0." + docField.asString());
-
-		document.user = oulipoRequest.getUserAddress();
-		document.majorVersion = docField.get(0);
-		document.minorVersion = docField.get(1);
-		document.revision = docField.get(2);
-
-		thingRepo.update(document);
-		return document;
-	}
-
-	public Document newVersion(OulipoRequest oulipoRequest) throws MalformedTumblerException, ResourceNotFoundException,
-			AuthenticationException, UnauthorizedException, ResourceFoundException {
-
-		oulipoRequest.authenticate();
-		oulipoRequest.authorize();
-
-		TumblerAddress documentAddress = oulipoRequest.getDocumentAddress();
-		Document newDocument = thingRepo.findDocument(documentAddress).newVersion();
-
-		if (thingRepo.findDocumentOpt((TumblerAddress) newDocument.resourceId).isPresent()) {
-			throw new ResourceFoundException(documentAddress,
-					"Document already exists: " + newDocument.resourceId.value);
-		}
-
-		thingRepo.add(newDocument);
-		return newDocument;
+	public void loadDocument(OulipoRequest oulipoRequest) throws AuthenticationException, UnauthorizedException,
+			ResourceNotFoundException, IOException, MalformedSpanException, SignatureException {
+		String documentHash = oulipoRequest.getDocumentHash();
+		OulipoMachine om = DefaultOulipoMachine.createWritableMachine(streamLoader, remoteFileManager, documentHash);
+		om.loadDocument(documentHash);
 	}
 
 }

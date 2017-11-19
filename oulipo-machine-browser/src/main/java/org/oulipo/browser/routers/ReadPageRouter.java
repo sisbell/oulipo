@@ -6,7 +6,7 @@ import org.oulipo.browser.api.Page;
 import org.oulipo.browser.api.PageRouter;
 import org.oulipo.browser.api.Scheme;
 import org.oulipo.browser.pages.write.ReadDocumentController;
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 
 @Scheme("read")
 public class ReadPageRouter implements PageRouter {

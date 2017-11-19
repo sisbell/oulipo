@@ -19,9 +19,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import org.oulipo.net.IRI;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.model.Thing;
+import org.oulipo.rdf.Thing;
+import org.oulipo.streams.IRI;
 
 /**
  * Maps update and delete operations between Things and some underlying
@@ -46,25 +45,23 @@ public interface DataMapper {
 		delete(Arrays.asList(things));
 	}
 
-	Collection<Thing> findEndsetsOfDoc(TumblerAddress docAddress) throws Exception;
+	Collection<Thing> findEndsetsOfDoc(IRI docAddress) throws Exception;
 
 	Thing get(IRI address);
+
+	Thing get(String hash);
 
 	/**
 	 * Gets collection of things that match the specified network, thing type and
 	 * field name/values
 	 * 
-	 * @param network
-	 *            the network these things are on
 	 * @param type
 	 *            the thing type
 	 * @param queryParams
 	 *            exact matches for thing field name/values
 	 * @return
 	 */
-	Collection<Thing> getAllThings(int network, String type, Map<String, String> queryParams);
-
-	String getPublicKeyOfNode(TumblerAddress node) throws Exception;
+	Collection<Thing> getAllThings(String type, Map<String, String> queryParams);
 
 	void update(Thing thing);
 }

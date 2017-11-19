@@ -17,7 +17,6 @@ package org.oulipo.streams;
 
 import java.io.IOException;
 
-import org.oulipo.net.MalformedSpanException;
 import org.oulipo.streams.types.InvariantSpan;
 
 /**

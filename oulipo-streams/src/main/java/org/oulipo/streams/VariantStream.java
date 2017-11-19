@@ -19,10 +19,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.overlays.Overlay;
 import org.oulipo.streams.types.InvariantSpan;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 import org.oulipo.streams.types.StreamElement;
 
 /**
@@ -33,17 +32,16 @@ import org.oulipo.streams.types.StreamElement;
  */
 public interface VariantStream<T extends StreamElement> {
 
-	default void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
-			throws MalformedSpanException, IOException {
+	default void applyOverlays(VariantSpan variantSpan, Set<Overlay> links) throws MalformedSpanException, IOException {
 		List<T> elements = getStreamElements(variantSpan);
 
-		if (!elements.isEmpty() && !(elements.get(0) instanceof Overlay)) {
+		if (!elements.isEmpty() && !(elements.get(0) instanceof OverlayStream)) {
 			throw new UnsupportedOperationException("Can only apply overlays to OverlayElements");
 		}
 
 		for (T element : elements) {
-			Overlay overlay = (Overlay) element;
-			overlay.addLinkTypes(links);
+			OverlayStream overlayStream = (OverlayStream) element;
+			overlayStream.addLinkTypes(links);
 		}
 		delete(variantSpan);
 		putElements(variantSpan.start, elements);
@@ -74,7 +72,7 @@ public interface VariantStream<T extends StreamElement> {
 	 * 
 	 * @return home document
 	 */
-	TumblerAddress getHomeDocument();
+	String getDocumentHash();
 
 	List<T> getStreamElements() throws MalformedSpanException;
 
@@ -168,6 +166,6 @@ public interface VariantStream<T extends StreamElement> {
 	 * @throws MalformedSpanException
 	 * @throws IOException
 	 */
-	void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException;
+	void toggleOverlay(VariantSpan variantSpan, Overlay link) throws MalformedSpanException, IOException;
 
 }

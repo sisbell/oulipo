@@ -22,10 +22,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
+import java.security.Key;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
 import org.oulipo.streams.InvariantStream;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.types.InvariantSpan;
 
 import com.google.common.base.Strings;
@@ -39,7 +39,7 @@ public class FileInvariantStream implements InvariantStream {
 
 	private FileChannel channel;
 
-	private final TumblerAddress homeDocument;
+	private final String documentHash;
 
 	/**
 	 * Constructs an InvariantStream backed by the specified file. Creates a new
@@ -50,14 +50,14 @@ public class FileInvariantStream implements InvariantStream {
 	 * @throws IOException
 	 *             if there is an I/O exception with the specified file
 	 */
-	public FileInvariantStream(File file, TumblerAddress homeDocument) throws IOException {
+	public FileInvariantStream(File file, File encryptedFile, String documentHash, Key key) throws IOException {
 		file.getParentFile().mkdirs();
 		file.createNewFile();
 		RandomAccessFile f = new RandomAccessFile(file, "rw");
 
 		channel = f.getChannel();
 		channel.position(channel.size());
-		this.homeDocument = homeDocument;
+		this.documentHash = documentHash;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class FileInvariantStream implements InvariantStream {
 
 		FileLock lock = channel.lock();
 		try {
-			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length(), homeDocument);
+			InvariantSpan span = new InvariantSpan(channel.position() + 1, text.length(), documentHash);
 
 			buffer.clear();
 			buffer.put(text.getBytes());
@@ -87,6 +87,7 @@ public class FileInvariantStream implements InvariantStream {
 
 	@Override
 	public String getText(InvariantSpan ispan) throws IOException {
+		// TODO: if ispan is encrypted
 		return getText(ispan.getStart(), ispan.getWidth());
 	}
 

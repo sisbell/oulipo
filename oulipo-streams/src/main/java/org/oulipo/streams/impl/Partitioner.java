@@ -18,7 +18,7 @@ package org.oulipo.streams.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oulipo.net.MalformedSpanException;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.types.StreamElement;
 
 /**

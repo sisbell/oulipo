@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.oulipo.resources;
 
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.net.TumblerResourceException;
+import org.oulipo.streams.IRI;
+import org.oulipo.streams.IriResourceException;
 
-public class ResourceNotFoundException extends TumblerResourceException {
+public class ResourceNotFoundException extends IriResourceException {
 
 	/**
 	 * 
@@ -27,23 +27,23 @@ public class ResourceNotFoundException extends TumblerResourceException {
 
 	private int code;
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code) {
-		super(tumblerAddress);
+	public ResourceNotFoundException(IRI iri, int code) {
+		super(iri);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, String message) {
-		super(tumblerAddress, message);
+	public ResourceNotFoundException(IRI iri, int code, String message) {
+		super(iri, message);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, String message, Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public ResourceNotFoundException(IRI iri, int code, String message, Throwable cause) {
+		super(iri, message, cause);
 		this.code = code;
 	}
 
-	public ResourceNotFoundException(TumblerAddress tumblerAddress, int code, Throwable cause) {
-		super(tumblerAddress, cause);
+	public ResourceNotFoundException(IRI iri, int code, Throwable cause) {
+		super(iri, cause);
 		this.code = code;
 	}
 

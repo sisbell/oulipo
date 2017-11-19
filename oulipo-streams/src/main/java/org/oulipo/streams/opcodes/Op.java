@@ -34,6 +34,8 @@ public abstract class Op {
 	 */
 	public static final byte DELETE = 0x3;
 
+	public static final byte DELETE_META_DATA = 0x21;
+
 	/**
 	 * Operation for moving text and media from one document region to another
 	 * region
@@ -49,6 +51,8 @@ public abstract class Op {
 	 * Operation for putting an invariant span of text into a stream
 	 */
 	public static final byte PUT_INVARIANT_SPAN = 0x1;
+
+	public static final byte PUT_META_DATA = 0x20;
 
 	/**
 	 * Operation for putting an overlay onto a region of a stream

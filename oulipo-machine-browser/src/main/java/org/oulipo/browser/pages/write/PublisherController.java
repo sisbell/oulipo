@@ -21,11 +21,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -36,27 +33,18 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyledText;
 import org.oulipo.browser.api.AddressBarController;
 import org.oulipo.browser.editor.DocumentArea;
-import org.oulipo.browser.editor.LinkFactory;
 import org.oulipo.browser.editor.LinkType;
 import org.oulipo.browser.editor.ParStyle;
 import org.oulipo.browser.editor.remote.IpfsRemoteImage;
 import org.oulipo.browser.editor.remote.RemoteImage;
 import org.oulipo.browser.pages.BaseController;
-import org.oulipo.browser.tables.ButtonsCreator;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.resources.model.Document;
-import org.oulipo.resources.model.Link;
-import org.oulipo.resources.model.Virtual;
-import org.oulipo.resources.ops.HyperOperation;
+import org.oulipo.resources.HyperOperation;
 import org.oulipo.services.responses.Endset;
-import org.oulipo.services.responses.EndsetByType;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.VariantStream;
-import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.impl.RopeVariantStream;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 import org.reactfx.SuspendableNo;
 import org.reactfx.util.Either;
 
@@ -65,7 +53,6 @@ import com.google.common.io.BaseEncoding;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXButton.ButtonType;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
@@ -80,9 +67,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public final class PublisherController extends BaseController {
 
@@ -94,7 +78,7 @@ public final class PublisherController extends BaseController {
 
 	private final SuspendableNo updatingToolbar = new SuspendableNo();
 
-	private VariantStream<Overlay> variantStream;
+	private VariantStream<OverlayStream> variantStream;
 
 	private Button createMaterialButton(String resource, Runnable action, String toolTip) {
 		Image image = new Image(getClass().getResourceAsStream("/images/ic_" + resource + "_black_24dp_1x.png"));
@@ -188,50 +172,6 @@ public final class PublisherController extends BaseController {
 
 	}
 
-	private void getEndsets() throws MalformedTumblerException, IOException {
-		tumblerService.getEndsets(address.toExternalForm(), new Callback<EndsetByType>() {
-
-			@Override
-			public void onFailure(Call<EndsetByType> arg0, Throwable arg1) {
-				arg1.printStackTrace();
-				ctx.showMessage("Failed to retreive endsets: " + arg1.getMessage());
-			}
-
-			@Override
-			public void onResponse(Call<EndsetByType> arg0, Response<EndsetByType> arg1) {
-				EndsetByType endset = arg1.body();
-				endsets = endset.endsets;
-
-				Platform.runLater(() -> {
-					for (Entry<String, Endset> e : endsets.entrySet()) {
-						TumblerAddress linkType = TumblerAddress.createWithNoException(e.getKey());
-						HashSet<TumblerAddress> spans = e.getValue().fromVSpans;
-						for (TumblerAddress span : spans) {
-							System.out.println("Apply span: " + span + ", " + linkType);
-							area.applyStyle(span, linkType);
-
-						}
-					}
-				});
-				System.out.println("ENDSETS: " + endsets);
-			}
-		});
-	}
-
-	private List<String> getLinkAddressesForType(TumblerAddress linkType) {
-		List<String> linkAddresses = new ArrayList<>();
-		for (Map.Entry<String, Endset> entry : endsets.entrySet()) {
-			Endset endset = entry.getValue();
-			for (TumblerAddress type : endset.types) {
-				if (type.equals(linkType)) {
-					linkAddresses.add(entry.getKey());
-					break;
-				}
-			}
-		}
-		return linkAddresses;
-	}
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -313,7 +253,7 @@ public final class PublisherController extends BaseController {
 		System.out.println("------------------------------");
 
 		try {
-			for (Overlay span : variantStream.getStreamElements()) {
+			for (OverlayStream span : variantStream.getStreamElements()) {
 				System.out.println(span);
 			}
 		} catch (MalformedSpanException e1) {
@@ -322,127 +262,49 @@ public final class PublisherController extends BaseController {
 
 		for (HyperOperation hop : hops) {
 			System.out.println("SAVE:" + hop);
-			//TODO: these will be replaced by either DocumentFile.Builder or an OulipoMachone
+			// TODO: these will be replaced by either DocumentFile.Builder or an
+			// OulipoMachone
 			/*
-			if (hop.getOperation().equals(OpCode.INSERT_TEXT)) {
-				InsertTextOp op = new InsertTextOp(hop.getDocumentRegion().getStart() + 1, hop.getText());
-				try {
-					operations.write(op.encode());
-				} catch (IOException e) {
-					ctx.showMessage("Failed to write operation: " + e.getMessage());
-					e.printStackTrace();
-				}
-			} else if (hop.getOperation().equals(OpCode.DELETE)) {
-				try {
-					DeleteVariantOp op = new DeleteVariantOp(new VariantSpan((long) hop.getDocumentRegion().getStart() + 1,
-							(long) hop.getText().length()));
-					operations.write(op.encode());
-				} catch (IOException e) {
-					ctx.showMessage("Failed to write operation: " + e.getMessage());
-					e.printStackTrace();
-				} catch (MalformedSpanException e) {
-					e.printStackTrace();
-				}
-			}
-			*/
+			 * if (hop.getOperation().equals(OpCode.INSERT_TEXT)) { InsertTextOp op = new
+			 * InsertTextOp(hop.getDocumentRegion().getStart() + 1, hop.getText()); try {
+			 * operations.write(op.encode()); } catch (IOException e) {
+			 * ctx.showMessage("Failed to write operation: " + e.getMessage());
+			 * e.printStackTrace(); } } else if (hop.getOperation().equals(OpCode.DELETE)) {
+			 * try { DeleteVariantOp op = new DeleteVariantOp(new VariantSpan((long)
+			 * hop.getDocumentRegion().getStart() + 1, (long) hop.getText().length()));
+			 * operations.write(op.encode()); } catch (IOException e) {
+			 * ctx.showMessage("Failed to write operation: " + e.getMessage());
+			 * e.printStackTrace(); } catch (MalformedSpanException e) {
+			 * e.printStackTrace(); } }
+			 */
 		}
 		hops.clear();
 
-		try {
-			String opMessage = BaseEncoding.base64Url().encode(operations.toByteArray());
-			System.out.println("Data: " + opMessage);
-			tumblerService.loadOperations(address.value, opMessage, new Callback<String>() {
+		String opMessage = BaseEncoding.base64Url().encode(operations.toByteArray());
+		System.out.println("Data: " + opMessage);
+		/*
+		 * tumblerService.loadOperations(address.value, opMessage, new
+		 * Callback<String>() {
+		 * 
+		 * @Override public void onFailure(Call<String> arg0, Throwable arg1) {
+		 * arg1.printStackTrace();
+		 * ctx.showMessage("Failed to sync document changes with Oulipo Server: " +
+		 * arg1.getMessage()); }
+		 * 
+		 * @Override public void onResponse(Call<String> arg0, Response<String> arg1) {
+		 * ctx.showMessage("Synched document changes with Oulipo Server"); } });
+		 */
 
-				@Override
-				public void onFailure(Call<String> arg0, Throwable arg1) {
-					arg1.printStackTrace();
-					ctx.showMessage("Failed to sync document changes with Oulipo Server: " + arg1.getMessage());
-				}
-
-				@Override
-				public void onResponse(Call<String> arg0, Response<String> arg1) {
-					ctx.showMessage("Synched document changes with Oulipo Server");
-				}
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
-			ctx.showMessage("Failed to sync document changes with Oulipo Server: " + e.getMessage());
-		}
-
-		// TODO: bulk upload
-		Link boldLink = LinkFactory.bold(address);
-		Link underlineLink = LinkFactory.underline(address);
-		Link strikeThroughLink = LinkFactory.strikeThrough(address);
-		Link italicLink = LinkFactory.italic(address);
-
-		try {
-			int position = 1;
-			for (Overlay overlaySpan : variantStream.getStreamElements()) {
-				try {
-					TumblerAddress s = TumblerAddress
-							.create(address.toExternalForm() + ".0.1." + position + "~1." + overlaySpan.getWidth());
-					position += overlaySpan.getWidth();
-
-					if (overlaySpan.hasLinkType(TumblerAddress.BOLD)) {
-						System.out.println("Add bold: " + overlaySpan);
-						boldLink.fromVSpans.add(s);
-					}
-					if (overlaySpan.hasLinkType(TumblerAddress.ITALIC)) {
-						System.out.println("Add italic: " + overlaySpan);
-						italicLink.fromVSpans.add(s);
-					}
-					if (overlaySpan.hasLinkType(TumblerAddress.UNDERLINE)) {
-						underlineLink.fromVSpans.add(s);
-					}
-					if (overlaySpan.hasLinkType(TumblerAddress.STRIKE_THROUGH)) {
-						strikeThroughLink.fromVSpans.add(s);
-					}
-				} catch (MalformedTumblerException e) {
-					e.printStackTrace();
-				}
-			}
-		} catch (MalformedSpanException e) {
-			e.printStackTrace();
-		}
-		setLink(boldLink);
-		setLink(italicLink);
-		setLink(strikeThroughLink);
-		setLink(underlineLink);
-	}
-
-	private void setLink(Link link) {
-		System.out.println("Set link: " + link);
-		try {
-			tumblerService.createOrUpdateLink(link, new Callback<Link>() {
-
-				@Override
-				public void onFailure(Call<Link> arg0, Throwable arg1) {
-					arg1.printStackTrace();
-					ctx.showMessage("Failed to sync link changes with Oulipo Server: " + arg1.getMessage());
-				}
-
-				@Override
-				public void onResponse(Call<Link> arg0, Response<Link> arg1) {
-					Link link = arg1.body();
-					ctx.showMessage("Synced link changes with Oulipo Server: " + link.resourceId);
-					System.out.println(link);
-				}
-
-			});
-		} catch (IOException e) {
-			ctx.showMessage("Failed to sync link changes with Oulipo Server: " + e.getMessage());
-			e.printStackTrace();
-		}
 	}
 
 	@Override
-	public void show(AddressBarController controller) throws MalformedTumblerException, IOException {
+	public void show(AddressBarController controller) throws IOException {
 		super.show(controller);
 
 		// controller.getContext().getAccountManager().getActiveAccount().publicKey
 		// controller.getContext().getApplicationContext().getStage(id)
-		variantStream = new RopeVariantStream<Overlay>(address);
-		this.area = DocumentArea.newInstance(address, ctx, variantStream);
+		variantStream = new RopeVariantStream<OverlayStream>(address.value);
+		this.area = DocumentArea.newInstance(address.value, ctx, variantStream);
 		this.renderPane = new VirtualizedScrollPane<>(area);
 		area.setMaxWidth(500);
 
@@ -459,73 +321,35 @@ public final class PublisherController extends BaseController {
 		vbox.setMaxWidth(500);
 
 		renderPane.prefHeightProperty().bind(vbox.heightProperty());
+		/*
+		 * tumblerService.getDocument(address.value, new retrofit2.Callback<Document>()
+		 * {
+		 * 
+		 * @Override public void onFailure(Call<Document> arg0, Throwable arg1) {
+		 * arg1.printStackTrace();
+		 * ctx.showMessage("Problem getting document meta-data: " + arg1.getMessage());
+		 * }
+		 * 
+		 * @Override public void onResponse(Call<Document> arg0, Response<Document>
+		 * response) { Platform.runLater(() -> {
+		 * 
+		 * if (response.isSuccessful()) { final Document document = response.body();
+		 * ctx.getTabManager().getSelectedTab().setTitle(document.title);
+		 * addressBarController.addContent(vbox, document.title);
+		 * 
+		 * } else { addressBarController.addContent(vbox, "New Title"); }
+		 * 
+		 * // TODO: Does user own this document? HBox box = new HBox();
+		 * box.getChildren().add(ButtonsCreator.writeDocument(addressBarController,
+		 * address)); addressBarController.addRightAddressBar(null); });
+		 * 
+		 * } });
+		 */
 
-		tumblerService.getDocument(address.toTumblerAuthority(), new retrofit2.Callback<Document>() {
-
-			@Override
-			public void onFailure(Call<Document> arg0, Throwable arg1) {
-				arg1.printStackTrace();
-				ctx.showMessage("Problem getting document meta-data: " + arg1.getMessage());
-			}
-
-			@Override
-			public void onResponse(Call<Document> arg0, Response<Document> response) {
-				Platform.runLater(() -> {
-
-					if (response.isSuccessful()) {
-						final Document document = response.body();
-						ctx.getTabManager().getSelectedTab().setTitle(document.title);
-						addressBarController.addContent(vbox, document.title);
-
-					} else {
-						addressBarController.addContent(vbox, "New Title");
-					}
-
-					// TODO: Does user own this document?
-					HBox box = new HBox();
-					box.getChildren().add(ButtonsCreator.writeDocument(addressBarController, address));
-					addressBarController.addRightAddressBar(null);
-				});
-
-			}
-		});
-
-		//We could get this locally by pulling out chain of hashes
-		//and building through OulipoMachine. Then call getVariants().
-		//If user doesn't own document then can't chain edits.
-		tumblerService.getVirtual(address.toTumblerAuthority(), null, new retrofit2.Callback<Virtual>() {
-
-			@Override
-			public void onFailure(Call<Virtual> arg0, Throwable arg1) {
-				arg1.printStackTrace();
-				ctx.showMessage("Unable to fetch text from server: " + arg1.getMessage());
-			}
-
-			@Override
-			public void onResponse(Call<Virtual> arg0, Response<Virtual> response) {
-				if (response.isSuccessful()) {
-					final Virtual virtual = response.body();
-
-					Platform.runLater(() -> {
-						// TODO: apply links
-						area.writeOpsOff();
-						for (VirtualContent vc : virtual.content) {
-							if(!vc.homeDocument.equals(address)) {
-								//TODO: transclusion add to overlay style
-							}
-							area.appendText(vc.content);
-						}
-						area.writeOpsOn();
-						try {
-							getEndsets();
-						} catch (IOException e) {
-							e.printStackTrace();
-							ctx.showMessage("Problem retrieving document endsets: " + e.getMessage());
-						}
-					});
-				}
-			}
-		});
+		// We could get this locally by pulling out chain of hashes
+		// and building through OulipoMachine. Then call getVariants().
+		// If user doesn't own document then can't chain edits.
+		// TODO: GET VIRTUAL CONTEXT FROM DOCUMENT_FILE
 	}
 
 	private Separator verticalSeparator() {

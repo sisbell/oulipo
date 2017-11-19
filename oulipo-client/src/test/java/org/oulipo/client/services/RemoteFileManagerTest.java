@@ -17,13 +17,12 @@ package org.oulipo.client.services;
 
 import java.io.File;
 
-import org.junit.Test;
 import org.oulipo.services.IpfsFileManager;
 import org.oulipo.streams.RemoteFileManager;
 
 public class RemoteFileManagerTest {
 
-	//@Test
+	// @Test
 	public void add() throws Exception {
 		RemoteFileManager m = new IpfsFileManager();
 		String hash = m.add(new File("Sample.txt"));

@@ -23,12 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
+import org.oulipo.streams.overlays.Overlay;
 import org.oulipo.streams.types.InvariantSpan;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 import org.oulipo.streams.types.StreamElement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +42,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	/**
 	 * Home document of invariant spans
 	 */
-	private final TumblerAddress homeDocument;
+	private final String documentHash;
 
 	/**
 	 * Mapper for reading and writing to/from JSON
@@ -60,8 +60,8 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	 * @param homeDocument
 	 *            the home document of invariant spans
 	 */
-	public RopeVariantStream(TumblerAddress homeDocument) {
-		this.homeDocument = homeDocument;
+	public RopeVariantStream(String documentHash) {
+		this.documentHash = documentHash;
 	}
 
 	/**
@@ -72,14 +72,14 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	 * @param root
 	 *            the root node
 	 */
-	public RopeVariantStream(TumblerAddress homeDocument, Node<T> root) {
-		this.homeDocument = homeDocument;
+	public RopeVariantStream(String documentHash, Node<T> root) {
+		this.documentHash = documentHash;
 		this.root = root;
 	}
 
-	private boolean addOverlay(TumblerAddress link, List<T> overlays) {
+	private boolean addOverlay(Overlay link, List<T> overlays) {
 		for (T overlaySpan : overlays) {
-			if ((overlaySpan instanceof Overlay) && !((Overlay) overlaySpan).hasLinkType(link)) {
+			if ((overlaySpan instanceof OverlayStream) && !((OverlayStream) overlaySpan).hasLinkType(link)) {
 				return true;
 			}
 		}
@@ -155,8 +155,8 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	}
 
 	@Override
-	public TumblerAddress getHomeDocument() {
-		return homeDocument;
+	public String getDocumentHash() {
+		return documentHash;
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 				long b = Math.max(0, end - targetEnd);
 
 				VariantSpan vs = new VariantSpan(index + a, span.getWidth() - b - a);
-				vs.homeDocument = homeDocument.value;// TODO: transcluded
+				vs.documentHash = documentHash;// TODO: transcluded
 				vspans.add(vs);
 			}
 
@@ -337,18 +337,17 @@ public final class RopeVariantStream<T extends StreamElement> implements Variant
 	}
 
 	@Override
-	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress linkType)
-			throws MalformedSpanException, IOException {
+	public void toggleOverlay(VariantSpan variantSpan, Overlay linkType) throws MalformedSpanException, IOException {
 		List<T> overlays = getStreamElements(variantSpan);
 		if (addOverlay(linkType, overlays)) {
 			for (StreamElement span : overlays) {
-				Overlay overlay = (Overlay) span;
-				overlay.addLinkType(linkType);
+				OverlayStream overlayStream = (OverlayStream) span;
+				overlayStream.addLinkType(linkType);
 			}
 		} else {
 			for (StreamElement span : overlays) {
-				Overlay overlay = (Overlay) span;
-				overlay.removeLinkType(linkType);
+				OverlayStream overlayStream = (OverlayStream) span;
+				overlayStream.removeLinkType(linkType);
 			}
 		}
 

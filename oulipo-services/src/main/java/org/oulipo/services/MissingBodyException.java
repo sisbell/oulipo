@@ -15,33 +15,33 @@
  *******************************************************************************/
 package org.oulipo.services;
 
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.net.TumblerResourceException;
+import org.oulipo.streams.IRI;
+import org.oulipo.streams.IriResourceException;
 
 /**
  * Thrown when a request is missing the request body
  */
-public class MissingBodyException extends TumblerResourceException {
+public class MissingBodyException extends IriResourceException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4879473897613471882L;
 
-	public MissingBodyException(TumblerAddress tumblerAddress) {
-		super(tumblerAddress);
+	public MissingBodyException(IRI iri) {
+		super(iri);
 	}
 
-	public MissingBodyException(TumblerAddress tumblerAddress, String message) {
-		super(tumblerAddress, message);
+	public MissingBodyException(IRI iri, String message) {
+		super(iri, message);
 	}
 
-	public MissingBodyException(TumblerAddress tumblerAddress, String message, Throwable cause) {
-		super(tumblerAddress, message, cause);
+	public MissingBodyException(IRI iri, String message, Throwable cause) {
+		super(iri, message, cause);
 	}
 
-	public MissingBodyException(TumblerAddress tumblerAddress, Throwable cause) {
-		super(tumblerAddress, cause);
+	public MissingBodyException(IRI iri, Throwable cause) {
+		super(iri, cause);
 	}
 
 }

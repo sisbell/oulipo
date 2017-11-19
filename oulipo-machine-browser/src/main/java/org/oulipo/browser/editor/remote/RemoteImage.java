@@ -44,17 +44,16 @@ public interface RemoteImage<S> {
 	 * @return node view for image
 	 */
 	Node createNode(RemoteFileManager fileManager);
-	
+
 	/**
 	 * Gets unique hash for image
 	 * 
 	 * @return unique has for image
 	 */
 	String getHash();
-	
+
 	S getStyle();
 
 	RemoteImage<S> setStyle(S style);
 
-	
 }

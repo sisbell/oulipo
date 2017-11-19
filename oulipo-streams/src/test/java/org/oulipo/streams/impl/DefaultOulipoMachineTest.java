@@ -24,15 +24,16 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VirtualContent;
 import org.oulipo.streams.types.InvariantSpan;
-import org.oulipo.streams.types.Overlay;
+import org.oulipo.streams.types.OverlayStream;
 
 public class DefaultOulipoMachineTest {
+
+	public static final String documentHash = "fakeHash";
 
 	private static void deleteDir(File dir) {
 		if (dir.isDirectory()) {
@@ -49,10 +50,9 @@ public class DefaultOulipoMachineTest {
 
 	@Test
 	public void append() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
 
 		DefaultOulipoMachine som = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+				documentHash);
 		InvariantSpan span = som.append("Hello");
 		assertEquals(span.getStart(), 1);
 		assertEquals(span.getWidth(), 5);
@@ -69,12 +69,10 @@ public class DefaultOulipoMachineTest {
 
 	@Test
 	public void deleteRange() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
-
 		DefaultOulipoMachine som = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+				documentHash);
 		som.insert(1, "My first document");
-		som.putOverlay(1, new Overlay(17));
+		som.putOverlay(1, new OverlayStream(17));
 
 		som.deleteVariant(new VariantSpan(4, 6));
 
@@ -83,13 +81,11 @@ public class DefaultOulipoMachineTest {
 
 	@Test
 	public void getText() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1925.1.1");
-
 		DefaultOulipoMachine som = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+				documentHash);
 		som.append("Hello");
 		som.append("World");
-		String result = som.getText(new InvariantSpan(5, 5, homeDocument));
+		String result = som.getText(new InvariantSpan(5, 5, documentHash));
 		assertEquals("oWorl", result);
 	}
 
@@ -104,20 +100,16 @@ public class DefaultOulipoMachineTest {
 
 	@Test
 	public void insertAndGetText() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.1.1");
-
 		DefaultOulipoMachine som = DefaultOulipoMachine.createWritableMachine(streamLoader, new MockRemoteFileManager(),
-				homeDocument);
+				documentHash);
 		som.insert(1, "My first document");
-		assertEquals("first", som.getText(new InvariantSpan(4, 5, homeDocument)));
+		assertEquals("first", som.getText(new InvariantSpan(4, 5, documentHash)));
 	}
 
 	@Test
 	public void mixTest() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.3.1");
-
 		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader,
-				new MockRemoteFileManager(), homeDocument);
+				new MockRemoteFileManager(), documentHash);
 		machine.insert(1, "Hello my name is Simon");
 		assertEquals("Hello my name is Simon", getText(machine));
 
@@ -138,10 +130,8 @@ public class DefaultOulipoMachineTest {
 
 	@Test
 	public void moveVariant() throws Exception {
-		TumblerAddress homeDocument = TumblerAddress.create("1.999.0.56831.0.1924.3.1");
-
 		DefaultOulipoMachine machine = DefaultOulipoMachine.createWritableMachine(streamLoader,
-				new MockRemoteFileManager(), homeDocument);
+				new MockRemoteFileManager(), documentHash);
 		machine.insert(1, "My first document");
 		assertEquals("My first document", getText(machine));
 

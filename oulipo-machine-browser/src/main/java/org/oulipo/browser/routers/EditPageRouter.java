@@ -18,17 +18,9 @@ package org.oulipo.browser.routers;
 import java.io.IOException;
 
 import org.oulipo.browser.api.Page;
-import org.oulipo.browser.api.Page.View;
 import org.oulipo.browser.api.PageRouter;
 import org.oulipo.browser.api.Scheme;
-import org.oulipo.browser.pages.NewDocumentController;
-import org.oulipo.browser.pages.NewUserController;
-import org.oulipo.browser.pages.RegisterNodeController;
-import org.oulipo.browser.pages.UpdateDocumentController;
-import org.oulipo.browser.pages.UpdateNodeController;
-import org.oulipo.browser.pages.UpdateUserController;
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.TumblerAddress;
+import org.oulipo.streams.MalformedSpanException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -74,28 +66,16 @@ public final class EditPageRouter implements PageRouter {
 	 *             if there is I/O exception in making the network request
 	 */
 	public Page putRouteController(String url, String body) throws IOException {
-		TumblerAddress tumbler = TumblerAddress.create(url);
-		String path = tumbler.getPath();
+		/*
+		 * TumblerAddress tumbler = TumblerAddress.create(url); String path =
+		 * tumbler.getPath();
+		 * 
+		 * if (tumbler.isUserTumbler()) { if (path.equals("/documents")) { return new
+		 * Page(new NewDocumentController()); } else { return new Page(new
+		 * UpdateUserController()); } } else if (tumbler.isDocumentTumbler()) { return
+		 * new Page(new UpdateDocumentController()); }
+		 */
 
-		if (tumbler.isNetworkTumbler()) {
-			return new Page(new RegisterNodeController(), new View("/org/oulipo/browser/pages/RegisterNodeView.fxml"));
-		} else if (tumbler.isNodeTumbler()) {
-			if (path.equals("/users")) {
-				return new Page(new NewUserController());
-			} else {
-				return new Page(new UpdateNodeController());
-			}
-		} else if (tumbler.isUserTumbler()) {
-			if (path.equals("/documents")) {
-				return new Page(new NewDocumentController());
-			} else {
-				return new Page(new UpdateUserController());
-			}
-		} else if (tumbler.isDocumentTumbler()) {
-			return new Page(new UpdateDocumentController());
-		} else if (tumbler.isElementTumbler() && tumbler.isLinkElement()) {
-
-		}
 		return null;
 	}
 }

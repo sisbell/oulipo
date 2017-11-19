@@ -16,23 +16,22 @@
 package org.oulipo.streams.impl;
 
 import java.io.IOException;
+import java.security.Key;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.oulipo.net.MalformedSpanException;
-import org.oulipo.net.MalformedTumblerException;
-import org.oulipo.net.TumblerAddress;
-import org.oulipo.streams.DocumentFile;
-import org.oulipo.streams.DocumentFile.Builder;
 import org.oulipo.streams.InvariantStream;
+import org.oulipo.streams.MalformedSpanException;
 import org.oulipo.streams.OulipoMachine;
 import org.oulipo.streams.RemoteFileManager;
 import org.oulipo.streams.StreamLoader;
 import org.oulipo.streams.VariantSpan;
 import org.oulipo.streams.VariantStream;
+import org.oulipo.streams.document.DocumentFile;
+import org.oulipo.streams.document.DocumentFile.Builder;
 import org.oulipo.streams.opcodes.ApplyOverlayOp;
 import org.oulipo.streams.opcodes.CopyVariantOp;
 import org.oulipo.streams.opcodes.DeleteVariantOp;
@@ -44,11 +43,12 @@ import org.oulipo.streams.opcodes.PutOverlayMediaOp;
 import org.oulipo.streams.opcodes.PutOverlayOp;
 import org.oulipo.streams.opcodes.SwapVariantOp;
 import org.oulipo.streams.opcodes.ToggleOverlayOp;
+import org.oulipo.streams.overlays.Overlay;
 import org.oulipo.streams.types.Invariant;
 import org.oulipo.streams.types.InvariantMedia;
 import org.oulipo.streams.types.InvariantSpan;
-import org.oulipo.streams.types.Overlay;
 import org.oulipo.streams.types.OverlayMedia;
+import org.oulipo.streams.types.OverlayStream;
 
 import com.google.common.base.Strings;
 
@@ -72,17 +72,17 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	}
 
 	public static DefaultOulipoMachine createWritableMachine(StreamLoader loader, RemoteFileManager remoteFileManager,
-			TumblerAddress tumbler) throws IOException, MalformedSpanException {
-		return new DefaultOulipoMachine(loader, remoteFileManager, tumbler);
+			String documentHash) throws IOException, MalformedSpanException {
+		return new DefaultOulipoMachine(loader, remoteFileManager, documentHash, null);
 	}
 
 	protected final Builder documentBuilder;
 
-	private final TumblerAddress homeDocument;
+	private final String documentHash;
 
 	private final InvariantStream iStream;
 
-	private VariantStream<Overlay> oStream;
+	private VariantStream<OverlayStream> oStream;
 
 	private final RemoteFileManager remoteFileManager;
 
@@ -92,8 +92,8 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 
 	private boolean writeDocFile = false;
 
-	public DefaultOulipoMachine(StreamLoader stream, RemoteFileManager remoteFileManager, TumblerAddress homeDocument)
-			throws IOException, MalformedSpanException {
+	public DefaultOulipoMachine(StreamLoader stream, RemoteFileManager remoteFileManager, String documentHash,
+			Key privateKey) throws IOException, MalformedSpanException {
 		if (stream == null) {
 			throw new IllegalArgumentException("streamLoader is null");
 		}
@@ -102,29 +102,37 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 			throw new IllegalArgumentException("remoteFileManager is null");
 		}
 
-		if (homeDocument == null) {
-			throw new IllegalArgumentException("homeDocument is null");
+		if (Strings.isNullOrEmpty(documentHash)) {
+			throw new IllegalArgumentException("documentHash is null");
 		}
 
 		this.stream = stream;
 		this.remoteFileManager = remoteFileManager;
 
-		this.documentBuilder = new DocumentFile.Builder(homeDocument);
-
-		this.iStream = stream.openInvariantStream(homeDocument);
-		this.vStream = stream.openInvariantVariantStream(homeDocument);
-		this.oStream = stream.openOverlayVariantStream(homeDocument);
-		this.homeDocument = homeDocument;
+		this.documentBuilder = new DocumentFile.Builder(documentHash);
+		// TODO: stream needs encrypted stream
+		this.iStream = stream.openInvariantStream(documentHash, privateKey);
+		this.vStream = stream.openInvariantVariantStream(documentHash);
+		this.oStream = stream.openOverlayVariantStream(documentHash);
+		this.documentHash = documentHash;
 	}
 
 	@Override
 	public InvariantSpan append(String text) throws IOException, MalformedSpanException {
-		return iStream.append(text);
+		return iStream.append(text);// TODO: encrypted????
 	}
 
 	@Override
-	public void applyOverlays(VariantSpan variantSpan, Set<TumblerAddress> links)
-			throws MalformedSpanException, IOException {
+	public void applyOverlays(VariantSpan variantSpan, Set<Overlay> links) throws MalformedSpanException, IOException {// links
+																														// are
+																														// objects:
+																														// string
+																														// or
+																														// IRI?,
+																														// predeicate
+																														// will
+																														// be
+																														// linkType
 		assertSpanNotNull(variantSpan);
 
 		oStream.applyOverlays(variantSpan, links);
@@ -157,8 +165,7 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 		}
 	}
 
-	private void executeOps(DocumentFile document)
-			throws MalformedTumblerException, MalformedSpanException, IOException {
+	private void executeOps(DocumentFile document) throws MalformedSpanException, IOException {
 		for (Op op : document.getOps()) {
 			switch (op.getCode()) {
 			case Op.COPY:
@@ -175,23 +182,21 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 				break;
 			case Op.PUT_OVERLAY_MEDIA:
 				PutOverlayMediaOp pmo = (PutOverlayMediaOp) op;
-				putOverlay(pmo.to, new OverlayMedia(document.getTumblerAddress(pmo.mediaTumblerIndex),
-						document.getMediaHash(pmo.hash), document.getTumblerAddresses(pmo.linkTypes)));
+				putOverlay(pmo.to, new OverlayMedia(document.getString(pmo.hash), document.getOverlays(pmo.linkTypes)));
 				break;
 			case Op.PUT_INVARIANT_MEDIA:
 				PutInvariantMediaOp pmso = (PutInvariantMediaOp) op;
-				putInvariant(pmso.to, new InvariantMedia(document.getMediaHash(pmso.mediaPoolIndex),
-						document.getTumblerAddress(pmso.mediaTumblerIndex)));
+				putInvariant(pmso.to, new InvariantMedia(document.getString(pmso.ripIndex)));
 				break;
 			case Op.PUT_OVERLAY:
 				PutOverlayOp poo = (PutOverlayOp) op;
 				putOverlay(poo.variantSpan.start,
-						new Overlay(poo.variantSpan.width, document.getTumblerAddresses(poo.linkTypes)));
+						new OverlayStream(poo.variantSpan.width, document.getOverlays(poo.linkTypes)));
 				break;
 			case Op.PUT_INVARIANT_SPAN:
 				PutInvariantSpanOp pso = (PutInvariantSpanOp) op;
-				putInvariant(pso.to, new InvariantSpan(pso.invariantStart, pso.width,
-						document.getTumblerAddress(pso.homeDocumentIndex)));
+				putInvariant(pso.to,
+						new InvariantSpan(pso.invariantStart, pso.width, document.getString(pso.ripIndex)));
 				break;
 			case Op.SWAP:
 				SwapVariantOp svo = (SwapVariantOp) op;
@@ -199,11 +204,11 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 				break;
 			case Op.APPLY_OVERLAY:
 				ApplyOverlayOp aoo = (ApplyOverlayOp) op;
-				applyOverlays(aoo.variantSpan, document.getTumblerAddresses(aoo.linkTypes));
+				applyOverlays(aoo.variantSpan, document.getOverlays(aoo.linkTypes));
 				break;
 			case Op.TOGGLE_OVERLAY:
 				ToggleOverlayOp too = (ToggleOverlayOp) op;
-				toggleOverlay(too.variantSpan, document.getTumblerAddress(too.linkTypeIndex));
+				toggleOverlay(too.variantSpan, document.getOverlay(too.linkTypeIndex));
 				break;
 			}
 		}
@@ -215,8 +220,8 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	}
 
 	@Override
-	public TumblerAddress getHomeDocument() {
-		return homeDocument;
+	public String getDocumentHash() {
+		return documentHash;
 	}
 
 	@Override
@@ -233,7 +238,7 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	@Override
 	public String getText(InvariantSpan invariantSpan) throws IOException {
 		assertSpanNotNull(invariantSpan);
-		return iStream.getText(invariantSpan);
+		return iStream.getText(invariantSpan);// TODO: encrypted??
 	}
 
 	@Override
@@ -254,18 +259,35 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 		if (Strings.isNullOrEmpty(text)) {
 			throw new IllegalArgumentException("Text can't be empty");
 		}
-		InvariantSpan ispan = iStream.append(text);
+		InvariantSpan ispan = iStream.append(text);// TODO: encrypted
 		vStream.put(to, ispan);
-		putOverlay(to, new Overlay(ispan.getWidth()));
+		putOverlay(to, new OverlayStream(ispan.getWidth()));
 	}
 
 	@Override
-	public void loadDocument(String hash)
-			throws MalformedTumblerException, MalformedSpanException, IOException, SignatureException {
+	public void insertEncrypted(long to, String text) throws IOException, MalformedSpanException {
+		assertGreaterThanZero(to);
+		if (Strings.isNullOrEmpty(text)) {
+			throw new IllegalArgumentException("Text can't be empty");
+		}
+		InvariantSpan ispan = iStream.append(text);// TODO: encrypted
+		vStream.put(to, ispan);
+		putOverlay(to, new OverlayStream(ispan.getWidth()));
+	}
+
+	@Override
+	public void loadDocument(String hash) throws MalformedSpanException, IOException, SignatureException {
 		if (Strings.isNullOrEmpty(hash)) {
 			throw new IllegalArgumentException("hash is null");
 		}
-		List<DocumentFile> documents = processFiles(hash);
+		List<DocumentFile> documents;
+		try {
+			documents = processFiles(hash);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
 		Collections.reverse(documents);
 		for (DocumentFile document : documents) {
 			executeOps(document);
@@ -285,10 +307,10 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	}
 
 	private List<DocumentFile> processFiles(String hash)
-			throws IOException, SignatureException, MalformedSpanException {
+			throws IOException, SignatureException, MalformedSpanException, Exception {
 		List<DocumentFile> documents = new ArrayList<>();
 		byte[] doc = remoteFileManager.get(hash);// TODO: check local cache
-		DocumentFile file = DocumentFile.read(doc);
+		DocumentFile file = DocumentFile.decompiler().decompile(hash, doc);
 		if (!Strings.isNullOrEmpty(file.getHashPreviousBlock())) {
 			documents.addAll(processFiles(file.getHashPreviousBlock()));
 		}
@@ -304,28 +326,28 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 			InvariantSpan is = (InvariantSpan) invariant;
 			insert(is.getStart(), "");// GET TEXT from text area
 			if (writeDocFile) {
-				documentBuilder.putInvariantSpan(to, is.getStart(), is.getWidth(), homeDocument);
+				documentBuilder.putInvariantSpan(to, is.getStart(), is.getWidth(), documentHash);
 			}
 		} else if (invariant instanceof InvariantMedia) {
 			InvariantMedia im = (InvariantMedia) invariant;
 			vStream.put(to, im);
 			if (writeDocFile) {
-				documentBuilder.putInvariantMediaOp(to, im.hash, im.mediaAddress);
+				documentBuilder.putInvariantMediaOp(to, im.hash);
 			}
 		}
 	}
 
 	@Override
-	public void putOverlay(long to, Overlay overlay) throws MalformedSpanException, IOException {
+	public void putOverlay(long to, OverlayStream overlayStream) throws MalformedSpanException, IOException {
 		assertGreaterThanZero(to);
-		oStream.put(to, overlay);
+		oStream.put(to, overlayStream);
 
 		if (writeDocFile) {
-			if (overlay instanceof Overlay) {
-				documentBuilder.putOverlayOp(new VariantSpan(to, overlay.getWidth()), overlay.linkTypes);
-			} else if (overlay instanceof OverlayMedia) {
-				OverlayMedia om = (OverlayMedia) overlay;
-				documentBuilder.putOverlayMediaOp(to, om.hash, om.mediaAddress, om.linkTypes);
+			if (overlayStream instanceof OverlayStream) {
+				documentBuilder.putOverlayOp(new VariantSpan(to, overlayStream.getWidth()), overlayStream.linkTypes);
+			} else if (overlayStream instanceof OverlayMedia) {
+				OverlayMedia om = (OverlayMedia) overlayStream;
+				documentBuilder.putOverlayMediaOp(to, om.hash, om.linkTypes);
 			}
 		}
 	}
@@ -343,7 +365,7 @@ public final class DefaultOulipoMachine implements OulipoMachine {
 	}
 
 	@Override
-	public void toggleOverlay(VariantSpan variantSpan, TumblerAddress link) throws MalformedSpanException, IOException {
+	public void toggleOverlay(VariantSpan variantSpan, Overlay link) throws MalformedSpanException, IOException {
 		assertSpanNotNull(variantSpan);
 		oStream.toggleOverlay(variantSpan, link);
 

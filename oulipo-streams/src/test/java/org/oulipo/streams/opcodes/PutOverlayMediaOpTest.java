@@ -29,7 +29,7 @@ public class PutOverlayMediaOpTest {
 	@Test
 	public void encodeDecode() throws Exception {
 		// long to, int hash, int mediaAddress, Set<Integer> linkTypes
-		PutOverlayMediaOp op = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op = new PutOverlayMediaOp(1, 1, Sets.newSet(10, 5));
 		byte[] data = op.encode();
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
 
@@ -41,54 +41,48 @@ public class PutOverlayMediaOpTest {
 
 	@Test
 	public void equalsFalse() throws Exception {
-		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
-		PutOverlayMediaOp op2 = new PutOverlayMediaOp(2, 0, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op2 = new PutOverlayMediaOp(2, 1, Sets.newSet(10, 5));
 		assertFalse(op1.equals(op2));
 		assertFalse(op2.equals(op1));
 	}
 
 	@Test
 	public void equalsTrue() throws Exception {
-		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
-		PutOverlayMediaOp op2 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op2 = new PutOverlayMediaOp(1, 1, Sets.newSet(10, 5));
 		assertEquals(op1, op2);
 		assertEquals(op2, op1);
 	}
 
 	@Test
 	public void hashFalse() throws Exception {
-		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
-		PutOverlayMediaOp op2 = new PutOverlayMediaOp(2, 0, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op2 = new PutOverlayMediaOp(2, 1, Sets.newSet(10, 5));
 		assertFalse(op1.hashCode() == op2.hashCode());
-		;
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void hashOutOfBounds() throws Exception {
-		new PutOverlayMediaOp(1, -1, 1, Sets.newSet(10, 5));
+		new PutOverlayMediaOp(1, -1, Sets.newSet(10, 5));
 	}
 
 	@Test
 	public void hashTrue() throws Exception {
-		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
-		PutOverlayMediaOp op2 = new PutOverlayMediaOp(1, 0, 1, Sets.newSet(10, 5));
+		PutOverlayMediaOp op1 = new PutOverlayMediaOp(1, 0, Sets.newSet(10, 5));
+		PutOverlayMediaOp op2 = new PutOverlayMediaOp(1, 0, Sets.newSet(10, 5));
 		assertEquals(op1.hashCode(), op2.hashCode());
 		;
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void mediaTumblerOutOfBounds() throws Exception {
-		new PutOverlayMediaOp(1, 1, -1, Sets.newSet(10, 5));
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void nullLinks() throws Exception {
-		new PutOverlayMediaOp(1, 1, 1, null);
+		new PutOverlayMediaOp(1, 1, null);
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void positionOutOfBounds() throws Exception {
-		new PutOverlayMediaOp(0, 0, 1, Sets.newSet(10, 5));
+		new PutOverlayMediaOp(0, 1, Sets.newSet(10, 5));
 	}
 
 }
