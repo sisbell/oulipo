@@ -1,0 +1,13 @@
+
+description = 'oulipo-client'
+dependencies {
+    compile group: 'com.squareup.retrofit2', name: 'converter-scalars', version:'2.3.0'
+ 	compile project(':oulipo-streams')
+  	compile project(':oulipo-resources')
+  	compile project(':oulipo-services')
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.0'
+    compile group: 'com.squareup.retrofit2', name: 'retrofit', version:'2.3.0'
+    compile group: 'com.squareup.retrofit2', name: 'converter-jackson', version:'2.3.0'
+    compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version:'3.9.0'
+    compile group: 'com.google.guava', name: 'guava', version:'23.1-jre'
+}

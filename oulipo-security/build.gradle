@@ -1,0 +1,13 @@
+
+description = 'oulipo-security'
+dependencies {
+  compile project(':oulipo-storage')
+  compile project(':oulipo-streams')
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.9.0'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version:'2.6.1'
+    compile group: 'com.madgag.spongycastle', name: 'core', version:'1.51.0.0'
+    compile group: 'com.google.guava', name: 'guava', version:'23.1-jre'
+    compile group: 'org.bitcoinj', name: 'bitcoinj-core', version:'0.14.4'
+    compile group: 'org.json', name: 'json', version:'20160810'
+}

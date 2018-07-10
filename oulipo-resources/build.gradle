@@ -1,0 +1,20 @@
+
+description = 'oulipo-resources'
+dependencies {
+    compile group: 'org.apache.jena', name: 'jena-core', version:'3.4.0'
+    compile group: 'org.apache.jena', name: 'jena-arq', version:'3.4.0'
+    compile group: 'org.apache.jena', name: 'jena-rdfconnection', version:'3.4.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.0'
+    compile group: 'com.squareup.retrofit2', name: 'converter-scalars', version:'2.3.0'
+    compile group: 'com.squareup.retrofit2', name: 'retrofit', version:'2.3.0'
+    compile group: 'com.squareup.retrofit2', name: 'converter-jackson', version:'2.3.0'
+    compile group: 'com.squareup.okhttp3', name: 'logging-interceptor', version:'3.9.0'
+  compile project(':oulipo-storage')
+  compile project(':oulipo-streams')
+  compile project(':oulipo-security')
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.9.0'
+    compile group: 'com.github.andrewoma.dexx', name: 'collection', version:'0.7'
+    compile group: 'com.google.guava', name: 'guava', version:'23.1-jre'
+    compile group: 'org.freemarker', name: 'freemarker', version:'2.3.26-incubating'
+}

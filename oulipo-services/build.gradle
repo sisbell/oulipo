@@ -1,0 +1,7 @@
+
+description = 'oulipo-services'
+dependencies {
+  compile project(':oulipo-resources')
+  compile project(':oulipo-security')
+  compile project(':oulipo-streams')
+}

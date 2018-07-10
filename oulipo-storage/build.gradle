@@ -1,0 +1,7 @@
+
+description = 'oulipo-storage'
+dependencies {
+    compile group: 'com.google.guava', name: 'guava', version:'23.1-jre'
+    compile group: 'org.iq80.leveldb', name: 'leveldb', version:'0.9'
+    compile group: 'org.iq80.leveldb', name: 'leveldb-api', version:'0.9'
+}
