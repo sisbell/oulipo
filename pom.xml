@@ -41,8 +41,7 @@
 		<module>oulipo-machine-server</module>
 		<module>oulipo-services</module>
 		<module>oulipo-browser-framework</module>
-	    <module>oulipo-payments</module>
-  </modules>
+  	</modules>
 
 	<properties>
 		<bitcoinj.version>0.14.4</bitcoinj.version>

@@ -90,7 +90,7 @@ public class OulipoServer {
 		StreamLoader streamLoader = new DefaultStreamLoader(new File("streams"), spec);
 
 		AuthResource authResource = new AuthResource(sessionManager, objectMapper, host);
-		RemoteFileManager remoteFileManager = new org.oulipo.services.IpfsFileManager();
+		RemoteFileManager remoteFileManager = null;//TODO: implement new org.oulipo.services.IpfsFileManager();
 
 		OulipoRequestService serviceRequest = new OulipoRequestService(thingRepo, sessionManager, streamLoader,
 				remoteFileManager);

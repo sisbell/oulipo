@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.oulipo.browser.framework.ExtensionLoader;
-import org.oulipo.services.IpfsFileManager;
 import org.oulipo.streams.RemoteFileManager;
 
 import com.google.common.reflect.ClassPath;
@@ -40,7 +39,7 @@ public class ApplicationContext {
 
 	private LiveSpeechRecognizer recognizer;
 
-	private RemoteFileManager remoteFileManager;
+	private RemoteFileManager remoteFileManager;//TODO: implement
 
 	private Map<String, PageRouter> routers = new HashMap<>();
 	
@@ -72,7 +71,7 @@ public class ApplicationContext {
 			configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
 			recognizer = new LiveSpeechRecognizer(configuration);
-			remoteFileManager = new IpfsFileManager();
+			//remoteFileManager = new IpfsFileManager();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
