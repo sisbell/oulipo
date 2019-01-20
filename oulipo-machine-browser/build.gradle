@@ -1,16 +1,42 @@
 
-description = 'oulipo-machine-browser'
+description = 'oulipo-machine-org.oulipo.browser'
 dependencies {
     compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
     compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
     compile group: 'de.endrullis.draggabletabs', name: 'draggabletabs', version:'1.0.3'
     compile group: 'com.google.inject', name: 'guice', version:'4.1.0'
-  compile project(':oulipo-browser-framework')
-  compile project(':oulipo-streams')
-  compile project(':oulipo-resources')
-  compile project(':oulipo-client')
+    compile project(':oulipo-streams')
+    compile project(':oulipo-resources')
+    compile project(':oulipo-client')
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.0'
     compile group: 'com.jfoenix', name: 'jfoenix', version:'1.9.1'
     compile group: 'org.fxmisc.richtext', name: 'richtextfx', version:'0.7-M5'
     compile group: 'com.squareup.retrofit2', name: 'retrofit', version:'2.3.0'
+    compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+
+}
+buildscript {
+    ext.kotlin_version = '1.3.11'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+apply plugin: 'kotlin'
+repositories {
+    mavenCentral()
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

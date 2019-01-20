@@ -40,14 +40,14 @@ public interface RemoteImage<S> {
 
 	/**
 	 * Gets node view for image
-	 * 
+	 *
 	 * @return node view for image
 	 */
 	Node createNode(RemoteFileManager fileManager);
 
 	/**
 	 * Gets unique hash for image
-	 * 
+	 *
 	 * @return unique has for image
 	 */
 	String getHash();

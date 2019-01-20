@@ -4,17 +4,15 @@ include ':oulipo-streams'
 include ':oulipo-storage'
 include ':oulipo-resources'
 include ':oulipo-client'
-include ':oulipo-machine-browser'
+include ':oulipo-machine-org.oulipo.browser'
 include ':oulipo-machine-server'
 include ':oulipo-services'
-include ':oulipo-browser-framework'
 
 project(':oulipo-security').projectDir = "$rootDir/oulipo-security" as File
 project(':oulipo-streams').projectDir = "$rootDir/oulipo-streams" as File
 project(':oulipo-storage').projectDir = "$rootDir/oulipo-storage" as File
 project(':oulipo-resources').projectDir = "$rootDir/oulipo-resources" as File
 project(':oulipo-client').projectDir = "$rootDir/oulipo-client" as File
-project(':oulipo-machine-browser').projectDir = "$rootDir/oulipo-machine-browser" as File
+project(':oulipo-machine-org.oulipo.browser').projectDir = "$rootDir/oulipo-machine-browser" as File
 project(':oulipo-machine-server').projectDir = "$rootDir/oulipo-machine-server" as File
 project(':oulipo-services').projectDir = "$rootDir/oulipo-services" as File
-project(':oulipo-browser-framework').projectDir = "$rootDir/oulipo-browser-framework" as File

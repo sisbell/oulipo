@@ -1,17 +1,17 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License");  you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
- *   
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- *    
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. See the NOTICE file distributed with this work for 
- * additional information regarding copyright ownership. 
+ * limitations under the License. See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
  *******************************************************************************/
 package org.oulipo.browser.pages.write;
 
@@ -242,9 +242,9 @@ public final class PublisherController extends BaseController {
 	/**
 	 * Save will just save list of edit operations. This will be used to reconstruct
 	 * document in draft state.
-	 * 
+	 *
 	 * Load will reconstruct.
-	 * 
+	 *
 	 * when version it, then run it through generator
 	 */
 	private void save() {
@@ -285,12 +285,12 @@ public final class PublisherController extends BaseController {
 		/*
 		 * tumblerService.loadOperations(address.value, opMessage, new
 		 * Callback<String>() {
-		 * 
+		 *
 		 * @Override public void onFailure(Call<String> arg0, Throwable arg1) {
 		 * arg1.printStackTrace();
 		 * ctx.showMessage("Failed to sync document changes with Oulipo Server: " +
 		 * arg1.getMessage()); }
-		 * 
+		 *
 		 * @Override public void onResponse(Call<String> arg0, Response<String> arg1) {
 		 * ctx.showMessage("Synched document changes with Oulipo Server"); } });
 		 */
@@ -324,25 +324,25 @@ public final class PublisherController extends BaseController {
 		/*
 		 * tumblerService.getDocument(address.value, new retrofit2.Callback<Document>()
 		 * {
-		 * 
+		 *
 		 * @Override public void onFailure(Call<Document> arg0, Throwable arg1) {
 		 * arg1.printStackTrace();
 		 * ctx.showMessage("Problem getting document meta-data: " + arg1.getMessage());
 		 * }
-		 * 
+		 *
 		 * @Override public void onResponse(Call<Document> arg0, Response<Document>
 		 * response) { Platform.runLater(() -> {
-		 * 
+		 *
 		 * if (response.isSuccessful()) { final Document document = response.body();
 		 * ctx.getTabManager().getSelectedTab().setTitle(document.title);
 		 * addressBarController.addContent(vbox, document.title);
-		 * 
+		 *
 		 * } else { addressBarController.addContent(vbox, "New Title"); }
-		 * 
+		 *
 		 * // TODO: Does user own this document? HBox box = new HBox();
 		 * box.getChildren().add(ButtonsCreator.writeDocument(addressBarController,
 		 * address)); addressBarController.addRightAddressBar(null); });
-		 * 
+		 *
 		 * } });
 		 */
 

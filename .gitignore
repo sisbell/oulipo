@@ -22,3 +22,17 @@ local.properties
 .settings/
 .classpath
 .project
+.gradle
+.idea
+build/
+
+# Runtime Directories
+out/
+keys/
+bookmark/
+history/
+session/
+tab/
+keystore/
+accounts-local/
+mydir/

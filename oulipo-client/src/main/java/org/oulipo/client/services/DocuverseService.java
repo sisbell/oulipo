@@ -31,7 +31,8 @@ import retrofit2.http.QueryMap;
 /**
  * Provides services for accessing an Oulipo Server
  */
-public interface DocuverseService {
+public interface
+DocuverseService {
 
 	@GET("{hash}")
 	Call<Document> getDocument(@Path("hash") String document);

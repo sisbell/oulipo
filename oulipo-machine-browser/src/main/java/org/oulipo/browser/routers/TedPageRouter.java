@@ -1,17 +1,17 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License");  you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
- *   
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- *    
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. See the NOTICE file distributed with this work for 
- * additional information regarding copyright ownership. 
+ * limitations under the License. See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
  *******************************************************************************/
 package org.oulipo.browser.routers;
 
@@ -48,7 +48,7 @@ public final class TedPageRouter implements PageRouter {
 	public Page getPage(String tumbler, String body) throws MalformedSpanException, IOException {
 		Page page = getRouteController(tumbler);
 		if (page != null) {
-			injector.injectMembers(page.controller);
+			injector.injectMembers(page.getController());
 		}
 		return page;
 	}
@@ -68,7 +68,7 @@ public final class TedPageRouter implements PageRouter {
 		 * (tumbler.isNodeTumbler()) { if (tumbler.isSystemAddress()) { //
 		 * service.getSystemNodes(queryParams, callback); } else { return new Page(new
 		 * GetNodeController());// , new //
-		 * View("/org/oulipo/browser/pages/GetNodeView.fxml")); } } else if
+		 * View("/org/oulipo/org.oulipo.browser/pages/GetNodeView.fxml")); } } else if
 		 * (tumbler.isUserTumbler()) { if (tumbler.isSystemAddress()) { //
 		 * service.getSystemUsers(queryParams, callback); } else { return new Page(new
 		 * GetUserController()); } } else if (tumbler.isDocumentTumbler()) { if

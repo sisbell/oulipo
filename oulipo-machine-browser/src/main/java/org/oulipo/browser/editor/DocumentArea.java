@@ -1,17 +1,17 @@
 /*******************************************************************************
  * OulipoMachine licenses this file to you under the Apache License, Version 2.0
- * (the "License");  you may not use this file except in compliance with the License.  
+ * (the "License");  you may not use this file except in compliance with the License.
  *
  * You may obtain a copy of the License at
- *   
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- *    
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. See the NOTICE file distributed with this work for 
- * additional information regarding copyright ownership. 
+ * limitations under the License. See the NOTICE file distributed with this work for
+ * additional information regarding copyright ownership.
  *******************************************************************************/
 package org.oulipo.browser.editor;
 
@@ -53,7 +53,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.paint.Color;
 
 /**
- * 
+ *
  */
 public class DocumentArea
 		extends GenericStyledArea<ParStyle, Either<StyledText<LinkType>, RemoteImage<LinkType>>, LinkType> {
@@ -65,7 +65,7 @@ public class DocumentArea
 
 		/**
 		 * Creates a Delete HyperOperation
-		 * 
+		 *
 		 * @param documentHash
 		 * @param change
 		 * @return
@@ -85,10 +85,10 @@ public class DocumentArea
 
 		/**
 		 * Appends current text into buffer and resets positions.
-		 * 
+		 *
 		 * If the caret position has moved, this method creates and returns an INSERT
 		 * HyperOperation. Otherwise it returns an empty operation.
-		 * 
+		 *
 		 * @param documentHash
 		 * @param change
 		 * @return
@@ -138,7 +138,7 @@ public class DocumentArea
 	/**
 	 * Creates new instance. The specified tumbler address is the local address of
 	 * the current XanaDoc being worked on.
-	 * 
+	 *
 	 * @param documentHash
 	 * @return
 	 * @throws IllegalTumblerException
@@ -213,7 +213,7 @@ public class DocumentArea
 
 	/**
 	 * Applies the specified linkType style to the specified span of text
-	 * 
+	 *
 	 * @param span
 	 * @param linkType
 	 */
@@ -233,13 +233,13 @@ public class DocumentArea
 	 * LinkType mixin = LinkType.strikethrough(true); StyleSpans<LinkType> newStyles
 	 * = styles.mapStyles(style -> style.updateWith(mixin));
 	 * setStyleSpans(styleStart, newStyles); }
-	 * 
+	 *
 	 * // HyperRegion region = new HyperRegion(change.getRemovalEnd() - width,
 	 * width);
-	 * 
+	 *
 	 * // HyperOperation op = new HyperOperation(tumblerAddress, region, //
 	 * OpCode.OVERLAY_ON, change.getRemoved());
-	 * 
+	 *
 	 * // operations.add(e) try { variantStream.applyOverlays(new
 	 * VariantSpan(span.spanStart(), span.spanWidth()), Sets.newHashSet(linkType));
 	 * } catch (MalformedSpanException | IOException e) { e.printStackTrace(); } }
@@ -285,7 +285,7 @@ public class DocumentArea
 
 	/**
 	 * Inserts text and adds insert operation
-	 * 
+	 *
 	 * @param change
 	 */
 	private void notifyTextInsertionChange(PlainTextChange change) {
