@@ -20,8 +20,10 @@ Current features include
 * REST queries 
 
 Future features will include:
-* Distributed back-end link search through SPARQL
-* Federated Servers
+* Distributed p2p architecture (replacing Federated Servers)
+* Block-chained documents with post-quantum cryptography
+* Localization and language support
+* Optional Encryption of Text Streams
 * JavaFX Browser and Content Viewer
 * JavaFX Content Publisher
 * Viewing of links between documents
@@ -60,7 +62,7 @@ The first alpha release will target another 6 of the principles
 ### Release Milestones
 * Initial release of features August 2017
 * Alpha release (includes browsing and publishing) Early 2018
-* Production release mid-late 2018
-* Micropayments 2019
-* Federated Servers 2019
+* Beta release mid 2020 (distributed p2p over Tor, block-chained version)
+* Production release early 2021
+* Micropayments 2021
 
